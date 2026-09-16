@@ -102,7 +102,14 @@ export default function App() {
     });
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://polarnav-backend.onrender.com';
+      const getApiUrl = () => {
+        if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+        if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null' && window.location.origin.startsWith('http')) {
+          return window.location.origin;
+        }
+        return 'http://localhost:8000';
+      };
+      const apiUrl = getApiUrl();
       const resp = await fetch(`${apiUrl}/api/v1/polar-route?${query.toString()}`, {
         signal: controller.signal
       });
