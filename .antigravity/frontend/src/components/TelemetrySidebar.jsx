@@ -24,23 +24,18 @@ export default function TelemetrySidebar({
   cruisingSpeed, 
   loading 
 }) {
-  const metrics = routeMetrics || {
-    distance_nautical_miles: 3389.8,
-    distance_km: 6277.9,
-    direct_distance_nm: 3320.4,
-    estimated_voyage_hours: 242.1,
-    estimated_voyage_days: 10.09,
-    fuel_consumption_tons: 395.4,
-    fuel_savings_percent: 14.8,
-    iceberg_hazard_buffer_km: 25.0,
-    min_iceberg_distance_km: 36.4,
-    icebergs_avoided_count: 12,
-    direct_route_collision_hazards: ['IB-A23A', 'IB-D30A', 'IB-PRYDZ-01'],
-    max_sea_ice_concentration_pct: 68.4,
-    risk_score: 18.2,
-    risk_rating: 'LOW (POLAR SAFE)',
-    latency_compensation_status: '72h Physics Forecast Active'
-  };
+  if (!routeMetrics) {
+    return (
+      <aside className="w-80 h-full glass-panel border-r border-cyan-500/20 p-4 z-20 shrink-0">
+        <h2 className="text-xs font-bold tracking-wider text-slate-200 uppercase font-mono">Mission Telemetry</h2>
+        <div role="status" className="mt-4 rounded-xl border border-slate-700 bg-slate-900/90 p-4 text-sm text-slate-300">
+          <p className="font-semibold">{loading ? 'Calculating route…' : 'No route results available.'}</p>
+          <p className="mt-2 text-xs text-slate-400">Distance, voyage time and risk will appear after a successful calculation.</p>
+        </div>
+      </aside>
+    );
+  }
+  const metrics = routeMetrics;
 
   const isLowRisk = metrics.risk_score < 30;
   const isModerateRisk = metrics.risk_score >= 30 && metrics.risk_score < 60;
@@ -57,7 +52,7 @@ export default function TelemetrySidebar({
         </div>
         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          LIVE
+          RESULTS
         </span>
       </div>
 

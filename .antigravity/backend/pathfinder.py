@@ -21,6 +21,10 @@ from data_engine import MetoceanEngine, Iceberg, POLAR_STATIONS, get_initial_ice
 from drift_engine import DriftPhysicsEngine
 
 
+class NoRouteFoundError(Exception):
+    """The navigation graph has no traversable connection between endpoints."""
+
+
 def haversine_nm(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Computes Great Circle Distance in Nautical Miles between two coordinates.
@@ -348,11 +352,11 @@ class PolarPathfinder:
                 heuristic=heuristic,
                 weight="weight"
             )
-        except (nx.NetworkXNoPath, nx.NodeNotFound):
-            # Fallback direct interpolated path with high risk warning
-            lats = np.linspace(start_coord[0], end_coord[0], 25)
-            lons = np.linspace(start_coord[1], end_coord[1], 25)
-            path_nodes = [(round(float(la), 3), round(float(lo), 3)) for la, lo in zip(lats, lons)]
+        except (nx.NetworkXNoPath, nx.NodeNotFound) as exc:
+            # Stop before generating coordinates or success metrics.
+            raise NoRouteFoundError(
+                "No route found for the selected endpoints and planning settings."
+            ) from exc
 
         # Process waypoints
         waypoints = [[float(lat), float(lon)] for lat, lon in path_nodes]
