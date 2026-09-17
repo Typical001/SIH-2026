@@ -1,22 +1,51 @@
 # Testing and verification
 
-## Current verification — documentation re-review, 2026-09-14
+## Current verification — 2026-09-17, dccfa3b
 
-The current working tree includes the uncommitted NAV-01, NAV-06 and NAV-02 fixes on top of commit `da69f5f`. All tests below were rerun successfully in this review:
+The working tree was clean at the start. Only Brain documents were edited; the build regenerated ignored dist assets. Commands used the existing local environments without installing dependencies. Shell command groups may finish with the last command's status; individual failures below are recorded from their actual output, not hidden by a subsequent successful version command.
 
-| Command (working directory) | Result |
-| --- | --- |
-| `backend/venv/Scripts/python.exe -B backend/test_backend.py` (application root) | 3 original engine tests passed |
-| `backend/venv/Scripts/python.exe -B backend/test_no_route.py` (application root) | 5 engine/ASGI tests passed |
-| `npm.cmd test` (`frontend`) | 14 component tests passed |
+| Check / command | Observed result | Scope |
+| --- | --- | --- |
+| `backend/venv/Scripts/python.exe -B backend/test_backend.py` | 3 original checks passed | Synthetic metocean, drift and default route; 3389.8 NM, 4.5% modeled savings |
+| `backend/venv/Scripts/python.exe -B backend/test_no_route.py` | Failed during import: cannot import NoRouteFoundError | None of its five tests executed |
+| `npm.cmd test` in frontend | Failed: Missing script: test | None of the fourteen component cases executed |
+| `npm.cmd run build` in frontend | Passed; 1,560 modules transformed | Bundle only; not browser/runtime correctness |
+| In-process ASGI all-water probe | HTTP 200; 3 waypoints; XAI included | Small synthetic route, no external network |
+| In-process ASGI all-land probe | HTTP 200; 25 fallback waypoints; LOW risk | Confirms NAV-02 regression; not a passing safety test |
+| Identical-endpoint engine probe | ZeroDivisionError | Confirms NAV-18 at (-50,40) with no iceberg forecasts |
+| Generated CSS inspection | Missing dynamic safety background/border selectors | Confirms part of NAV-15; no visual browser check |
 
-The frontend test runner still emits esbuild/oxc deprecation warnings. This review changed documentation only and did not repeat the production build, browser checks, hosted tests or npm audit; their earlier results below are dated evidence, not new verification. Local Markdown links and referenced source paths were checked. Current coverage is 22 tests/checks across the three commands, with geographic and scientific limitations documented below.
+Environment: backend virtual environment Python **3.14.4**, system Node **24.14.1**, npm **11.11.0**, installed/locked Vite **5.4.21**. Build output: HTML **1.27 kB**, CSS **25.19 kB**, JS **354.87 kB**. Existing node_modules still contains Vitest 4.1.11 and React Test Renderer 18.3.1, but neither is declared or locked now. Their presence does not establish a working test suite or a clean-install check.
 
-To run both backend suites in a configured environment, run `backend/test_backend.py` and `backend/test_no_route.py` separately with that environment's Python interpreter. Frontend tests run with `npm.cmd test` from `frontend`.
+Documentation verification: all **11** Markdown files, **26** local links and **33** inventory paths checked; issue IDs 01–27 are unique and complete. Git blob comparisons confirmed all **13** files restored by dccfa3b match 6097e6c. Final tracked diff contains only the eleven Brain files; git diff --check passed.
+
+## Restored tests versus current implementation
+
+`dccfa3b` restored both test files unchanged from `6097e6c`. `test_no_route.py` imports an exception removed from pathfinder.py. App.test.jsx mocks a deleted ControlDeck module, looks for its controls element, expects fetch options.signal and cancellation, and asserts old telemetry/alert states. The active UI mounts LeftControls and DecisionSupport. Its fixtures also lack numeric fields that the new panels call toFixed on. Source mismatches are known; no direct invocation of the leftover Vitest installation was attempted.
+
+To repair testing, restore the declared test command/dependencies and compatible mocks/fixtures while preserving the intended lifecycle/no-route/empty-state assertions. Restore the application guarantees, then rerun the suites. Do not remove tests or weaken no-route assertions merely to accommodate the regression.
+
+## Diagnostic reproduction details
+
+The ASGI probes called the actual FastAPI app in process with GET `/api/v1/polar-route?start_lat=-34&start_lon=18&end_lat=-35&end_lon=19&forecast_hours=0`, patched `main.get_initial_icebergs` to return an empty list, and patched `LandMask.is_land` false/true respectively. Standard-library asyncio/unittest.mock supplied the harness through stdin; no diagnostic source files were added.
+
+In the all-water response, maximum sampled route SIC was 0, but the endpoint XAI reported SIC 0.8 and ice penalty 7.22 with zero wind/current speed. In the all-land response, the 25 fallback points still had explanations with default graph factors and normal success metrics. This supports NAV-25 as well as NAV-02.
+
+CSS inspection found `.bg-emerald-950/50`, `.bg-amber-950/50`, `.bg-red-950/50`, `.border-emerald-500/30` and `.border-amber-500/30` absent (checked with escaped CSS selectors). Cyan checkbox selectors and literal text colors were present. Only these selected selectors were checked.
+
+## Verification limits and next checks
+
+No browser/UI smoke test, live Uvicorn network test, hosted deployment check, clean npm/Python install, new dependency audit, Docker build, real provider verification or scientific validation was performed. The earlier 22-pass result is historical. Passing original engine checks cannot validate segment safety: they allow points as close as 92% of a hazard radius and do not check connecting segments.
+
+After repairing the regressions, verify request counts across the one-second clock and parameter changes; outage/empty/partial payload behavior; all-land no-route responses; 24/48/72-hour labels; current panel interactions; XAI factor provenance; actual route-baseline comparison; independent layers; and production styling. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+
+## Historical evidence — September 14 only
+
+The following sections preserve earlier results and procedures. They do not describe the current passing status or current frontend component structure. The earlier 3 + 5 backend checks and 14 frontend tests were recorded as passing before c996de7; that implementation was later committed in 6097e6c.
 
 ## Original documentation baseline results
 
-Date: 2026-09-14. These historical results describe the original `da69f5f` review before the local NAV fixes. Later sections record those fixes and current verification.
+Date: 2026-09-14. These historical results describe the original `da69f5f` review before the local NAV fixes. Later historical sections record those fixes; September 17 verification is at the top of this document.
 
 | Check | Result | Scope |
 | --- | --- | --- |
@@ -41,7 +70,7 @@ The default Python dependency failure was resolved for verification by using the
 
 The last test permits waypoint distances as low as 92% of the hazard radius. It does not test the line segments between waypoints. Its printed “100% collision-free” and “100% verification” messages therefore exceed what its assertions establish. The API uses a different 0.85-degree grid.
 
-## Run the backend checks
+## Historical backend command guidance
 
 After installing requirements as described in `DEVELOPMENT.md`, from the application root:
 
@@ -51,9 +80,9 @@ After installing requirements as described in `DEVELOPMENT.md`, from the applica
 
 On this reviewed checkout, the already-present environment also works: `.\backend\venv\Scripts\python.exe -B backend\test_backend.py`. Use a freshly created environment when the copied environment is unavailable or not portable.
 
-There is no pytest dependency in requirements, no configured lint/typecheck script, and no first-party CI workflow found. The current frontend does have `npm.cmd test` (Vitest), added with NAV-01.
+There is no pytest dependency in requirements, no configured lint/typecheck script, and no first-party CI workflow found. At the September 14 checkpoint the frontend had `npm.cmd test` (Vitest), added with NAV-01. This was removed in c996de7; it is not a current runnable command.
 
-## Recommended coverage for future changes
+## Coverage recommendations retained from September 14
 
 | Area | Cases and expected evidence |
 | --- | --- |

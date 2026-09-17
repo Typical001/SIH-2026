@@ -1,21 +1,24 @@
 # Architecture and calculations
 
+Reviewed 2026-09-17 against `dccfa3b`. Current behavior supersedes the restored September 14 description.
+
 ## Runtime flow
 
 ```mermaid
 flowchart LR
-  Controls[ControlDeck] --> App[App state and fetch]
+  Controls[LeftControls] --> App[App state and fetch]
   App --> API[FastAPI main.py]
   API --> Data[Static catalog and MetoceanEngine]
   Data --> Drift[DriftPhysicsEngine]
   Drift --> Router[PolarPathfinder]
   Router --> API
   API --> App
-  App --> Map[PolarMap]
-  App --> Panels[TelemetrySidebar and RouteComparisonModal]
+  App --> MapArea[MapArea] --> Map[PolarMap]
+  App --> Panels[DecisionSupport and RouteComparisonModal]
+  App --> Footer[BottomStatusBar]
 ```
 
-`main.jsx` mounts `App` in React StrictMode. `App.jsx` owns route parameters, layer visibility, response arrays and loading state. `Navbar` supplies refresh/analytics actions and a client-side UTC clock. The backend reconstructs forecasts and a navigation graph per route request. There is no shared route cache or persistent storage; the land polygon union is cached lazily in process memory.
+`main.jsx` mounts `App` in React StrictMode. `App.jsx` owns route parameters, layer visibility, response arrays and loading state. `Navbar` opens Analytics and displays loading/error status. `App` owns a one-second UTC clock passed to `BottomStatusBar`; the footer labels it LAST SYNC although it is not a data-sync timestamp. LeftControls supplies both full-route calculation buttons. The backend reconstructs forecasts and a navigation graph per route request. There is no shared route cache or persistent storage; the land polygon union is cached lazily in process memory.
 
 ## Module responsibilities
 
@@ -26,11 +29,14 @@ flowchart LR
 | `backend/drift_engine.py` | Hourly propagation, snapshots, final position and buffer polygon coordinates |
 | `backend/pathfinder.py` | Haversine distances, simplified land mask, navigation graph, A*, metrics |
 | `frontend/src/App.jsx` | Parameters, requests, data and component composition |
-| `frontend/src/components/ControlDeck.jsx` | Presets, searchable ports, manual origin and layer controls |
+| `frontend/src/components/panels/LeftControls.jsx` | Presets, port search, vessel class, horizon selector, eight layer controls and calculation buttons |
 | `frontend/src/components/PolarMap.jsx` | Leaflet tiles, markers, lines, circles, popups and fit-to-route |
-| `frontend/src/components/TelemetrySidebar.jsx` | Route metrics, loading/empty states and fixed environment readouts |
+| `frontend/src/components/panels/DecisionSupport.jsx` | Metrics (or fixture fallback), explanation dialog, comparison, drift-speed chart and alerts |
+| `frontend/src/components/panels/MapArea.jsx` | Wrapper forwarding map props to PolarMap |
+| `frontend/src/components/panels/BottomStatusBar.jsx` | Mounted footer with fixed online/safety claims and client clock |
+| `frontend/src/components/StatusBar.jsx` | Unused alternative footer |
 | `frontend/src/components/RouteComparisonModal.jsx` | Comparison table and model explanation |
-| `frontend/src/components/Navbar.jsx` | Mission header, clock, static feed badges and actions |
+| `frontend/src/components/Navbar.jsx` | Brand, navigation placeholders, Analytics action and loading/fallback banner |
 
 ## Drift model
 
@@ -57,7 +63,7 @@ Grid points inside a final-position iceberg circle or one of the limited land-ma
 
 Edge cost is nautical distance times average endpoint cost times a current-alignment multiplier clamped to 0.85–1.20. A* uses Haversine distance as its heuristic. Exact endpoints attach to nearby accessible grid nodes. Neither ordinary edges nor endpoint connectors receive full segment-intersection checks.
 
-If A* reports NetworkXNoPath or NodeNotFound, the engine raises NoRouteFoundError immediately. No fallback coordinates or route metrics are generated. FastAPI maps this to HTTP 409 with detail.code=NO_ROUTE_FOUND. The dashboard shows a specific no-route message and keeps results empty. Successful responses keep their existing format. This reports failure within the modeled graph, not proof that no real-world route exists.
+If A* reports NetworkXNoPath or NodeNotFound, the engine again interpolates 25 straight-line points and continues to success metrics, explanations and `OPTIMAL_ROUTE_COMPUTED`. Despite a comment promising a high-risk warning, the normal capped risk formula is used and no fallback marker is returned. NoRouteFoundError and the API's HTTP 409 mapping were removed in c996de7. An all-land ASGI probe reproduced HTTP 200 with 25 points and LOW risk; this is an open regression, not accepted route behavior.
 
 ## Metrics and coordinate conventions
 
@@ -65,12 +71,18 @@ Distance sums Haversine segment lengths. Effective speed is `cruising_speed × (
 
 Waypoints, trajectories and hazard coordinate arrays use **[latitude, longitude]**. They are not GeoJSON coordinates. Shapely land rings use **(longitude, latitude)**. One nautical mile is 1.852 km. API radii use kilometers; Leaflet Circle receives meters. The map uses Leaflet's default EPSG:3857 projection despite its polar label; declared projection packages are not configured.
 
-## Route request lifecycle — updated 2026-09-14
+## Route request lifecycle — current regression
 
-`fetchRoute` now depends on start/end latitude and longitude, forecast hours, vessel class, buffer and speed. Loading/data updates, layers and Analytics do not refetch. Each request aborts its predecessor. Effect cleanup aborts on dependency changes or unmount. Guards after JSON parsing and in catch/finally prevent stale result/loading updates. Manual refresh works with unchanged parameters. StrictMode development may start/cancel/replace an initial request; abort may not stop server work already received. Slider changes are not debounced.
+`currentCoords` is a new object on every render and is included in `fetchRoute` dependencies. The effect depends on that callback. Loading, data, layer, dialog and one-second clock updates can therefore issue more requests even when scalar route settings are unchanged. There is no AbortController, effect cleanup, request ownership or stale-result protection. An older response can replace newer results or clear their loading state. StrictMode also replays effects in development. This source finding reopens NAV-01; no live browser timing was measured.
 
-## Route error and result states — updated 2026-09-14
+## Errors and result states — current regression
 
-Starting a request clears prior route/baseline geometry, iceberg arrays and metrics. Failed HTTP/network/JSON processing displays a role=alert message and Retry. Basic response validation requires at least two finite coordinate pairs and a finite distance metric. This is a minimum usability check, not a full response-schema validator or navigation-safety check. Abort/stale-response guards from NAV-01 remain intact.
+A request starts by setting loading and clearing only the error string. Existing arrays, metrics and explanations persist. Non-OK HTTP status, network or JSON errors set a generic simulation-mode string; Navbar displays a fallback claim without an actual local route engine. Successful bodies are assigned through `field || default` without schema validation. DecisionSupport shows sample metrics when routeMetrics is null; RouteComparisonModal falls back to an empty object and still renders fixed comparisons. NAV-06 is reopened.
 
-Telemetry no longer supplies fallback fixture metrics; it shows calculating/no-results text instead. Analytics displays an unavailable dialog when metrics are absent, including when a previously open report loses its results. Successful responses restore results. The sidebar badge now reads RESULTS. Other hardcoded feed/environment/baseline claims remain tracked separately in NAV-05/NAV-10.
+## Explanation generation and chart
+
+`xai_explanation` is calculated after routing. The primary driver is selected by whether maximum sampled SIC exceeds 0.1. Modifiers report an ice-penalty percentage and a 10-or-0 proximity flag based on a 35 km threshold. These are summaries, not a trace of alternative routes or the actual per-edge cost decomposition (the graph's proximity penalty can reach 40).
+
+Waypoint samples use stride `max(1, len(path_nodes) // 10)`; the sample count is not capped at ten and the last waypoint is not guaranteed to be included. Each record exposes coordinates, SIC, ice penalty, current/wind speed and base cost. Missing graph attributes default to zero or one. Exact start/end nodes receive hardcoded SIC 0/0.8 and base cost 1/2; wind/current speed may be absent. A short open-water API probe showed the destination explanation reporting SIC 0.8 despite zero maximum sampled route SIC. Fallback-path points also acquire synthetic default explanations. This is not validated explainability (NAV-25).
+
+DecisionSupport's chart averages available `snapshots[hour].speed_knots` across the iceberg catalog at 0/24/48/72 hours as applicable, then renders an SVG line/area. It represents mean drift speed, not path, forecast error or confidence. It does not show the supplied hourly trajectory series. It has a no-data state, unlike the fixture-backed metric cards. Current UI horizons are 24/48/72; `forecastHours || 72` would mislabel a future zero-hour UI selection.

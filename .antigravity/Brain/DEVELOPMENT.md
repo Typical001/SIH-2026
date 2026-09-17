@@ -1,5 +1,7 @@
 # Development and deployment
 
+Reviewed 2026-09-17 at `dccfa3b`. Setup is still applicable, but request/no-route/error handling has regressed and restored tests are not currently runnable as a complete suite. See [TESTING.md](TESTING.md).
+
 ## Local setup on Windows
 
 Use two PowerShell terminals. Commands below start from the application directory. Python dependencies require installation into the interpreter actually running the backend. Deployment files specify Python 3.10; no complete supported-version matrix has been tested.
@@ -24,7 +26,7 @@ Open `http://localhost:3000`. Use a nonempty `VITE_API_URL`: the `||` fallback i
 
 This checkout also contains an existing `backend/venv` whose Python interpreter passed the backend test script during review. To reuse it locally, substitute `.\backend\venv\Scripts\python.exe` for `.\.venv\Scripts\python.exe` in backend commands. A new environment remains the reproducible setup approach for a fresh checkout.
 
-The root `package-lock.json` has no packages and no matching root package.json. Run npm from `frontend`. The project also includes a portable `nodejs/node.exe`; `setup_node.py` downloads Node 20.18.0 and replaces that directory. Inspect the script before using it because it recursively removes an existing `nodejs` directory. It is not required when Node is already installed.
+The unused application-root `package-lock.json` was deleted in c996de7; frontend/package-lock.json remains the actual lockfile. Run npm from `frontend`. A fresh npm ci will not install the removed Vitest/React Test Renderer packages, and the test script must be restored before npm test can run. The project also includes a portable `nodejs/node.exe`; `setup_node.py` downloads Node 20.18.0 and replaces that directory. Inspect the script before using it because it recursively removes an existing `nodejs` directory. It is not required when Node is already installed.
 
 ## Build and preview
 
@@ -66,13 +68,33 @@ Backend CORS currently allows every origin/method/header and enables credentials
 | `No module named shapely` | Install requirements using the same Python interpreter as Uvicorn/tests |
 | Backend imports fail | Use `--app-dir backend`, or run inside `backend` |
 | Local frontend contacts Render | Set nonempty `VITE_API_URL` before starting/building Vite |
-| Repeated route requests | Fixed using scalar callback dependencies. Actual parameter changes still fetch immediately; development StrictMode may show an initial canceled request followed by a replacement |
-| Route calculation fails | A visible alert provides Retry. Telemetry and Analytics stay empty until a successful response; no fallback sample route metrics are displayed. |
+| Repeated route requests | NAV-01 regressed: unstable currentCoords callback dependency plus App clock/state rerenders; restore scalar dependencies and request guards |
+| Route calculation fails | Navbar claims local fallback, but there is no local route engine. Old results can persist and DecisionSupport shows fixture metrics; NAV-06 is open |
+| npm test reports missing script | package.json test script and test dependencies were removed; restoring App.test.jsx alone is insufficient |
+| NoRouteFoundError import fails | Test file was restored, but engine exception/API handler were not; NAV-02/24 are open |
+| Forecast duration appears wrong | Selector sends hours; 24 Days and 7 Days labels are incorrect for 24 and 72 |
 | Map tiles or layout fail offline | Tiles, fonts and Leaflet CSS are externally hosted |
 | Layer button colors missing | Dynamically composed Tailwind class names may not be emitted |
 
 Do not commit `.venv`, credentials or generated output. The existing ignore file only covers `node_modules/` and repeated `dist/` entries; expanding it is an open maintenance task, not a change made by this documentation update.
 
-## No-route behavior (NAV-02)
+## Current API and UI compatibility
 
-HTTP 409 with `detail.code=NO_ROUTE_FOUND` means the API ran but its graph search could not connect the endpoints. Review departure/destination and modeled coverage. Do not treat this as a server outage or automatically relax safety buffers. Other failures continue to use the generic retry message. Successful API responses are unchanged. Deploy backend and frontend changes together so the dashboard can display the specific no-route message.
+The route endpoint now includes `xai_explanation`. Updated frontend and backend should be deployed together; an older backend leaves the explanation unavailable. The standalone response.json sample lacks this field and is not consumed by the app.
+
+The previous HTTP 409 / NO_ROUTE_FOUND behavior is absent. Failed graph search can now return HTTP 200 with a fabricated 25-point route; this remains an unresolved regression. Backend exceptions such as zero-distance division can still produce 500. Do not interpret an HTTP 200 result or LOW label as a route safety check.
+
+The two calculation buttons both fetch the complete route. Manual coordinates and buffer sliders no longer render. The frontend's metocean checkbox has no fetch behind it. These are implementation facts, not environment setup failures.
+
+## Local verification commands
+
+From the application root, with the existing configured interpreter:
+
+```powershell
+.\backend\venv\Scripts\python.exe -B backend\test_backend.py
+.\backend\venv\Scripts\python.exe -B backend\test_no_route.py
+```
+
+The first currently passes; the second fails at import. From frontend, `npm.cmd run build` passes with the existing toolchain and `npm.cmd test` fails because no test script exists. Do not report a green regression suite until the script/dependencies, panel mocks and application behavior are repaired. Existing installed tools may outlive their removal from manifests; use a fresh install for a later reproducibility check.
+
+Main-only team collaboration and documentation maintenance are described in [CONTRIBUTING.md](CONTRIBUTING.md). This review made no deployment, dependency or application-code changes.

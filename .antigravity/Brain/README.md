@@ -1,34 +1,38 @@
 # PolarNav project documentation
 
-Reviewed: 2026-09-14. Committed baseline: `da69f5f`; current behavior also includes uncommitted NAV-01, NAV-06 and NAV-02 fixes. Application version: `1.0.0`.
+Reviewed: **2026-09-17** against committed `main` at **`dccfa3b`**, following `6097e6c` and `c996de7`. Application version: `1.0.0`. The working tree was clean before this documentation update.
 
-PolarNav is a SIH 2026 demonstration of Antarctic route planning and iceberg drift forecasting. The source identifies problem statement **26059**. A React dashboard displays routes computed by a Python FastAPI service using synthetic environmental data, a simplified drift model, and NetworkX A* search.
+PolarNav is a SIH 2026 demonstration for problem statement **26059**: Antarctic route planning and iceberg drift forecasting. React displays routes calculated by FastAPI using a static iceberg catalog, synthetic environmental fields, deterministic drift formulas and NetworkX A*.
 
-**Current maturity:** a simulation prototype. Satellite-feed labels, safety claims, and fuel savings shown by the interface are not evidence of validated live data or operational navigation safety. See the documented implementation gaps before presenting results.
+**Current maturity: simulation prototype with reopened regressions.** UI safety labels, modeled savings, online indicators and explanations are not evidence of live feeds or validated navigation safety.
 
-## Current local status
+## Current status
 
-- Fixed locally: request lifecycle (NAV-01), visible errors/empty results (NAV-06), and explicit no-route responses (NAV-02).
-- Reverified during this documentation review: 3 original backend checks, 5 backend no-route checks, and 14 frontend component tests passed.
-- Issue register: 23 entries, of which 3 are fixed locally and 20 remain open. A passing test suite is not proof of complete geographic or model correctness.
-- Prototype deployment still needs clear simulation labels and an end-to-end hosted check. Deployment files remain configured for Python 3.10, while backend checks use the existing Python 3.14 environment.
-- The historical Git snapshot excludes uncommitted work; the changelog records those local changes. No hosted deployment was verified in this review.
+- `c996de7` replaced the old controls/telemetry layout with `LeftControls`, `MapArea`, `DecisionSupport` and `BottomStatusBar`; added route explanations and a snapshot-based drift-speed chart.
+- The same commit removed NAV-01 request guards, NAV-02 explicit no-route handling and NAV-06 honest error/empty states. All three issues are reopened.
+- `dccfa3b` restored all eleven Brain documents and both regression-test files, byte-for-byte relative to `6097e6c`. It did not restore the corresponding application fixes, test script or test dependencies.
+- Current verification: **3 original backend checks pass; production build passes; no-route suite fails during import; `npm.cmd test` fails because its script is absent.** No current claim of 22 passing checks is valid.
+- A targeted in-process API probe with every grid cell blocked returned HTTP 200, 25 interpolated waypoints and LOW risk. Identical endpoints still produce `ZeroDivisionError`.
+- The issue register contains **27 entries: 26 open (including 3 regressions), 1 retired because its manual-coordinate UI was removed**. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+- No browser, hosted deployment, fresh dependency installation or scientific validation was performed. The build used existing local dependencies; see [TESTING.md](TESTING.md).
 
 ## Documentation guide
 
 | Document | Contents |
 | --- | --- |
-| [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) | Purpose, capabilities, user workflow, dependencies and scope |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Components, data flow, drift and route calculations |
-| [API_REFERENCE.md](API_REFERENCE.md) | Endpoints, parameters, payload fields and units |
+| [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) | Current features, removed controls, workflow and scope |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Components, data flow, drift/routing formulas and explanations |
+| [API_REFERENCE.md](API_REFERENCE.md) | Endpoints, units, explanation schema and current failure behavior |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Windows setup, configuration, deployment and troubleshooting |
-| [TESTING.md](TESTING.md) | Existing tests, review results and missing coverage |
-| [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Prioritized findings and proposed acceptance criteria |
-| [CHANGELOG.md](CHANGELOG.md) | Verified history and additions/modifications/removals in this update |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | How to record every future codebase change |
-| [FILE_INVENTORY.md](FILE_INVENTORY.md) | Application files and bundled/generated directory accounting |
-| [GIT_CHANGE_HISTORY.md](GIT_CHANGE_HISTORY.md) | Per-commit, per-file changes for application-owned files |
+| [TESTING.md](TESTING.md) | Current results, historical results, diagnostics and coverage gaps |
+| [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Prioritized findings, regressions and acceptance criteria |
+| [CHANGELOG.md](CHANGELOG.md) | Committed changes and this documentation-only update |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Main-only collaboration and change-record requirements |
+| [FILE_INVENTORY.md](FILE_INVENTORY.md) | Current source roles, removed files and supporting artifacts |
+| [GIT_CHANGE_HISTORY.md](GIT_CHANGE_HISTORY.md) | Per-commit, per-file history through dccfa3b |
 
-These documents are stored in `.antigravity/Brain`. The application root is the parent `.antigravity` directory; the Git root is one level above the application root. Source paths and command working directories in these documents refer to the application root unless stated otherwise. Source/configuration files were read, Git history was inspected, and bundled tools were inventoried. Third-party dependencies, Java extensions, executables and generated output are classified as supporting artifacts; their internals have not received an application-code audit.
+## Scope and paths
 
-Start with [DEVELOPMENT.md](DEVELOPMENT.md) to run the project. Markdown change records require maintenance by contributors; they do not automatically monitor future edits.
+Documents live in `.antigravity/Brain`; the application root is `.antigravity` and the Git root is its parent. Source paths are application-root-relative unless explicitly marked otherwise.
+
+All application-owned source, tests, configuration and existing Brain documents were read; JSON/lockfiles were inspected as data and dependency metadata. Physical files were inventoried across the entire application directory. Vendor runtimes, installed packages, Java extensions, executables and generated artifacts were categorized, not audited line by line or reverse engineered. This update modifies only the eleven Brain Markdown files; the build regenerated ignored `frontend/dist` output. No commit, push or deployment was performed.
