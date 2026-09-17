@@ -1,119 +1,91 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
-  Compass, 
-  Satellite, 
-  Clock, 
-  Wind, 
-  Waves, 
-  ShieldAlert, 
-  RefreshCw, 
-  Radio, 
-  Cpu, 
-  Layers
+  Home,
+  Map,
+  ThermometerSnowflake,
+  PieChart,
+  User,
+  AlertCircle,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 
 export default function Navbar({ 
   loading, 
+  errorMsg,
   onRefresh, 
   onOpenReport, 
   vesselIceClass, 
-  forecastHours 
+  forecastHours
 }) {
-  const [timeUtc, setTimeUtc] = useState('');
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeUtc(now.toUTCString().replace('GMT', 'UTC'));
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <header className="h-16 px-5 glass-panel border-b border-cyan-500/20 flex items-center justify-between z-30 shrink-0 select-none">
+    <header className="h-14 px-5 bg-[#050b18] border-b border-slate-800 flex items-center justify-between z-30 shrink-0 select-none relative">
       {/* Brand & Mission Identification */}
-      <div className="flex items-center gap-3.5">
-        <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-950/80 border border-cyan-400/40 text-cyan-400 shadow-neon-cyan">
-          <Compass className="w-5 h-5 animate-spin-slow text-cyan-300" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400" />
+      <div className="flex items-center gap-3 w-1/4">
+        <div className="relative flex items-center justify-center w-8 h-8">
+          <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-cyan-500">
+            <path d="M12 2L2 22h20L12 2z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+            <path d="M12 8L6 18h12L12 8z" fill="currentColor" opacity="0.8"/>
+          </svg>
         </div>
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-base font-bold tracking-wider text-slate-100 uppercase font-mono flex items-center gap-1.5">
-              PolarNav <span className="text-cyan-400">AI</span>
-              <span className="text-[10px] font-normal px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400/30 text-cyan-300">
-                SIH-26059
-              </span>
-            </h1>
-            <span className="text-xs text-emerald-400 font-mono flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/50 border border-emerald-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              PHYSICS ENGINE ACTIVE
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 tracking-wide">
-            Dynamic Route Optimization & Iceberg Movement Forecasting (Southern Ocean Corridor)
-          </p>
+          <h1 className="text-lg font-bold tracking-wide text-slate-100 flex items-center gap-2">
+            PolarNav AI
+          </h1>
+        </div>
+        <div className="h-6 w-px bg-slate-700 mx-2" />
+        <div className="flex flex-col justify-center">
+          <span className="text-[10px] text-slate-400 leading-tight">SIH-26059</span>
         </div>
       </div>
 
-      {/* Center: Ingested Data Stream Status */}
-      <div className="hidden xl:flex items-center gap-4 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
-        <div className="flex items-center gap-1.5 text-slate-300">
-          <Satellite className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-400">USNIC:</span>
-          <span className="text-emerald-400 font-mono font-medium">SYNCED</span>
-        </div>
-        <div className="h-3 w-px bg-slate-700" />
-        <div className="flex items-center gap-1.5 text-slate-300">
-          <Wind className="w-3.5 h-3.5 text-sky-400" />
-          <span className="text-slate-400">ERA5 Winds:</span>
-          <span className="text-emerald-400 font-mono font-medium">LIVE</span>
-        </div>
-        <div className="h-3 w-px bg-slate-700" />
-        <div className="flex items-center gap-1.5 text-slate-300">
-          <Waves className="w-3.5 h-3.5 text-blue-400" />
-          <span className="text-slate-400">HYCOM Currents:</span>
-          <span className="text-emerald-400 font-mono font-medium">LIVE</span>
-        </div>
-        <div className="h-3 w-px bg-slate-700" />
-        <div className="flex items-center gap-1.5 text-slate-300">
-          <Radio className="w-3.5 h-3.5 text-indigo-400" />
-          <span className="text-slate-400">AMSR2 Sea Ice:</span>
-          <span className="text-emerald-400 font-mono font-medium">FEED 100%</span>
-        </div>
-      </div>
-
-      {/* Right: Mission UTC Time & Action Trigger */}
-      <div className="flex items-center gap-3">
-        <div className="hidden md:flex flex-col items-end">
-          <div className="flex items-center gap-1.5 text-xs text-cyan-300 font-mono">
-            <Clock className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{timeUtc || '02 Sep 2026 12:00:00 UTC'}</span>
-          </div>
-          <span className="text-[10px] text-slate-400">
-            Horizon: <strong className="text-cyan-400 font-mono">+{forecastHours}h Forecast</strong>
-          </span>
-        </div>
-
-        <button
-          onClick={onOpenReport}
-          className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 font-medium transition flex items-center gap-1.5 hover:border-cyan-500/40"
-          title="Open Comprehensive Risk & Fuel Analytics"
-        >
-          <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Analytics</span>
+      {/* Center: Navigation Tabs */}
+      <div className="flex-1 flex justify-center items-center gap-2">
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-900/40 text-cyan-300 text-xs font-semibold border border-cyan-500/30">
+          <Home className="w-4 h-4" />
+          Dashboard
         </button>
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition">
+          <Map className="w-4 h-4" />
+          Route Planner
+        </button>
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition">
+          <ThermometerSnowflake className="w-4 h-4" />
+          Forecast
+        </button>
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition" onClick={onOpenReport}>
+          <PieChart className="w-4 h-4" />
+          Analytics
+        </button>
+      </div>
 
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold text-xs tracking-wide transition flex items-center gap-2 shadow-neon-cyan disabled:opacity-50 cursor-pointer"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>{loading ? 'CALCULATING...' : 'RECALCULATE ROUTE'}</span>
+      {/* Status Banner */}
+      <div className="absolute top-14 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-md mt-2 pointer-events-none z-50">
+        {loading ? (
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 text-[10px] font-bold shadow-lg">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            Calculating route...
+          </div>
+        ) : errorMsg ? (
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300 text-[10px] font-bold shadow-lg">
+            <AlertCircle className="w-3.5 h-3.5" />
+            Backend unavailable — using local fallback.
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/0 text-emerald-400 text-[10px] font-bold opacity-0 transition-opacity duration-1000">
+            {/* The success state is just subtle/invisible by default after load, or we can just leave it out to keep it clean */}
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            Route calculated
+          </div>
+        )}
+      </div>
+
+      {/* Right: User Profile */}
+      <div className="w-1/4 flex justify-end items-center gap-3">
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-slate-300 text-xs transition">
+          <User className="w-4 h-4 text-cyan-400" />
+          Team PolarNav
+          <span className="text-[10px] ml-1 opacity-50">▼</span>
         </button>
       </div>
     </header>

@@ -10,7 +10,7 @@ API Endpoints:
 - GET /api/health: Service health & telemetry state
 """
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict, Any
 import uvicorn
@@ -22,7 +22,7 @@ from data_engine import (
     Iceberg
 )
 from drift_engine import DriftPhysicsEngine
-from pathfinder import NoRouteFoundError, PolarPathfinder
+from pathfinder import PolarPathfinder
 
 app = FastAPI(
     title="PolarNav: Dynamic Route Optimization & Iceberg Forecasting",
@@ -129,9 +129,7 @@ def get_metocean_grid(
     }
 
 
-@app.get("/api/v1/polar-route", responses={
-    409: {"description": "No route found in the navigation graph (detail.code: NO_ROUTE_FOUND)."}
-})
+@app.get("/api/v1/polar-route")
 def get_polar_route(
     start_lat: float = Query(-33.9249, description="Departure latitude (Default: Cape Town)"),
     start_lon: float = Query(18.4241, description="Departure longitude (Default: Cape Town)"),
@@ -167,18 +165,12 @@ def get_polar_route(
         cruising_speed_knots=cruising_speed_knots
     )
 
-    try:
-        route_data = pathfinder.calculate_optimal_route(
-            start_coord=(start_lat, start_lon),
-            end_coord=(end_lat, end_lon),
-            iceberg_forecasts=forecasts,
-            safety_buffer_km=safety_buffer_km
-        )
-    except NoRouteFoundError as exc:
-        raise HTTPException(status_code=409, detail={
-            "code": "NO_ROUTE_FOUND",
-            "message": "No route found for the selected endpoints and planning settings."
-        }) from exc
+    route_data = pathfinder.calculate_optimal_route(
+        start_coord=(start_lat, start_lon),
+        end_coord=(end_lat, end_lon),
+        iceberg_forecasts=forecasts,
+        safety_buffer_km=safety_buffer_km
+    )
 
     # Format response adhering strictly to SIH specification
     icebergs_present = [ib.to_dict() for ib in icebergs]
@@ -209,7 +201,8 @@ def get_polar_route(
         "origin": route_data["origin"],
         "destination": route_data["destination"],
         "vessel_ice_class": vessel_ice_class,
-        "forecast_hours": forecast_hours
+        "forecast_hours": forecast_hours,
+        "xai_explanation": route_data["xai_explanation"]
     }
 
 

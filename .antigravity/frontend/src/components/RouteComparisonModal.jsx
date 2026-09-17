@@ -21,19 +21,7 @@ export default function RouteComparisonModal({
 }) {
   if (!isOpen) return null;
 
-  if (!routeMetrics) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-        <div role="dialog" aria-modal="true" aria-labelledby="empty-report-title" className="w-full max-w-md rounded-xl glass-panel-glow p-6 text-slate-200">
-          <h3 id="empty-report-title" className="font-semibold">Route analytics unavailable</h3>
-          <p className="mt-3 text-sm text-slate-400">Complete a successful route calculation to view analytics.</p>
-          <button type="button" onClick={onClose} className="mt-5 rounded bg-cyan-500 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-cyan-400">Close</button>
-        </div>
-      </div>
-    );
-  }
-
-  const m = routeMetrics;
+  const m = routeMetrics || {};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none">
