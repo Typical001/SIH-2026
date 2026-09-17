@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Navbar from './components/Navbar';
-import PolarMap from './components/PolarMap';
 import LeftControls from './components/panels/LeftControls';
 import DecisionSupport from './components/panels/DecisionSupport';
 import BottomStatusBar from './components/panels/BottomStatusBar';
@@ -38,6 +37,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const activeRequest = useRef(null);
 
   // Route & Metocean Data
   const [waypoints, setWaypoints] = useState([]);
@@ -73,19 +73,32 @@ export default function App() {
     origin: originOverride ?? presetCoords.origin
   };
 
+  // Depend on coordinate values, not the new objects created on each render.
+  const startLat = currentCoords.origin.lat;
+  const startLon = currentCoords.origin.lon;
+  const endLat = currentCoords.destination.lat;
+  const endLon = currentCoords.destination.lon;
+
   // Fetch Route from FastAPI Backend
   const fetchRoute = useCallback(async () => {
+    activeRequest.current?.abort();
+    const controller = new AbortController();
+    activeRequest.current = controller;
     setLoading(true);
     setErrorMsg(null);
-
-    const origin = currentCoords.origin;
-    const dest = currentCoords.destination;
+    // Remove previous results while calculating for the current settings.
+    setWaypoints([]);
+    setDirectWaypoints([]);
+    setIcebergsPresent([]);
+    setIcebergsPredicted([]);
+    setRouteMetrics(null);
+    setXaiExplanation(null);
 
     const query = new URLSearchParams({
-      start_lat: origin.lat.toString(),
-      start_lon: origin.lon.toString(),
-      end_lat: dest.lat.toString(),
-      end_lon: dest.lon.toString(),
+      start_lat: startLat.toString(),
+      start_lon: startLon.toString(),
+      end_lat: endLat.toString(),
+      end_lon: endLon.toString(),
       forecast_hours: forecastHours.toString(),
       vessel_ice_class: vesselIceClass,
       safety_buffer_km: safetyBufferKm.toString(),
@@ -94,29 +107,58 @@ export default function App() {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://polarnav-backend.onrender.com';
-      const resp = await fetch(`${apiUrl}/api/v1/polar-route?${query.toString()}`);
+      const resp = await fetch(`${apiUrl}/api/v1/polar-route?${query.toString()}`, {
+        signal: controller.signal
+      });
       if (!resp.ok) {
+        if (resp.status === 409) {
+          const failure = await resp.json();
+          if (controller.signal.aborted || activeRequest.current !== controller) return;
+          if (failure?.detail?.code === 'NO_ROUTE_FOUND') {
+            setErrorMsg('No route found for the selected endpoints and planning settings. Review your departure and destination, then try again.');
+            return;
+          }
+        }
         throw new Error(`API returned status ${resp.status}`);
       }
       const data = await resp.json();
+      // A superseded response must never overwrite the latest route.
+      if (controller.signal.aborted || activeRequest.current !== controller) return;
+
+      if (!Array.isArray(data?.waypoints) || data.waypoints.length < 2 ||
+          !data.waypoints.every(point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)) ||
+          !['distance_nautical_miles', 'distance_km', 'estimated_voyage_hours', 'fuel_consumption_tons', 'risk_score']
+            .every(key => Number.isFinite(data?.route_metrics?.[key])) ||
+          ['direct_baseline_waypoints', 'icebergs_present', 'icebergs_predicted_72h']
+            .some(key => data[key] != null && !Array.isArray(data[key]))) {
+        throw new Error('Route response is missing usable results');
+      }
 
       setWaypoints(data.waypoints || []);
       setDirectWaypoints(data.direct_baseline_waypoints || []);
       setIcebergsPresent(data.icebergs_present || []);
       setIcebergsPredicted(data.icebergs_predicted_72h || []);
-      setRouteMetrics(data.route_metrics || null);
+      setRouteMetrics(data.route_metrics);
       setXaiExplanation(data.xai_explanation || null);
     } catch (err) {
-      console.warn('Backend fetch error or offline, loading calibrated simulation state:', err);
-      setErrorMsg('FastAPI backend connection note: using local calibrated simulation mode.');
+      if (controller.signal.aborted || activeRequest.current !== controller) return;
+      console.warn('Route calculation failed:', err);
+      setErrorMsg('Unable to calculate the route. Please try again.');
     } finally {
-      setLoading(false);
+      if (activeRequest.current === controller && !controller.signal.aborted) {
+        activeRequest.current = null;
+        setLoading(false);
+      }
     }
-  }, [currentCoords, forecastHours, vesselIceClass, safetyBufferKm, cruisingSpeed, originOverride]);
+  }, [startLat, startLon, endLat, endLon, forecastHours, vesselIceClass, safetyBufferKm, cruisingSpeed]);
 
   // Initial fetch on load & when parameters change
   useEffect(() => {
     fetchRoute();
+    return () => {
+      activeRequest.current?.abort();
+      activeRequest.current = null;
+    };
   }, [fetchRoute]);
 
   const [timeUtc, setTimeUtc] = useState('');
@@ -135,12 +177,21 @@ export default function App() {
       {/* Top Navigation Bar */}
       <Navbar
         loading={loading}
-        errorMsg={errorMsg}
         onRefresh={fetchRoute}
         onOpenReport={() => setIsReportOpen(true)}
         vesselIceClass={vesselIceClass}
         forecastHours={forecastHours}
       />
+
+      {errorMsg && (
+        <div role="alert" className="flex items-center justify-between gap-4 border-b border-red-500/40 bg-red-950 px-5 py-3 text-sm text-red-100 shrink-0">
+          <p>{errorMsg}</p>
+          <button type="button" onClick={fetchRoute} disabled={loading}
+            className="rounded border border-red-300/50 px-3 py-1 font-semibold hover:bg-red-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50">
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Main Workspace Area: 3 Columns */}
       <div className="flex flex-1 overflow-hidden relative">
@@ -190,7 +241,7 @@ export default function App() {
       </div>
 
       {/* Bottom Status Bar */}
-      <BottomStatusBar timeUtc={timeUtc} />
+      <BottomStatusBar timeUtc={timeUtc} loading={loading} hasResults={!!routeMetrics} />
 
       {/* Comprehensive Risk & Audit Report Modal */}
       <RouteComparisonModal

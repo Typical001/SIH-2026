@@ -1,6 +1,6 @@
 # Project overview
 
-Reviewed 2026-09-17 at `dccfa3b`. See [CHANGELOG.md](CHANGELOG.md) for the September 17 redesign and regressions.
+Updated 2026-09-17 against `3684d67` plus the uncommitted NAV-01/02/06 restoration. See [CHANGELOG.md](CHANGELOG.md) for the redesign, regressions and repairs.
 
 ## Purpose and scope
 
@@ -22,7 +22,7 @@ There is no database, authentication, account management, persisted voyage histo
 | Layers | Eight checkboxes, now including present icebergs and metocean; the latter has no data fetch |
 | Map | Route/baseline lines, present/predicted markers, hazard circles, straight drift trails and two illustrative SIC circles |
 | Decision support | Route summary, heuristic explanation and detail dialog, comparison, average drift-speed chart and alerts |
-| Analytics | Existing comparison modal; missing-results guard was removed |
+| Analytics | Comparison modal; unavailable dialog while no successful results exist |
 
 Manual latitude/longitude inputs and the 0–72-hour slider were removed with `ControlDeck.jsx`. The “From” search is blank when the preset origin is active, even though a Cape Town or Hobart origin is used. Selecting a preset does not clear a selected Indian-port override.
 
@@ -36,13 +36,13 @@ Only Analytics has a navigation-tab action. Dashboard, Route Planner, Forecast, 
 4. Optimize Route or Run Forecast invokes the same full route endpoint; these are not separate calculation pipelines.
 5. Inspect the map, explanation, speed chart and Analytics with the limitations below.
 
-Parameter changes also trigger requests automatically. An unstable `currentCoords` object in `fetchRoute` dependencies retriggers the effect on rerenders. App's one-second clock adds periodic rerenders; loading/results changes can trigger further requests. There is no cancellation, stale-result guard or debounce. The request-loop regression was identified from source; browser request rates were not measured in this review.
+Parameter changes trigger requests automatically through scalar coordinate/settings dependencies. Clock, loading/result, layer and Analytics rerenders do not refetch. Starting a request aborts its predecessor; cleanup aborts on parameter changes or unmount. Stale completions cannot replace data or loading/error state. Both calculation buttons still refresh with unchanged settings. Requests are not debounced.
 
 ## Failure and data integrity limitations
 
-Starting a request does not clear old geometry, metrics or explanations. Failure sets an error string, but Navbar says “using local fallback” despite no local route-calculation implementation. DecisionSupport substitutes fixture metrics when metrics are absent. Analytics can display fixed claims with missing results. Malformed payloads receive no minimum usability validation; partial metric objects can fail numeric formatting.
+Starting a request clears geometry, iceberg arrays, metrics and explanations. DecisionSupport displays calculating/no-results text; its chart, explanation dialog and alerts unmount until successful results return. Analytics shows an unavailable dialog without results. An accessible error alert provides Retry. Minimal validation checks route coordinates, the numeric fields used by the new summary cards and overlay-array types. This is not a complete nested response-schema validator.
 
-Backend graph failure again produces a 25-point straight interpolation with success metrics rather than a 409 response. The selected route and displayed LOW risk therefore do not establish traversability. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+Backend graph failure now returns HTTP 409 with NO_ROUTE_FOUND and no success geometry/metrics/explanations. Success-path LOW risk and safety claims still do not establish traversability; geometry, model and comparison issues remain open. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
 
 ## Technology and dependencies
 
@@ -51,12 +51,12 @@ Backend graph failure again produces a 25-point straight interpolation with succ
 | Frontend | React 18.3.1, React DOM, React Leaflet 4, Leaflet 1.9 |
 | Styling | Tailwind CSS 3, PostCSS, Autoprefixer, Lucide React |
 | Build | Vite 5; lock resolves Vite 5.4.21 and React plugin 4.7.0 |
-| Testing | Restored 14-case component test file; npm test script, Vitest and React Test Renderer declarations/lock entries are absent |
+| Testing | npm test runs 20 component cases using pinned Vitest 4.1.11 and React Test Renderer 18.3.1; 8 backend checks also pass |
 | API | FastAPI, Uvicorn, Pydantic |
 | Computation | NumPy, NetworkX, Shapely |
 | Other declarations | SciPy, requests, proj4, proj4leaflet, clsx and tailwind-merge have no demonstrated runtime use in reviewed application source |
 
-Python requirements use minimum versions without a lockfile. Existing local node_modules still includes the old testing packages, which does not make fresh installs reproducible or restore the test script. Bundled Node and Java editor extensions are support artifacts, not services.
+Python requirements use minimum versions without a lockfile. Test dependencies are now declared, locked and installed, and the test script is restored. No isolated clean-install verification was performed. Bundled Node and Java editor extensions are support artifacts, not services.
 
 ## Data and external resources
 

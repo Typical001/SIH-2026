@@ -1,6 +1,37 @@
 # Testing and verification
 
-## Current verification — 2026-09-17, dccfa3b
+## Current verification — local restoration on 3684d67, 2026-09-17
+
+| Check | Result |
+| --- | --- |
+| `backend/venv/Scripts/python.exe -B backend/test_backend.py` | 3 original checks passed |
+| `backend/venv/Scripts/python.exe -B backend/test_no_route.py` | 5 engine/ASGI tests passed |
+| `npm.cmd test` in frontend | 20 component tests passed |
+| `npm.cmd run build` in frontend | Passed, 1,560 modules transformed |
+
+**28 checks/tests passed.** Backend uses Python 3.14.4; frontend uses Node 24.14.1, npm 11.11.0 and Vite 5.4.21. Build outputs: HTML 1.27 kB, CSS 25.47 kB, JS 356.17 kB. Test dependencies are now pinned, locked and installed: Vitest 4.1.11 and React Test Renderer 18.3.1. npm install reported two advisories (one moderate, one high); no force upgrade was performed. The Vite React plugin still emits esbuild/oxc deprecation warnings during tests.
+
+### Regression coverage
+
+- Original request/error/no-route assertions are retained with a LeftControls mock and complete numeric fixtures for the new DecisionSupport panel.
+- Actual Navbar, MapArea wrapper, DecisionSupport, BottomStatusBar and RouteComparisonModal render in the tests. Controls and PolarMap rendering are isolated; fetch is mocked and deliberately allows aborted requests to resolve.
+- Cases cover parameter changes, equal coordinate objects, manual refresh, stale successes/errors/no-route messages, loading ownership, unmount/remount and retry recovery.
+- Fake timers verify that five seconds of App clock updates neither while loading nor after success trigger new requests, and that its timer is cleaned up on unmount.
+- Invalid JSON, missing results, partial metrics, invalid waypoint and non-array overlay responses produce errors instead of fixture results.
+- Explanation dialog, drift chart, alerts and metrics display after success and disappear on refresh/failure. A deferred JSON race cannot replace the latest explanation or route.
+- Backend tests cover disconnected graphs, missing endpoints, all-land grids, actual HTTP 409 serialization and successful HTTP 200 geometry/metrics/XAI. No-route assertions now explicitly prohibit xai_explanation as well as success geometry and metrics.
+
+### Scope and limits
+
+The panel redesign and successful-route XAI are retained. No-route now returns 409 without success data; previous all-land HTTP 200 observations below are historical evidence of the repaired regression. Validation is a minimum usability guard, not full nested response-schema checking or geographic validation. Other routing, model, metric and UI issues remain open.
+
+No browser visual/live-network/ReactDOM StrictMode replay test, isolated clean-install check, container build, hosted deployment or scientific validation was performed. The original backend tests' collision-free console text exceeds their waypoint-only assertions. No commit, push or deployment was performed. Documentation links/source inventory and git diff --check are checked before completion.
+
+## Earlier review evidence (before this restoration)
+
+The remaining sections intentionally retain failed commands and earlier passing checkpoints. References to missing scripts/exceptions, obsolete mocks or fallback behavior below describe the code before the current repair, not its current state.
+
+## Pre-restoration review — 2026-09-17, dccfa3b (historical)
 
 The working tree was clean at the start. Only Brain documents were edited; the build regenerated ignored dist assets. Commands used the existing local environments without installing dependencies. Shell command groups may finish with the last command's status; individual failures below are recorded from their actual output, not hidden by a subsequent successful version command.
 
@@ -19,13 +50,13 @@ Environment: backend virtual environment Python **3.14.4**, system Node **24.14.
 
 Documentation verification: all **11** Markdown files, **26** local links and **33** inventory paths checked; issue IDs 01–27 are unique and complete. Git blob comparisons confirmed all **13** files restored by dccfa3b match 6097e6c. Final tracked diff contains only the eleven Brain files; git diff --check passed.
 
-## Restored tests versus current implementation
+## Historical mismatch before repairs
 
 `dccfa3b` restored both test files unchanged from `6097e6c`. `test_no_route.py` imports an exception removed from pathfinder.py. App.test.jsx mocks a deleted ControlDeck module, looks for its controls element, expects fetch options.signal and cancellation, and asserts old telemetry/alert states. The active UI mounts LeftControls and DecisionSupport. Its fixtures also lack numeric fields that the new panels call toFixed on. Source mismatches are known; no direct invocation of the leftover Vitest installation was attempted.
 
 To repair testing, restore the declared test command/dependencies and compatible mocks/fixtures while preserving the intended lifecycle/no-route/empty-state assertions. Restore the application guarantees, then rerun the suites. Do not remove tests or weaken no-route assertions merely to accommodate the regression.
 
-## Diagnostic reproduction details
+## Historical diagnostic reproduction details
 
 The ASGI probes called the actual FastAPI app in process with GET `/api/v1/polar-route?start_lat=-34&start_lon=18&end_lat=-35&end_lon=19&forecast_hours=0`, patched `main.get_initial_icebergs` to return an empty list, and patched `LandMask.is_land` false/true respectively. Standard-library asyncio/unittest.mock supplied the harness through stdin; no diagnostic source files were added.
 
@@ -33,7 +64,7 @@ In the all-water response, maximum sampled route SIC was 0, but the endpoint XAI
 
 CSS inspection found `.bg-emerald-950/50`, `.bg-amber-950/50`, `.bg-red-950/50`, `.border-emerald-500/30` and `.border-amber-500/30` absent (checked with escaped CSS selectors). Cyan checkbox selectors and literal text colors were present. Only these selected selectors were checked.
 
-## Verification limits and next checks
+## Pre-restoration verification limits and proposed checks
 
 No browser/UI smoke test, live Uvicorn network test, hosted deployment check, clean npm/Python install, new dependency audit, Docker build, real provider verification or scientific validation was performed. The earlier 22-pass result is historical. Passing original engine checks cannot validate segment safety: they allow points as close as 92% of a hazard radius and do not check connecting segments.
 

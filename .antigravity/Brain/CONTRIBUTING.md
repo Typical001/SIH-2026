@@ -1,6 +1,6 @@
 # Contribution and change-tracking workflow
 
-Updated 2026-09-17 for the main-only team workflow and the dccfa3b review. The team has chosen to collaborate directly on main; develop/feature branches are not required by this project.
+Updated 2026-09-17 for the main-only team workflow and local restoration on top of 3684d67. The team has chosen to collaborate directly on main; develop/feature branches are not required by this project.
 
 ## Required record for each change
 
@@ -78,7 +78,7 @@ The second pull assumes the changes were committed and the working tree is clean
 - Inspect all D entries in git diff --cached --name-status. A UI redesign can intentionally replace a component, but it does not justify deleting project documentation, tests or request/error handling.
 - Confirm new components are mounted and old imports removed. In the current design, LeftControls and DecisionSupport replace ControlDeck and TelemetrySidebar; StatusBar is unused.
 - Restore accidental deletions from a known good commit with a narrowly scoped path, then inspect the diff and commit the restoration. Do not reset the whole repository to recover a few files.
-- Restoration of files does not restore their dependencies or implementation. dccfa3b recovered Brain and two test files; it did not recover NoRouteFoundError, HTTP 409, request guards, honest empty states, npm test or testing dependencies.
+- Restoration of files does not restore their dependencies or implementation. dccfa3b recovered Brain and two test files but omitted their implementation/tooling. The current local restoration recovers NoRouteFoundError, HTTP 409, request guards, honest empty states, npm test and testing dependencies while adapting the tests to the new panels.
 - A working build does not execute App.test.jsx. Record missing scripts/import failures explicitly and retain historical pass results only under dated historical headings.
 - New functionality such as xai_explanation requires API/architecture documentation and tests for unavailable or synthetic evidence, not only a UI label.
 
@@ -86,4 +86,4 @@ The second pull assumes the changes were committed and the working tree is clean
 
 Update all affected sections in place, not only by appending a dated note below a stale description. README and PROJECT_OVERVIEW must match current features; ARCHITECTURE and API_REFERENCE must describe actual runtime behavior; DEVELOPMENT and TESTING must distinguish executable setup from known failures; KNOWN_ISSUES must reopen regressions; FILE_INVENTORY and GIT_CHANGE_HISTORY must distinguish existing, removed and restored files. Record the exact changes and verification in CHANGELOG.
 
-For each future source change, run the original backend checks, the no-route suite once restored, updated frontend regressions and the production build as applicable. Current failures are documented in [TESTING.md](TESTING.md); do not silently claim they pass or delete the assertions. There is no CI or automatic Markdown synchronization configured.
+For each future source change, run the original backend checks, the restored no-route suite, frontend regressions and production build as applicable. All 28 current checks pass; limitations and historical failures are in [TESTING.md](TESTING.md). Do not delete assertions to accommodate a regression. There is no CI or automatic Markdown synchronization configured.

@@ -5,14 +5,11 @@ import {
   ThermometerSnowflake,
   PieChart,
   User,
-  AlertCircle,
-  CheckCircle2,
   Loader2
 } from 'lucide-react';
 
 export default function Navbar({ 
   loading, 
-  errorMsg,
   onRefresh, 
   onOpenReport, 
   vesselIceClass, 
@@ -61,21 +58,10 @@ export default function Navbar({
 
       {/* Status Banner */}
       <div className="absolute top-14 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-md mt-2 pointer-events-none z-50">
-        {loading ? (
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 text-[10px] font-bold shadow-lg">
+        {loading && (
+          <div role="status" className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 text-[10px] font-bold shadow-lg">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
             Calculating route...
-          </div>
-        ) : errorMsg ? (
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300 text-[10px] font-bold shadow-lg">
-            <AlertCircle className="w-3.5 h-3.5" />
-            Backend unavailable — using local fallback.
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/0 text-emerald-400 text-[10px] font-bold opacity-0 transition-opacity duration-1000">
-            {/* The success state is just subtle/invisible by default after load, or we can just leave it out to keep it clean */}
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Route calculated
           </div>
         )}
       </div>

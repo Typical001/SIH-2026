@@ -64,7 +64,7 @@ class NoRouteTests(unittest.TestCase):
         self.assertEqual(status, 409)
         self.assertEqual(body["detail"]["code"], "NO_ROUTE_FOUND")
         self.assertEqual(set(body), {"detail"})
-        for field in ("waypoints", "direct_baseline_waypoints", "route_metrics"):
+        for field in ("waypoints", "direct_baseline_waypoints", "route_metrics", "xai_explanation"):
             self.assertNotIn(field, body)
 
     def test_http_success_still_returns_route_and_metrics(self):
@@ -73,6 +73,8 @@ class NoRouteTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertGreaterEqual(len(body["waypoints"]), 2)
         self.assertGreater(body["route_metrics"]["distance_nautical_miles"], 0)
+        self.assertIn("primary_routing_driver", body["xai_explanation"])
+        self.assertGreater(len(body["xai_explanation"]["waypoint_explanations"]), 0)
         self.assertNotIn("detail", body)
 
 

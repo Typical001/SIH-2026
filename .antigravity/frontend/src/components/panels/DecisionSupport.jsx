@@ -309,23 +309,17 @@ export default function DecisionSupport({
   icebergsPredicted,
   forecastHours
 }) {
-  const metrics = routeMetrics || {
-    distance_nautical_miles: 3389.8,
-    distance_km: 6277.9,
-    direct_distance_nm: 3320.4,
-    estimated_voyage_hours: 242.1,
-    estimated_voyage_days: 10.09,
-    fuel_consumption_tons: 395.4,
-    fuel_savings_percent: 14.8,
-    iceberg_hazard_buffer_km: 25.0,
-    min_iceberg_distance_km: 36.4,
-    icebergs_avoided_count: 12,
-    direct_route_collision_hazards: ['IB-A23A', 'IB-D30A', 'IB-PRYDZ-01'],
-    max_sea_ice_concentration_pct: 68.4,
-    risk_score: 18.2,
-    risk_rating: 'LOW (POLAR SAFE)',
-    latency_compensation_status: '72h Physics Forecast Active'
-  };
+  if (loading || !routeMetrics) {
+    return (
+      <aside className="w-64 h-full bg-[#050b18] border-l border-slate-800 flex flex-col z-20 shrink-0 overflow-y-auto">
+        <div role="status" className="p-3 text-xs text-slate-400">
+          {loading ? 'Calculating route...' : 'No route results available.'}
+        </div>
+      </aside>
+    );
+  }
+
+  const metrics = routeMetrics;
 
   const isLowRisk = metrics.risk_score < 30;
   const isModerateRisk = metrics.risk_score >= 30 && metrics.risk_score < 60;

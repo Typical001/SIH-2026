@@ -2,22 +2,28 @@ import React from 'react';
 import { act, create } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import Navbar from './components/Navbar';
 
 // Exercise App's real hooks while isolating map/network rendering.
-vi.mock('./components/Navbar', () => ({ default: (props) => <nav {...props} /> }));
 vi.mock('./components/PolarMap', () => ({ default: (props) => <map {...props} /> }));
-vi.mock('./components/ControlDeck', () => ({ default: (props) => <controls {...props} /> }));
+vi.mock('./components/panels/LeftControls', () => ({ default: (props) => <controls {...props} /> }));
 
 let app;
 let requests;
 const controls = () => app.root.findByType('controls').props;
-const navbar = () => app.root.findByType('nav').props;
+const navbar = () => app.root.findByType(Navbar).props;
 const mount = async () => { await act(async () => { app = create(<App />); }); };
 const finish = async (index, data = {}) => {
   await act(async () => {
     requests[index].resolve({ ok: true, json: async () => ({
       waypoints: [[-34, 18], [-69, 76]], ...data,
-      route_metrics: { distance_nautical_miles: 1234, ...data.route_metrics }
+      route_metrics: {
+        distance_nautical_miles: 1234, distance_km: 2285.4, direct_distance_nm: 1200,
+        estimated_voyage_hours: 100, estimated_voyage_days: 4.17,
+        fuel_consumption_tons: 150, fuel_savings_percent: 4.5,
+        risk_score: 12, risk_rating: 'LOW', direct_route_collision_hazards: [],
+        ...data.route_metrics
+      }
     }) });
   });
 };
@@ -33,6 +39,7 @@ beforeEach(() => {
 afterEach(async () => {
   if (app) await act(async () => app.unmount());
   app = null;
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -132,7 +139,7 @@ describe('visible failure and empty result states', () => {
     expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(0);
     expect(requests).toHaveLength(2);
     await finish(1);
-    expect(text()).toContain('VOYAGE DISTANCE');
+    expect(text()).toContain('Route Overview');
     expect(text()).not.toContain('No route results available.');
   });
 
@@ -154,16 +161,22 @@ describe('visible failure and empty result states', () => {
     expect(text()).toContain('Route analytics unavailable');
     await act(async () => requests[1].resolve({ ok: false, status: 503 }));
     expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(1);
-    expect(text()).not.toContain('VOYAGE DISTANCE');
+    expect(text()).not.toContain('Route Overview');
   });
 
-  it.each(['invalid JSON', 'missing results'])('handles %s without displaying fabricated results', async (failure) => {
+  it.each(['invalid JSON', 'missing results', 'partial metrics', 'invalid waypoint', 'non-array overlay'])('handles %s without displaying fabricated results', async (failure) => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     await mount();
     await act(async () => requests[0].resolve({
       ok: true,
       json: async () => {
         if (failure === 'invalid JSON') throw new SyntaxError('invalid JSON');
+        if (failure === 'partial metrics') return { waypoints: [[-34, 18], [-35, 19]], route_metrics: { distance_nautical_miles: 1234 } };
+        if (failure === 'invalid waypoint') return { waypoints: [[-34, 18], ['invalid', 19]] };
+        if (failure === 'non-array overlay') return {
+          waypoints: [[-34, 18], [-35, 19]], icebergs_present: {},
+          route_metrics: { distance_nautical_miles: 1, distance_km: 1.852, estimated_voyage_hours: 1, fuel_consumption_tons: 1, risk_score: 1 }
+        };
         return {};
       }
     }));
@@ -219,5 +232,69 @@ describe('no-route outcome', () => {
     await mount();
     await act(async () => requests[0].resolve({ ok: false, status: 409, json: async () => ({ detail: { code: 'OTHER_ERROR' } }) }));
     expect(app.root.findByProps({ role: 'alert' }).findByType('p').children.join('')).toBe('Unable to calculate the route. Please try again.');
+  });
+});
+
+
+describe('redesigned dashboard regressions', () => {
+  const text = () => JSON.stringify(app.toJSON());
+
+  it('does not refetch as the App clock ticks, while loading or after success', async () => {
+    vi.useFakeTimers();
+    await mount();
+    const initialClock = text();
+    await act(async () => vi.advanceTimersByTime(5000));
+    expect(text()).not.toBe(initialClock);
+    expect(requests).toHaveLength(1);
+    await finish(0);
+    await act(async () => vi.advanceTimersByTime(5000));
+    expect(requests).toHaveLength(1);
+    await act(async () => app.unmount());
+    app = null;
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('preserves explanation/chart on success and removes both, metrics and alerts on refresh', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await mount();
+    expect(text()).toContain('CALCULATING');
+    expect(text()).not.toContain('A* SAFE NAV ACTIVE');
+    await finish(0, {
+      xai_explanation: {
+        primary_routing_driver: 'Latest route explanation',
+        route_modifiers: { max_sea_ice_penalty_pct: 12, iceberg_proximity_caution: 0 },
+        waypoint_explanations: [{ lat: -34, lon: 18, decision_factors: { sic_value: 0, ice_penalty_applied: 1, wind_spd_kts: 10, ocean_current_spd_kts: 1 } }]
+      },
+      icebergs_predicted_72h: [{ id: 'forecast', snapshots: { '0h': { speed_knots: 0.7 }, '72h': { speed_knots: 1.2 } } }]
+    });
+    expect(text()).toContain('Latest route explanation');
+    expect(text()).toContain('Avg Drift Speed (kts)');
+    expect(text()).toContain('ROUTE RESULTS AVAILABLE');
+    const explanationButton = app.root.findAllByType('button').find(button => button.children.join('').includes('View detailed explanation'));
+    await act(async () => explanationButton.props.onClick());
+    expect(text()).toContain('Waypoint Decisions (Sampled)');
+    await act(async () => { void controls().onRecalculate(); });
+    expect(text()).not.toContain('Latest route explanation');
+    expect(text()).not.toContain('Waypoint Decisions (Sampled)');
+    expect(text()).not.toContain('Avg Drift Speed (kts)');
+    expect(text()).not.toContain('Weather condition change');
+    await act(async () => requests[1].reject(new Error('offline')));
+    expect(text()).toContain('NO ROUTE RESULTS');
+    expect(text()).not.toContain('using local fallback');
+    expect(requests).toHaveLength(2);
+  });
+
+  it('ignores a stale result even when its JSON parsing completes after a newer result', async () => {
+    await mount();
+    let resolveJson;
+    const json = new Promise(resolve => { resolveJson = resolve; });
+    await act(async () => requests[0].resolve({ ok: true, json: () => json }));
+    await act(async () => { void controls().onRecalculate(); });
+    await finish(1, { xai_explanation: { primary_routing_driver: 'New explanation', waypoint_explanations: [] } });
+    await act(async () => resolveJson({ waypoints: [[0, 0], [1, 1]], xai_explanation: { primary_routing_driver: 'Old explanation' } }));
+    expect(text()).toContain('New explanation');
+    expect(text()).not.toContain('Old explanation');
+    expect(app.root.findByType('map').props.waypoints).toEqual([[-34, 18], [-69, 76]]);
+    expect(navbar().loading).toBe(false);
   });
 });

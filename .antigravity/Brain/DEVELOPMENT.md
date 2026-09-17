@@ -1,6 +1,6 @@
 # Development and deployment
 
-Reviewed 2026-09-17 at `dccfa3b`. Setup is still applicable, but request/no-route/error handling has regressed and restored tests are not currently runnable as a complete suite. See [TESTING.md](TESTING.md).
+Updated 2026-09-17 at `3684d67` plus local request/no-route/error-state repairs. The test command/dependencies and regression suites are restored. See [TESTING.md](TESTING.md).
 
 ## Local setup on Windows
 
@@ -26,7 +26,7 @@ Open `http://localhost:3000`. Use a nonempty `VITE_API_URL`: the `||` fallback i
 
 This checkout also contains an existing `backend/venv` whose Python interpreter passed the backend test script during review. To reuse it locally, substitute `.\backend\venv\Scripts\python.exe` for `.\.venv\Scripts\python.exe` in backend commands. A new environment remains the reproducible setup approach for a fresh checkout.
 
-The unused application-root `package-lock.json` was deleted in c996de7; frontend/package-lock.json remains the actual lockfile. Run npm from `frontend`. A fresh npm ci will not install the removed Vitest/React Test Renderer packages, and the test script must be restored before npm test can run. The project also includes a portable `nodejs/node.exe`; `setup_node.py` downloads Node 20.18.0 and replaces that directory. Inspect the script before using it because it recursively removes an existing `nodejs` directory. It is not required when Node is already installed.
+The unused application-root `package-lock.json` was deleted in c996de7; frontend/package-lock.json remains the actual lockfile. Run npm from `frontend`. Vitest 4.1.11 and React Test Renderer 18.3.1 are now pinned in the manifest/lockfile; npm test runs vitest run. The tested system Node is 24.14.1; the bundled Node 20.18.0 was not verified with the restored test toolchain. The project also includes a portable `nodejs/node.exe`; `setup_node.py` downloads Node 20.18.0 and replaces that directory. Inspect the script before using it because it recursively removes an existing `nodejs` directory. It is not required when Node is already installed.
 
 ## Build and preview
 
@@ -68,10 +68,10 @@ Backend CORS currently allows every origin/method/header and enables credentials
 | `No module named shapely` | Install requirements using the same Python interpreter as Uvicorn/tests |
 | Backend imports fail | Use `--app-dir backend`, or run inside `backend` |
 | Local frontend contacts Render | Set nonempty `VITE_API_URL` before starting/building Vite |
-| Repeated route requests | NAV-01 regressed: unstable currentCoords callback dependency plus App clock/state rerenders; restore scalar dependencies and request guards |
-| Route calculation fails | Navbar claims local fallback, but there is no local route engine. Old results can persist and DecisionSupport shows fixture metrics; NAV-06 is open |
-| npm test reports missing script | package.json test script and test dependencies were removed; restoring App.test.jsx alone is insufficient |
-| NoRouteFoundError import fails | Test file was restored, but engine exception/API handler were not; NAV-02/24 are open |
+| Repeated route requests | NAV-01 repaired: clock/layer/result rerenders do not fetch. Settings and explicit calculation actions still fetch; StrictMode can start/cancel an initial request |
+| Route calculation fails | App displays an error and Retry; geometry, metrics, chart and explanation clear, with empty DecisionSupport/Analytics |
+| npm test reports missing script | Confirm the checkout includes this restoration and run npm ci from frontend; main now declares the test command in the local working tree |
+| NoRouteFoundError import fails | Ensure backend/main.py and pathfinder.py include the local restoration; test files alone are insufficient |
 | Forecast duration appears wrong | Selector sends hours; 24 Days and 7 Days labels are incorrect for 24 and 72 |
 | Map tiles or layout fail offline | Tiles, fonts and Leaflet CSS are externally hosted |
 | Layer button colors missing | Dynamically composed Tailwind class names may not be emitted |
@@ -82,7 +82,7 @@ Do not commit `.venv`, credentials or generated output. The existing ignore file
 
 The route endpoint now includes `xai_explanation`. Updated frontend and backend should be deployed together; an older backend leaves the explanation unavailable. The standalone response.json sample lacks this field and is not consumed by the app.
 
-The previous HTTP 409 / NO_ROUTE_FOUND behavior is absent. Failed graph search can now return HTTP 200 with a fabricated 25-point route; this remains an unresolved regression. Backend exceptions such as zero-distance division can still produce 500. Do not interpret an HTTP 200 result or LOW label as a route safety check.
+HTTP 409 / NO_ROUTE_FOUND is restored for graph-search failure; no success geometry, metrics or XAI is returned. Deploy frontend and backend together so the specific error is handled. Backend exceptions such as zero-distance division can still produce 500. Do not interpret an HTTP 200 result or LOW label as a route safety check.
 
 The two calculation buttons both fetch the complete route. Manual coordinates and buffer sliders no longer render. The frontend's metocean checkbox has no fetch behind it. These are implementation facts, not environment setup failures.
 
@@ -95,6 +95,6 @@ From the application root, with the existing configured interpreter:
 .\backend\venv\Scripts\python.exe -B backend\test_no_route.py
 ```
 
-The first currently passes; the second fails at import. From frontend, `npm.cmd run build` passes with the existing toolchain and `npm.cmd test` fails because no test script exists. Do not report a green regression suite until the script/dependencies, panel mocks and application behavior are repaired. Existing installed tools may outlive their removal from manifests; use a fresh install for a later reproducibility check.
+Both commands pass: three original checks and five no-route engine/ASGI tests. From frontend, npm.cmd test passes twenty component cases and npm.cmd run build succeeds. Test dependencies were installed and locked during restoration. An isolated clean install remains a separate reproducibility check; no browser or hosted validation was performed.
 
-Main-only team collaboration and documentation maintenance are described in [CONTRIBUTING.md](CONTRIBUTING.md). This review made no deployment, dependency or application-code changes.
+Main-only team collaboration and documentation maintenance are described in [CONTRIBUTING.md](CONTRIBUTING.md). This restoration updates source, tests, frontend dependencies and Brain; it makes no deployment, commit or push.

@@ -1,8 +1,42 @@
 # Project changelog
 
-Application root: `.antigravity`; documentation paths use `Brain/`. Reviewed history now ends at `dccfa3b` (2026-09-17). Entries describe observed changes, not inferred author intent. September 14 entries retain their historical “uncommitted” status at the time; those files/fixes were subsequently committed in 6097e6c and partly regressed in c996de7.
+Application root: `.antigravity`; documentation paths use `Brain/`. Committed history now ends at `3684d67` (2026-09-17); local restoration changes below are uncommitted. Entries describe observed changes, not inferred author intent. September 14 entries retain their historical “uncommitted” status at the time; those files/fixes were subsequently committed in 6097e6c and partly regressed in c996de7.
 
-## 2026-09-17 — Reconcile all Brain documents with dccfa3b (uncommitted)
+## 2026-09-17 — Restore NAV-01/02/06 in the redesigned dashboard (uncommitted)
+
+Baseline: clean main at 3684d67. Preserve the panel redesign, explanation dialog, drift chart and successful XAI response while restoring the three requested guarantees.
+
+### Modified
+
+- `backend/pathfinder.py`: restore NoRouteFoundError for disconnected/missing paths; remove interpolated fallback before success geometry, metrics or explanations.
+- `backend/main.py`: map NoRouteFoundError to documented HTTP 409 / NO_ROUTE_FOUND; retain xai_explanation on success.
+- `backend/test_no_route.py`: retain five cases and assert explanation presence on success/absence on failure.
+- `frontend/src/App.jsx`: scalar callback dependencies, request cancellation/cleanup/ownership, stale-response guards, result/XAI clearing, minimum numeric/array validation, explicit no-route and generic alert/Retry behavior.
+- `frontend/src/components/panels/DecisionSupport.jsx`: remove fallback metric fixture; display loading/empty state and unmount explanation/chart/alerts without results.
+- `frontend/src/components/RouteComparisonModal.jsx`: restore unavailable dialog when results are absent.
+- `frontend/src/components/Navbar.jsx`: remove misleading local-fallback/success banner; retain loading indicator and layout.
+- `frontend/src/components/panels/BottomStatusBar.jsx`: show calculating/result availability, simulation mode and a correctly labeled UTC clock instead of unconditional online/safe-navigation claims.
+- `frontend/src/App.test.jsx`: update controls mock and numeric fixtures, use actual Navbar/result components; retain existing assertions and add clock, partial-data, chart/XAI clearing and JSON-race coverage (20 cases).
+- `frontend/package.json`, `frontend/package-lock.json`: restore npm test and exact Vitest 4.1.11 / React Test Renderer 18.3.1 development dependencies.
+- All eleven `Brain/*.md` documents: update current behavior, API, setup, verification, fixed/open status, inventory and history while retaining dated diagnostic evidence.
+
+### Added / removed / renamed
+
+No source files added, removed or renamed. Removed inline interpolated fallback and sample metric fixture. npm install updated local ignored dependencies; build regenerated ignored frontend/dist output. Existing generated/vendor artifacts were not staged or deliberately cleaned.
+
+### Validation and compatibility
+
+3 original backend checks, 5 no-route engine/ASGI tests and 20 frontend component tests pass (28 total). Production build passes with 1,560 modules. Successful API response shape including xai_explanation is retained; graph failure is again HTTP 409 instead of false HTTP 200. Frontend clears previous results immediately on recalculation and shows a specific no-route message or generic error with Retry. Deploy frontend/backend together.
+
+NAV-01/02/06 and test-infrastructure NAV-24 are fixed locally; 22 other issues remain open, with NAV-21 retired. Footer changes partially address NAV-05, but map/report safety claims remain. Guards are minimum usability validation, not a full nested schema or geographic/model correctness guarantee. Test-runner esbuild/oxc warnings remain; npm install reported two dependency advisories and no force upgrade was performed.
+
+No browser/hosted test, isolated clean-install check, scientific validation, commit, push or deployment. Documentation consistency/links and diff whitespace are checked before completion. Rollback would require reverting only this change set and updating these records, but would restore the known regressions; no rollback was performed.
+
+## 2026-09-17 — Commit Brain review (3684d67)
+
+Committed the eleven updated Brain documents from the review below. No application source changed. The review's historical test failures describe the state before the current restoration.
+
+## 2026-09-17 — Reconcile all Brain documents with dccfa3b (later committed in 3684d67)
 
 Reason: restored documentation described September 14 behavior, while current main contains a new layout, explanations and removed safety/error/request handling. Record the current implementation and reproducible failures without modifying the application.
 

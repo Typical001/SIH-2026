@@ -1,6 +1,6 @@
 # API reference
 
-Source: `backend/main.py`, reviewed 2026-09-17 at `dccfa3b`. Local base: `http://localhost:8000`. All application endpoints use GET and return JSON. Interactive schema is available at `/docs`, ReDoc at `/redoc`, and OpenAPI JSON at `/openapi.json` while the service runs. No authentication or explicit response models are configured.
+Source: `backend/main.py`, updated 2026-09-17 at `3684d67` plus the local NAV-02 restoration. Local base: `http://localhost:8000`. All application endpoints use GET and return JSON. Interactive schema is available at `/docs`, ReDoc at `/redoc`, and OpenAPI JSON at `/openapi.json` while the service runs. No authentication or explicit response models are configured.
 
 ## Endpoints
 
@@ -66,7 +66,7 @@ Invoke-RestMethod 'http://localhost:8000/api/v1/icebergs?forecast_hours=24&safet
 Invoke-RestMethod 'http://localhost:8000/api/v1/polar-route?forecast_hours=72&cruising_speed_knots=14.5'
 ```
 
-FastAPI returns HTTP 422 for query type/range validation failures. Unhandled calculation failures can return 500. Failed graph searches currently generate fallback geometry and can return HTTP 200 as described below. Successful HTTP transport does not establish route validity.
+FastAPI returns HTTP 422 for query type/range validation failures. Unhandled calculation failures can return 500. Failed graph searches now return the HTTP 409 contract below, without a success-shaped fallback. Successful HTTP transport does not establish route validity.
 
 ## Explanation payload — added in c996de7
 
@@ -97,11 +97,22 @@ The route endpoint adds `xai_explanation` with this structure:
 
 This is a schema example containing one waypoint sample, not a complete route response. `sic_value` is a fraction; ice penalty and base cost are dimensionless weights; speeds are knots. The driver switches to “Iceberg Avoidance & Sea Ice Minimization” when maximum sampled SIC exceeds 0.1. The proximity modifier is 10 or 0 at a 35 km threshold and is not the graph's actual maximum proximity weight. Samples may exceed ten. Endpoint SIC and missing-node defaults can be synthetic; explanation values are not independently validated observations. See [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## Graph failure — regression in current API
+## No-route response — restored locally
 
-The former HTTP 409 / `NO_ROUTE_FOUND` contract is **not implemented at dccfa3b**. It existed in 6097e6c and was removed in c996de7. Restoring the test file in dccfa3b did not restore the exception or handler.
+GET `/api/v1/polar-route` returns HTTP **409** when NetworkXNoPath or NodeNotFound prevents routing:
 
-On NetworkXNoPath or NodeNotFound the pathfinder creates 25 interpolated waypoints, calculates ordinary metrics/explanations and returns through the normal success response. The API omits the engine status and has no fallback flag, so clients cannot reliably distinguish this from an A* route. An in-process all-land probe returned HTTP 200 and LOW risk. Reintroducing explicit failure remains NAV-02; do not document 409 as a currently supported outcome.
+```json
+{
+  "detail": {
+    "code": "NO_ROUTE_FOUND",
+    "message": "No route found for the selected endpoints and planning settings."
+  }
+}
+```
+
+No waypoints, direct baseline, route_metrics or xai_explanation are returned. The dashboard recognizes both status and code; an unrelated 409 remains a generic error. Successful HTTP 200 responses retain their explanation field and existing geometry/metrics. HTTP 422 parameter validation and unrelated calculation errors remain separate.
+
+This contract existed in 6097e6c, was removed by c996de7 and is now restored in the working tree. The earlier all-land HTTP 200 diagnostic describes the pre-restoration regression only. A no-route response reflects the modeled graph and is not proof that every real-world route is impossible. Deploy frontend/backend together.
 
 ## UI/API differences and sample artifact
 

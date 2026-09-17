@@ -1,10 +1,10 @@
 # File inventory
 
-Snapshot: **2026-09-17**, committed source baseline **dccfa3b**. Paths below are application-root-relative (`.antigravity`). Initial Git status was clean; the only tracked modifications from this review are the eleven Brain documents. Source/configuration/tests were read; vendor/binary/dependency files were inventoried as support artifacts, not audited internally.
+Snapshot: **2026-09-17**, committed baseline **3684d67** plus uncommitted NAV-01/02/06 repairs. Paths below are application-root-relative (`.antigravity`). Initial Git status was clean; the current local restoration modifies application/test/package files and the eleven Brain documents (see CHANGELOG). Source/configuration/tests were read; vendor/binary/dependency files were inventoried as support artifacts, not audited internally.
 
 ## Application and root support files
 
-All **33** current source/data/configuration/root-support files are accounted for below. This count includes cloudflared.exe as a supporting binary, not source code. All are tracked.
+All **33** current source/data/configuration/root-support files are accounted for below. This count includes cloudflared.exe as a supporting binary, not source code. All are tracked; files changed by the local restoration are marked below.
 
 | Path | Git tracking | Current role |
 | --- | --- | --- |
@@ -13,25 +13,25 @@ All **33** current source/data/configuration/root-support files are accounted fo
 | `argv.json` | Tracked | Editor runtime/crash-reporting settings, not application configuration. |
 | `backend/data_engine.py` | Tracked | 12 static icebergs, six stations/ports and analytic metocean fields. |
 | `backend/drift_engine.py` | Tracked | Hourly drift, snapshots, terminal position and hand-sampled buffer polygon. |
-| `backend/main.py` | Tracked | Five GET endpoints, validation, CORS and route response including xai_explanation; no 409 handler. |
-| `backend/pathfinder.py` | Tracked | Land mask, weighted graph, A*, fallback interpolation, metrics and heuristic explanations. |
+| `backend/main.py` | Tracked; modified locally | Five GET endpoints, CORS, successful XAI responses and restored HTTP 409 / NO_ROUTE_FOUND handler. |
+| `backend/pathfinder.py` | Tracked; modified locally | Land mask, graph, A*, metrics and explanations; NoRouteFoundError prevents fallback success. |
 | `backend/requirements.txt` | Tracked | Eight minimum-version Python requirements; no lockfile. |
 | `backend/response.json` | Tracked | 129,269-byte saved JSON sample; 76 waypoints/12 icebergs, no xai_explanation; not used by app/tests. |
 | `backend/test_backend.py` | Tracked | Three original direct engine checks; passed September 17. |
-| `backend/test_no_route.py` | Tracked | Five restored engine/ASGI cases; fails import of removed NoRouteFoundError. |
+| `backend/test_no_route.py` | Tracked; modified locally | Five passing engine/ASGI cases; includes no-XAI-on-failure and XAI-on-success assertions. |
 | `cloudflared.exe` | Tracked | Bundled tunnel executable; no application invocation found; not executed in review. |
 | `frontend/index.html` | Tracked | SPA entry HTML, CDN Leaflet CSS and Google Fonts. |
-| `frontend/package-lock.json` | Tracked | Lockfile v3; 191 package entries including root; test packages removed. |
-| `frontend/package.json` | Tracked | dev/build/preview scripts and dependencies; no test script or test-runner declarations. |
+| `frontend/package-lock.json` | Tracked; modified locally | Lockfile v3; restored pinned test packages and their dependency graph. |
+| `frontend/package.json` | Tracked; modified locally | dev/build/preview/test scripts; Vitest and React Test Renderer declared at exact versions. |
 | `frontend/postcss.config.js` | Tracked | Tailwind/Autoprefixer pipeline. |
-| `frontend/src/App.jsx` | Tracked | Panel composition, route state/fetch, XAI and one-second clock; request/error guards regressed. |
-| `frontend/src/App.test.jsx` | Tracked | Restored fourteen component cases with obsolete ControlDeck mock and request/UI assumptions. |
-| `frontend/src/components/Navbar.jsx` | Tracked | Header, placeholder tabs/profile, Analytics action, loading/fallback banner. |
+| `frontend/src/App.jsx` | Tracked; modified locally | Panel composition, scalar fetch dependencies, cancellation/ownership, result clearing, validation, Retry, XAI and clock. |
+| `frontend/src/App.test.jsx` | Tracked; modified locally | Twenty component cases adapted to LeftControls and the actual new result panels, including clock/XAI/chart/JSON races. |
+| `frontend/src/components/Navbar.jsx` | Tracked; modified locally | Header, placeholder tabs/profile, Analytics action and loading banner; fallback claim removed. |
 | `frontend/src/components/PolarMap.jsx` | Tracked | Leaflet tiles, route lines, markers, circles, popups and straight drift trails; unchanged by redesign. |
-| `frontend/src/components/RouteComparisonModal.jsx` | Tracked | Comparison report with fixed baseline claims; no missing-results guard. |
+| `frontend/src/components/RouteComparisonModal.jsx` | Tracked; modified locally | Comparison report with restored missing-results guard; fixed success-path baseline claims remain. |
 | `frontend/src/components/StatusBar.jsx` | Tracked | Unused alternative footer. |
-| `frontend/src/components/panels/BottomStatusBar.jsx` | Tracked | Mounted footer with fixed online/safe statuses and App clock. |
-| `frontend/src/components/panels/DecisionSupport.jsx` | Tracked | Metric fixture fallback, heuristic explanation dialog, comparison, mean drift-speed chart and alerts. |
+| `frontend/src/components/panels/BottomStatusBar.jsx` | Tracked; modified locally | Mounted footer with calculating/result availability, simulation label and UTC clock. |
+| `frontend/src/components/panels/DecisionSupport.jsx` | Tracked; modified locally | Loading/empty states or successful metrics/explanation/comparison/chart/alerts; metric fixture removed. |
 | `frontend/src/components/panels/LeftControls.jsx` | Tracked | Preset/port/class/horizon selectors, full-route calculation buttons and eight layer toggles. |
 | `frontend/src/components/panels/MapArea.jsx` | Tracked | Thin PolarMap wrapper. |
 | `frontend/src/index.css` | Tracked | Global styling, glass panels, Leaflet overrides and animations. |
@@ -46,7 +46,7 @@ All **33** current source/data/configuration/root-support files are accounted fo
 
 - c996de7 removed ControlDeck.jsx and TelemetrySidebar.jsx; the new panel components replace their roles. Manual-coordinate and safety-buffer controls were not carried forward.
 - The unused application-root package-lock.json was deleted; frontend/package-lock.json remains.
-- dccfa3b restored all eleven Brain documents, backend/test_no_route.py and frontend/src/App.test.jsx exactly as stored in 6097e6c. Test infrastructure and implementation guarantees were not restored.
+- dccfa3b restored all eleven Brain documents, backend/test_no_route.py and frontend/src/App.test.jsx exactly as stored in 6097e6c. That commit did not restore test infrastructure or implementation guarantees; the current working-tree repair now does.
 - Four Python 3.13 bytecode files replaced four Python 3.14 files in c996de7; four older 3.11 cache files remain. These are generated artifacts, not additional backend modules.
 
 ## Physical inventory by category
@@ -55,8 +55,8 @@ Counts include hidden/ignored files and were refreshed after the production buil
 
 | Category | Files | Bytes |
 | --- | ---: | ---: |
-| `Brain` | 11 | Not fixed: documentation edited during review |
-| `application and root support files` | 33 | 55211999 |
+| `Brain` | 11 | Not fixed: documentation edited during restoration |
+| `application and root support files` | 33 | 55256442 |
 | `backend/__pycache__` | 8 | 103856 |
 | `backend/venv` | 7150 | 243864718 |
 | `extensions root metadata` | 1 | 4472 |
@@ -66,13 +66,13 @@ Counts include hidden/ignored files and were refreshed after the production buil
 | `extensions/vscjava.vscode-java-dependency-0.27.6-universal` | 22 | 251271 |
 | `extensions/vscjava.vscode-java-pack-0.31.1-universal` | 48 | 6677457 |
 | `extensions/vscjava.vscode-java-test-0.46.0-universal` | 43 | 5268604 |
-| `frontend/dist` | 3 | 381387 |
-| `frontend/node_modules` | 7982 | 128054888 |
+| `frontend/dist` | 3 | 382973 |
+| `frontend/node_modules` | 7982 | 127984944 |
 | `nodejs` | 12 | 70027615 |
 
 ## Dependency and sample inspection
 
-frontend/package-lock.json contains 191 package entries including the root. It resolves React 18.3.1, Vite 5.4.21 and React Vite plugin 4.7.0. Neither Vitest nor React Test Renderer is declared or locked, although both remain in this laptop's existing node_modules. No dependency installation/pruning was performed. The three-file production dist was regenerated and remains ignored.
+frontend/package-lock.json contains 253 package entries including root. It resolves React 18.3.1, Vite 5.4.21 and React Vite plugin 4.7.0. Vitest 4.1.11 and React Test Renderer 18.3.1 are restored at exact versions in manifest/lockfile and installed locally. npm test runs twenty passing component cases. npm install changed local dependency artifacts; no isolated clean-install check was performed. The three-file production dist was regenerated and remains ignored.
 
 backend/response.json was parsed as a complete JSON object. It contains Cape Town–Bharati, a 72-hour horizon, 76 route waypoints, 12 initial/predicted icebergs and route metrics, but lacks xai_explanation. It is not imported by application code/tests and is not a valid substitute for checking the current API response. Provenance and capture time are not established by the file.
 
