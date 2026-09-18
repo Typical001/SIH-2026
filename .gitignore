@@ -1,0 +1,4 @@
+﻿.antigravity/backend/venv/
+.antigravity/backend/__pycache__/
+*.pyc
+.antigravity/backend/polar_nav_offline.db

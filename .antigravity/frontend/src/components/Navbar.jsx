@@ -5,7 +5,8 @@ import {
   ThermometerSnowflake,
   PieChart,
   User,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function Navbar({ 
@@ -13,7 +14,9 @@ export default function Navbar({
   onRefresh, 
   onOpenReport, 
   vesselIceClass, 
-  forecastHours
+  forecastHours,
+  isOffline,
+  lastSyncedTimestamp
 }) {
   const focusPanel = id => {
     const panel = document.getElementById(id);
@@ -62,11 +65,17 @@ export default function Navbar({
       </div>
 
       {/* Status Banner */}
-      <div className="absolute top-14 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-md mt-2 pointer-events-none z-50">
+      <div className="absolute top-14 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 w-full max-w-xl mt-2 pointer-events-none z-50">
         {loading && (
           <div role="status" className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 text-[10px] font-bold shadow-lg">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
             Calculating route...
+          </div>
+        )}
+        {isOffline && (
+          <div role="status" className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-950/90 border border-amber-500/80 text-amber-200 text-[11px] font-bold shadow-xl animate-pulse">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+            OFFLINE MODE: Routing based on cached satellite data from {lastSyncedTimestamp ? new Date(lastSyncedTimestamp).toLocaleString() : 'Local Database'}
           </div>
         )}
       </div>

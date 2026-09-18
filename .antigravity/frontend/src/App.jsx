@@ -37,6 +37,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
+  const [lastSyncedTimestamp, setLastSyncedTimestamp] = useState(null);
   const activeRequest = useRef(null);
 
   // Route & Metocean Data
@@ -106,11 +108,16 @@ export default function App() {
     });
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://polarnav-backend.onrender.com';
+      const apiUrl = import.meta.env.VITE_API_URL || '';
       const resp = await fetch(`${apiUrl}/api/v1/polar-route?${query.toString()}`, {
         signal: controller.signal
       });
       if (!resp.ok) {
+        if (resp.status === 503) {
+          if (controller.signal.aborted || activeRequest.current !== controller) return;
+          setErrorMsg('No cached satellite data available. Initial sync required.');
+          return;
+        }
         if (resp.status === 422) {
           if (controller.signal.aborted || activeRequest.current !== controller) return;
           setErrorMsg('Unsupported route settings. Choose distinct endpoints between 75°S and 25°N without crossing the date line, and check vessel and forecast settings.');
@@ -145,6 +152,8 @@ export default function App() {
       setIcebergsPredicted(data.icebergs_predicted_72h || []);
       setRouteMetrics(data.route_metrics);
       setXaiExplanation(data.xai_explanation || null);
+      setIsOffline(data.is_offline || false);
+      setLastSyncedTimestamp(data.last_synced_timestamp || null);
     } catch (err) {
       if (controller.signal.aborted || activeRequest.current !== controller) return;
       console.warn('Route calculation failed:', err);
@@ -186,6 +195,8 @@ export default function App() {
         onOpenReport={() => setIsReportOpen(true)}
         vesselIceClass={vesselIceClass}
         forecastHours={forecastHours}
+        isOffline={isOffline}
+        lastSyncedTimestamp={lastSyncedTimestamp}
       />
 
       {errorMsg && (

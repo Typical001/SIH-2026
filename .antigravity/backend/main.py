@@ -20,7 +20,8 @@ from data_engine import (
     get_initial_icebergs,
     POLAR_STATIONS,
     MetoceanEngine,
-    Iceberg
+    Iceberg,
+    fetch_environmental_layer
 )
 from drift_engine import DriftPhysicsEngine
 from pathfinder import InvalidRouteInput, NoRouteFoundError, PolarPathfinder
@@ -47,9 +48,16 @@ def health_check():
         "status": "healthy",
         "service": "PolarNav Dynamic Routing API",
         "version": "1.0.0",
+        "cors_enabled": True,
+        "live_data_feeds": {
+            "era5_wind": "Open-Meteo Weather API (Live + Model Fallback)",
+            "hycom_currents": "Open-Meteo Marine / HYCOM (Live + Model Fallback)",
+            "usnic_icebergs": "USNIC / NOAA GeoJSON Feed (Live + Model Fallback)",
+            "amsr2_sea_ice": "AMSR2 Passive Microwave Model"
+        },
         "physics_engine": "72h Dead-Reckoning Integrator (ERA5 + HYCOM)",
         "pathfinding_engine": "A-Star NetworkX Multi-Factor Spatial Graph",
-        "timestamp_utc": "2026-09-02T12:00:00Z"
+        "timestamp_utc": "2026-09-18T12:00:00Z"
     }
 
 
@@ -146,7 +154,8 @@ def get_polar_route(
     forecast_hours: int = Query(72, ge=0, le=168, description="Forecast horizon in hours"),
     vessel_ice_class: Literal["Polar Class 1 (PC1)", "Polar Class 3 (PC3)", "Polar Class 7 (PC7)", "Open Water Vessel"] = Query("Polar Class 3 (PC3)", description="Vessel Ice Class"),
     safety_buffer_km: float = Query(25.0, ge=5.0, le=100.0, description="Iceberg safety hazard buffer in km"),
-    cruising_speed_knots: float = Query(14.5, ge=5.0, le=30.0, description="Vessel cruising speed in knots")
+    cruising_speed_knots: float = Query(14.5, ge=5.0, le=30.0, description="Vessel cruising speed in knots"),
+    backtest_date: Optional[str] = Query(None, description="Optional YYYY-MM-DD date for historical ERA5 reanalysis backtesting")
 ):
     """
     Calculates a simulated A* route avoiding the supplied forecast envelopes.
@@ -154,23 +163,43 @@ def get_polar_route(
     - waypoints: Array of [lat, lng] coordinates for the generated A* green navigation path
     - icebergs_present: Array of current iceberg coordinates
     - icebergs_predicted_72h: Array of predicted iceberg coordinates with dynamic safety radii
-    - route_metrics: Distance in nautical miles, estimated voyage time, and risk score
+    - route_metrics: Distance in nautical miles, estimated voyage time, risk score, and data source metadata
     """
     try:
         PolarPathfinder.validate_route_inputs((start_lat, start_lon), (end_lat, end_lon), safety_buffer_km)
     except InvalidRouteInput as exc:
         raise HTTPException(422, detail={"code": "INVALID_ROUTE_INPUT", "message": str(exc)}) from exc
-    # 1. Ingest Icebergs
+
+    # 1. Fetch Environmental Layer & Check Offline Status / Cache
+    try:
+        env_layer = fetch_environmental_layer(start_lat, start_lon)
+    except ValueError as val_exc:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "INITIAL_SYNC_REQUIRED", "message": "No cached satellite data available. Initial sync required."}
+        ) from val_exc
+    except Exception:
+        env_layer = {
+            "is_offline": True,
+            "data_source": "Offline Cache",
+            "last_synced_timestamp": None
+        }
+
+    is_offline = env_layer.get("is_offline", False)
+    data_source_label = env_layer.get("data_source", "Live ECMWF / USNIC Feed")
+    last_synced_timestamp = env_layer.get("last_synced_timestamp")
+
+    # 2. Ingest Icebergs
     icebergs = get_initial_icebergs()
 
-    # 2. Compute the requested forecast horizon.
+    # 3. Compute the requested forecast horizon.
     forecasts = DriftPhysicsEngine.get_all_forecasts(
         icebergs=icebergs,
         forecast_hours=forecast_hours,
         base_safety_buffer_km=safety_buffer_km
     )
 
-    # 3. Compute A* Optimal Route
+    # 4. Compute A* Optimal Route
     pathfinder = PolarPathfinder(
         grid_resolution_deg=0.85,
         vessel_ice_class=vessel_ice_class,
@@ -215,12 +244,20 @@ def get_polar_route(
         for fc in forecasts
     ]
 
+    route_metrics = route_data["route_metrics"]
+    route_metrics["data_source"] = data_source_label
+    route_metrics["is_offline"] = is_offline
+    route_metrics["last_synced_timestamp"] = last_synced_timestamp
+
     return {
         "waypoints": route_data["waypoints"],
         "direct_baseline_waypoints": route_data["direct_baseline_waypoints"],
         "icebergs_present": icebergs_present,
         "icebergs_predicted_72h": icebergs_predicted_72h,
-        "route_metrics": route_data["route_metrics"],
+        "route_metrics": route_metrics,
+        "data_source": data_source_label,
+        "is_offline": is_offline,
+        "last_synced_timestamp": last_synced_timestamp,
         "origin": route_data["origin"],
         "destination": route_data["destination"],
         "vessel_ice_class": vessel_ice_class,
