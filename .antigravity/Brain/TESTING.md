@@ -1,6 +1,29 @@
 # Testing and verification
 
-## Current verification — local restoration on 3684d67, 2026-09-17
+## Latest verification — route correctness, 2026-09-18
+
+- `backend/venv/Scripts/python.exe -B -m unittest discover -s backend -p 'test_*.py'`: **24 passed** (5 existing no-route tests, 19 adversarial route/API tests).
+- `backend/venv/Scripts/python.exe -B backend/test_backend.py`: **3 pipeline checks passed**. Original forced-positive savings assertion replaced with signed baseline consistency; all route segments checked against modeled hazard envelopes without the former 8% penetration tolerance. Default route at 1-degree resolution: 3725.5 NM and -20.3% modeled savings. This is model evidence, not a navigation safety certification.
+- `npm.cmd test`: **36 passed** (21 App request/error cases, 15 visible-UI/coverage cases). Existing deprecation warnings remain.
+- `npm.cmd run build`: **passed**, 1,561 modules; HTML 1.27 kB, CSS 24.50 kB, JS 352.33 kB.
+- New backend tests cover finite/geographic/domain/workload validation, identical endpoints, 422 responses before forecasts, thin/finite land barriers, blocked endpoints, hazards between clear nodes, full-trajectory envelopes, directed costs, A* versus Dijkstra, exact close endpoints, real endpoint XAI, geodesic baseline length, open-water ice exclusion, high exposure scores, speed-dependent fuel, forecast gaps, short supplied forecasts, defensive final checks, and HTTP response compatibility.
+- UI tests cover input rejection, signed savings, supplied baseline fuel/time, unavailable/blocked-baseline context, forecast gaps, and the planning envelope radius used by the map.
+- No new browser session or external coastline/scientific validation was performed for the routing changes. The UI browser checks below remain evidence for the preceding UI task. No dependencies added; no commit/push performed.
+
+## Earlier UI verification
+
+## Visible UI verification — 2026-09-18 (preceding routing changes)
+
+- `npm.cmd test` from frontend: **33 passed** across two files (20 existing App lifecycle/error regressions and 13 new visible-UI cases).
+- `npm.cmd run build`: **passed**, 1,561 modules; HTML 1.27 kB, CSS 24.50 kB, JS 351.11 kB. Existing Vitest esbuild/oxc deprecation warnings remain.
+- New coverage: all three hour selections, preset station/departure labels, port selection/reset, duration day rollover, all three risk styles, zero/missing comparisons, missing forecast gaps, four independent layer combinations, curved trajectory geometry, endpoint popups and navigation shortcuts.
+- Browser checked against local frontend/backend at 1280×720: successful dashboard layout, 72-to-24-hour change updating map/chart, Analytics showing returned values and zero intersections, Mumbai search/selection and its name/coordinates in the departure popup. Analytics layout inspected visually.
+- Built CSS contains the low/moderate/high risk backgrounds and borders and cyan checkbox classes. `git diff --check` passed.
+- Backend algorithms and dependencies were not changed; backend suites were not rerun in this UI-only task. No scientific validation, full responsive matrix, commit or push performed.
+
+## Prior verification checkpoints
+
+## Restoration verification — local restoration on 3684d67, 2026-09-17 (historical)
 
 | Check | Result |
 | --- | --- |

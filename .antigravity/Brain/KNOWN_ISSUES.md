@@ -1,5 +1,34 @@
 # Known issues and proposed work
 
+## Route-correctness checkpoint — 2026-09-18
+
+- NAV-11/18: fixed input/workload bounds and identical-endpoint rejection (422), including direct engine guards.
+- NAV-12/14: fixed directed costs, admissible A*, and consistent spherical baseline geometry/distance/collision checks.
+- NAV-03: full-edge/connector checks now cover the existing polygons and forecast envelopes. Complete, sourced coastlines remain unresolved; no claim of global land avoidance.
+- NAV-04/20: removed forced-positive savings and LOW risk cap; both routes use one explicit speed-dependent fuel model. Risk/fuel calibration and operational validity remain unresolved.
+- NAV-13: conservatively avoids the entire supplied drift trajectory; displays forecast gaps. Arrival-time-aware routing and long-horizon forecasts remain unresolved.
+- NAV-19: open-water vessels reject sampled modeled ice. Certified Polar Class operating limits and ice-type/thickness constraints remain unresolved.
+- NAV-25: endpoints and sampled explanations now use actual model node factors and include the final node. Explanations remain heuristic summaries, not validated causal traces.
+
+Earlier entries below are historical where superseded. UI and routing regression results are in TESTING.md.
+
+## Current UI checkpoint — 2026-09-18
+
+Baseline is now `6d1f221`, which contains the earlier NAV-01/02/06/24 restoration. Local UI changes resolve the following findings from the historical register below:
+
+- NAV-05: map/report identify simulation and unverified clearance; unsupported safety/compliance and live-provider claims removed from the mounted UI.
+- NAV-07: unavailable metocean checkbox disabled and labeled; fixed ice circles explicitly described as illustrative, not a measured grid.
+- NAV-08: selector, chart, legend and forecast popups use the selected 24/48/72-hour horizon. Legacy backend field name remains unchanged for compatibility.
+- NAV-09: departure and destination names/coordinates derive from current selections, including Indian ports and Hobart/Casey.
+- NAV-10: removed invented comparison figures, weather alerts and alert ages. Zeros remain zero; missing baseline metrics are unavailable. Duration rounding carries into days. Missing chart samples leave gaps rather than zero-speed points.
+- NAV-15: risk states and checkboxes use literal Tailwind classes, verified in the built stylesheet.
+- NAV-22/23: markers, buffers and trails render independently; trails preserve supplied intermediate trajectory points.
+- NAV-27 visible actions: Planner/Forecast navigate to controls; Analytics opens its report; Dashboard/team are static labels and View All is removed. Unused component/prop cleanup remains.
+
+NAV-16 projection labeling and NAV-26 origin/destination labeling are corrected; missing speed/buffer/manual-coordinate controls remain open. Backend route correctness, risk/fuel models, scientific validation and real data integration are unchanged. See TESTING.md for current evidence.
+
+## Historical register — 2026-09-17 (superseded above where noted)
+
 Updated **2026-09-17** against `3684d67` plus local repairs. Register: **27 entries, 22 open, 4 fixed locally (NAV-01/02/06/24), 1 retired (NAV-21)**. The three regressions and their test infrastructure are restored without reverting the new layout. Priorities are proposed engineering order, not evidence of operational certification.
 
 `6097e6c` committed the earlier fixes; `c996de7` removed them during the redesign. `dccfa3b` restored documentation/tests only. Current evidence is separated from historical checks in [TESTING.md](TESTING.md).

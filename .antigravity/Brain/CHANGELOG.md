@@ -1,5 +1,28 @@
 # Project changelog
 
+## 2026-09-18 — Improve route correctness (local, preserves preceding UI work)
+
+- Reject invalid/nonfinite/out-of-corridor coordinates, identical endpoints, date-line-spanning grids, unsupported vessel classes and oversized grids with 422. Bounded metocean steps, coordinates and sample counts.
+- Replaced undirected edges with separate direction costs and an admissible 0.85-distance A* heuristic. Exact endpoints use real model conditions and checked connectors. Complete edges intersect the known land geometry and spherical forecast envelopes; final paths are checked again.
+- Added navigation_geometry.py for shared spherical interpolation, distances and minimum point-to-arc distance. Returned route and baseline geometry use at-most-5-km samples, consistent with their distance metrics.
+- Forecast hazards now conservatively enclose the full supplied drift path, including interpolation allowance; API/map expose the actual planning radius. Report the available horizon and voyage coverage gap. This is not arrival-time optimization or a forecast beyond the supplied horizon.
+- Open-water vessels cannot enter sampled modeled ice. No unverified concentration limits were invented for Polar Classes.
+- Removed positive fuel-savings floor, LOW risk cap, baseline 35% fuel surcharge and endpoint SIC fiction. Route/baseline use the same illustrative speed-dependent fuel model; negative savings are retained. Model risk is an uncalibrated exposure index. XAI samples include actual endpoint factors and the final node.
+- UI displays input errors, supplied baseline time/fuel, blocked-baseline context and forecast gaps. Strengthened the original collision test from points with an 8% tolerance to complete segments without tolerance. Added adversarial backend and UI regressions; see TESTING.md.
+
+Remaining limits: incomplete hand-entered land mask, synthetic data, sampled SIC, uncalibrated vessel/fuel/risk models, conservative rather than timed hazard avoidance, and voyage portions beyond forecast coverage. No commit/push performed.
+
+## 2026-09-18 — Correct visible UI mistakes (local changes on 6d1f221)
+
+- Corrected 24/48/72-hour labels and propagated the horizon to map/forecast displays.
+- Departure fields show preset origins; destination options show station names. Current names/coordinates appear in map popups. Port choices/reset use native buttons.
+- Removed invented baseline figures, hardcoded weather alerts and unsupported safety/compliance/provider claims. Analytics uses returned values, preserves zeros and marks unavailable comparisons. Duration rounding handles day rollover.
+- Risk badges and checkboxes use literal Tailwind colors. Disabled unavailable metocean and labeled schematic ice overlays honestly.
+- Forecast markers, buffers and trails toggle independently. Trails use supplied hourly geometry; chart gaps preserve missing data.
+- Wired Planner/Forecast shortcuts and removed inert profile/View All actions. Added 13 UI regression cases. Backend algorithms unchanged.
+
+Earlier entries below describe their original checkpoint; the previous restoration was committed as `6d1f221`.
+
 Application root: `.antigravity`; documentation paths use `Brain/`. Committed history now ends at `3684d67` (2026-09-17); local restoration changes below are uncommitted. Entries describe observed changes, not inferred author intent. September 14 entries retain their historical “uncommitted” status at the time; those files/fixes were subsequently committed in 6097e6c and partly regressed in c996de7.
 
 ## 2026-09-17 — Restore NAV-01/02/06 in the redesigned dashboard (uncommitted)

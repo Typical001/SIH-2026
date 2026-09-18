@@ -1,5 +1,14 @@
 # File inventory
 
+## Local additions — 2026-09-18
+
+- backend/navigation_geometry.py: shared spherical distances, great-circle interpolation and point-to-segment clearance.
+- backend/test_route_correctness.py: adversarial geometry, inputs, direction costs, vessel, metric and forecast tests.
+- frontend/src/components/displayValues.js: consistent duration/number/risk presentation.
+- frontend/src/components/VisibleUI.test.jsx: visible controls, chart, map layer, comparison and coverage regressions.
+
+Existing routing/API/tests and UI files are modified locally; see CHANGELOG.md. Counts and file roles in the September 17 inventory below are historical and exclude these additions.
+
 Snapshot: **2026-09-17**, committed baseline **3684d67** plus uncommitted NAV-01/02/06 repairs. Paths below are application-root-relative (`.antigravity`). Initial Git status was clean; the current local restoration modifies application/test/package files and the eleven Brain documents (see CHANGELOG). Source/configuration/tests were read; vendor/binary/dependency files were inventoried as support artifacts, not audited internally.
 
 ## Application and root support files

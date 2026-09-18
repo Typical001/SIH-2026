@@ -1,5 +1,9 @@
 # PolarNav project documentation
 
+**Latest routing checkpoint — 2026-09-18:** local changes add validated inputs, checked segments/endpoints, directed search costs, consistent baseline geometry, signed fuel savings and explicit forecast coverage. UI fixes remain in place. See API_REFERENCE.md for contract additions and TESTING.md for verification. Model/coastline limitations remain documented in KNOWN_ISSUES.md; this is a simulation.
+
+**UI checkpoint — 2026-09-18:** baseline `6d1f221` plus local visible-UI fixes. Horizon/endpoint labels, comparisons, alerts, risk colors, forecast layers and navigation shortcuts are corrected. See [CHANGELOG.md](CHANGELOG.md), [KNOWN_ISSUES.md](KNOWN_ISSUES.md) and [TESTING.md](TESTING.md) for changes and verification. Routing improvements were subsequently applied as described above. The September 17 snapshot below is historical.
+
 Updated: **2026-09-17**. Committed baseline: **`3684d67`** on main; current working tree restores NAV-01/02/06 and frontend test infrastructure (uncommitted). Application version: `1.0.0`. The working tree was clean before these repairs.
 
 PolarNav is a SIH 2026 demonstration for problem statement **26059**: Antarctic route planning and iceberg drift forecasting. React displays routes calculated by FastAPI using a static iceberg catalog, synthetic environmental fields, deterministic drift formulas and NetworkX A*.

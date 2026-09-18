@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data_engine import MetoceanEngine, get_initial_icebergs, POLAR_STATIONS, Iceberg
 from drift_engine import DriftPhysicsEngine
 from pathfinder import PolarPathfinder, haversine_nm, haversine_km
+from navigation_geometry import segment_distance_km
 
 
 def test_metocean_engine():
@@ -83,18 +84,20 @@ def test_pathfinder_collision_avoidance():
     metrics = result["route_metrics"]
     assert metrics["distance_nautical_miles"] > 2500, f"Distance realistic ({metrics['distance_nautical_miles']} NM)"
     assert metrics["estimated_voyage_days"] > 5.0, f"Voyage time realistic ({metrics['estimated_voyage_days']} days)"
-    assert metrics["fuel_savings_percent"] > 0, "Fuel savings should be positive"
+    # Savings may be negative when the detour consumes more than the baseline.
+    expected_savings = (metrics["direct_fuel_consumption_tons"] - metrics["fuel_consumption_tons"]) / metrics["direct_fuel_consumption_tons"] * 100
+    assert abs(metrics["fuel_savings_percent"] - expected_savings) < 0.2
 
-    # Verify that NO waypoint penetrates inside any 72h predicted iceberg buffer
-    for wp in result["waypoints"]:
+    # Verify complete minor arcs, without the previous 8% penetration tolerance.
+    for a, b in zip(result["waypoints"], result["waypoints"][1:]):
         for hz in result["hazard_zones"]:
-            dist_km = haversine_km(wp[0], wp[1], hz["lat"], hz["lon"])
-            assert dist_km >= (hz["radius_km"] * 0.92), (
-                f"Waypoint [{wp[0]}, {wp[1]}] is inside hazard zone {hz['name']} "
+            dist_km = segment_distance_km((hz["lat"], hz["lon"]), a, b)
+            assert dist_km > hz["radius_km"], (
+                f"Segment [{a}, {b}] intersects forecast envelope {hz['name']} "
                 f"(dist: {dist_km:.2f} km < radius: {hz['radius_km']:.2f} km)"
             )
 
-    print(f"   [PASS] PolarPathfinder tests succeeded: Route is 100% collision-free! "
+    print(f"   [PASS] Route segments clear the modeled forecast envelopes. "
           f"Distance: {metrics['distance_nautical_miles']} NM, Fuel Savings: {metrics['fuel_savings_percent']}%.")
 
 
@@ -106,5 +109,5 @@ if __name__ == "__main__":
     test_drift_physics_engine()
     test_pathfinder_collision_avoidance()
     print("==================================================")
-    print("ALL TESTS PASSED WITH 100% VERIFICATION!")
+    print("ALL THREE PIPELINE CHECKS PASSED (SIMULATION ONLY)")
     print("==================================================")

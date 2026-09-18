@@ -124,6 +124,14 @@ describe('route request lifecycle', () => {
 describe('visible failure and empty result states', () => {
   const text = () => JSON.stringify(app.toJSON());
 
+  it('explains unsupported planning settings without showing route results', async () => {
+    await mount();
+    await act(async () => requests[0].resolve({ ok: false, status: 422 }));
+    expect(text()).toContain('Unsupported route settings.');
+    expect(text()).toContain('No route results available.');
+    expect(navbar().loading).toBe(false);
+  });
+
   it('shows loading/empty telemetry instead of samples, and Retry recovers', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     await mount();

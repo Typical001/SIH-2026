@@ -12,7 +12,8 @@ API Endpoints:
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Literal
+import math
 import uvicorn
 
 from data_engine import (
@@ -22,7 +23,7 @@ from data_engine import (
     Iceberg
 )
 from drift_engine import DriftPhysicsEngine
-from pathfinder import NoRouteFoundError, PolarPathfinder
+from pathfinder import InvalidRouteInput, NoRouteFoundError, PolarPathfinder
 
 app = FastAPI(
     title="PolarNav: Dynamic Route Optimization & Iceberg Forecasting",
@@ -105,16 +106,20 @@ def get_icebergs(
 
 @app.get("/api/v1/metocean")
 def get_metocean_grid(
-    min_lat: float = Query(-72.0),
-    max_lat: float = Query(-32.0),
-    min_lon: float = Query(10.0),
-    max_lon: float = Query(85.0),
-    lat_step: float = Query(3.0),
-    lon_step: float = Query(4.0)
+    min_lat: float = Query(-72.0, ge=-90, le=90),
+    max_lat: float = Query(-32.0, ge=-90, le=90),
+    min_lon: float = Query(10.0, ge=-180, le=180),
+    max_lon: float = Query(85.0, ge=-180, le=180),
+    lat_step: float = Query(3.0, ge=0.25, le=20),
+    lon_step: float = Query(4.0, ge=0.25, le=20)
 ):
     """
     Returns sampled metocean vector fields (wind, current, sea ice).
     """
+    if min_lat > max_lat or min_lon > max_lon:
+        raise HTTPException(422, detail={"code": "INVALID_BOUNDS", "message": "Minimum bounds must not exceed maximum bounds."})
+    if (math.ceil((max_lat - min_lat) / lat_step) + 1) * (math.ceil((max_lon - min_lon) / lon_step) + 1) > 10000:
+        raise HTTPException(422, detail={"code": "GRID_TOO_LARGE", "message": "Metocean grid is limited to 10000 samples."})
     grid = MetoceanEngine.sample_grid_field(
         min_lat=min_lat,
         max_lat=max_lat,
@@ -130,30 +135,35 @@ def get_metocean_grid(
 
 
 @app.get("/api/v1/polar-route", responses={
-    409: {"description": "No route found in the navigation graph (detail.code: NO_ROUTE_FOUND)."}
+    409: {"description": "No route found in the navigation graph (detail.code: NO_ROUTE_FOUND)."},
+    422: {"description": "Invalid or unsupported route inputs."}
 })
 def get_polar_route(
-    start_lat: float = Query(-33.9249, description="Departure latitude (Default: Cape Town)"),
-    start_lon: float = Query(18.4241, description="Departure longitude (Default: Cape Town)"),
-    end_lat: float = Query(-69.4125, description="Arrival latitude (Default: Bharati Station)"),
-    end_lon: float = Query(76.1872, description="Arrival longitude (Default: Bharati Station)"),
+    start_lat: float = Query(-33.9249, ge=-75, le=25, description="Departure latitude (Default: Cape Town)"),
+    start_lon: float = Query(18.4241, ge=-180, le=180, description="Departure longitude (Default: Cape Town)"),
+    end_lat: float = Query(-69.4125, ge=-75, le=25, description="Arrival latitude (Default: Bharati Station)"),
+    end_lon: float = Query(76.1872, ge=-180, le=180, description="Arrival longitude (Default: Bharati Station)"),
     forecast_hours: int = Query(72, ge=0, le=168, description="Forecast horizon in hours"),
-    vessel_ice_class: str = Query("Polar Class 3 (PC3)", description="Vessel Ice Class"),
+    vessel_ice_class: Literal["Polar Class 1 (PC1)", "Polar Class 3 (PC3)", "Polar Class 7 (PC7)", "Open Water Vessel"] = Query("Polar Class 3 (PC3)", description="Vessel Ice Class"),
     safety_buffer_km: float = Query(25.0, ge=5.0, le=100.0, description="Iceberg safety hazard buffer in km"),
     cruising_speed_knots: float = Query(14.5, ge=5.0, le=30.0, description="Vessel cruising speed in knots")
 ):
     """
-    Calculates the dynamic A* polar navigation route avoiding 72h predicted icebergs.
+    Calculates a simulated A* route avoiding the supplied forecast envelopes.
     Returns:
     - waypoints: Array of [lat, lng] coordinates for the generated A* green navigation path
     - icebergs_present: Array of current iceberg coordinates
     - icebergs_predicted_72h: Array of predicted iceberg coordinates with dynamic safety radii
     - route_metrics: Distance in nautical miles, estimated voyage time, and risk score
     """
+    try:
+        PolarPathfinder.validate_route_inputs((start_lat, start_lon), (end_lat, end_lon), safety_buffer_km)
+    except InvalidRouteInput as exc:
+        raise HTTPException(422, detail={"code": "INVALID_ROUTE_INPUT", "message": str(exc)}) from exc
     # 1. Ingest Icebergs
     icebergs = get_initial_icebergs()
 
-    # 2. Compute 72h Drift Physics
+    # 2. Compute the requested forecast horizon.
     forecasts = DriftPhysicsEngine.get_all_forecasts(
         icebergs=icebergs,
         forecast_hours=forecast_hours,
@@ -172,15 +182,19 @@ def get_polar_route(
             start_coord=(start_lat, start_lon),
             end_coord=(end_lat, end_lon),
             iceberg_forecasts=forecasts,
-            safety_buffer_km=safety_buffer_km
+            safety_buffer_km=safety_buffer_km,
+            forecast_hours=forecast_hours
         )
+    except InvalidRouteInput as exc:
+        raise HTTPException(422, detail={"code": "INVALID_ROUTE_INPUT", "message": str(exc)}) from exc
     except NoRouteFoundError as exc:
         raise HTTPException(status_code=409, detail={
             "code": "NO_ROUTE_FOUND",
             "message": "No route found for the selected endpoints and planning settings."
         }) from exc
 
-    # Format response adhering strictly to SIH specification
+    planning_radii = {h["id"]: h["radius_km"] for h in route_data["hazard_zones"]}
+    # Preserve legacy response fields and add the actual planning envelope.
     icebergs_present = [ib.to_dict() for ib in icebergs]
     icebergs_predicted_72h = [
         {
@@ -189,6 +203,7 @@ def get_polar_route(
             "lat": fc["predicted_position_72h"]["lat"],
             "lon": fc["predicted_position_72h"]["lon"],
             "initial_lat": fc["initial_position"]["lat"],
+            "planning_hazard_radius_km": math.ceil(planning_radii[fc["iceberg_id"]] * 1000) / 1000,
             "initial_lon": fc["initial_position"]["lon"],
             "safety_radius_km": fc["safety_radius_km"],
             "safety_radius_nm": round(fc["safety_radius_km"] / 1.852, 1),

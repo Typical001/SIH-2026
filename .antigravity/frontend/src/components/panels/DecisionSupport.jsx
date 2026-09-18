@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatDuration, formatNumber, riskLabel } from '../displayValues';
 import { 
   ShieldCheck, 
   ThermometerSnowflake, 
@@ -9,6 +10,11 @@ import {
 } from 'lucide-react';
 
 function RouteOverview({ metrics, safetyColor, isLowRisk, isModerateRisk }) {
+  const styles = {
+    emerald: 'bg-emerald-950/50 border-emerald-500/30 text-emerald-400',
+    amber: 'bg-amber-950/50 border-amber-500/30 text-amber-400',
+    red: 'bg-red-950/50 border-red-500/30 text-red-400'
+  };
   return (
     <div className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-3">
       <h2 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-100 uppercase tracking-wider">
@@ -23,7 +29,7 @@ function RouteOverview({ metrics, safetyColor, isLowRisk, isModerateRisk }) {
         </div>
         <div className="space-y-0.5">
           <div className="text-[9px] text-slate-400 uppercase font-mono">Est. Time</div>
-          <div className="text-xs font-bold text-slate-200">{Math.floor(metrics.estimated_voyage_hours / 24)}d {Math.round(metrics.estimated_voyage_hours % 24)}h</div>
+          <div className="text-xs font-bold text-slate-200">{formatDuration(metrics.estimated_voyage_hours)}</div>
         </div>
         <div className="space-y-0.5">
           <div className="text-[9px] text-slate-400 uppercase font-mono">Fuel Est.</div>
@@ -33,11 +39,11 @@ function RouteOverview({ metrics, safetyColor, isLowRisk, isModerateRisk }) {
 
       <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-1 text-[10px] text-slate-300 font-mono">
-          <ShieldCheck className={`w-3.5 h-3.5 text-${safetyColor}-400`} />
-          Route Safety
+          <ShieldCheck className="w-3.5 h-3.5" />
+          Model Risk
         </div>
-        <div className={`px-1.5 py-0.5 rounded-sm bg-${safetyColor}-950/50 border border-${safetyColor}-500/30 text-${safetyColor}-400 text-[9px] font-bold`}>
-          {isLowRisk ? 'High' : isModerateRisk ? 'Medium' : 'Low'}
+        <div className={`px-1.5 py-0.5 rounded-sm border text-[9px] font-bold ${styles[safetyColor]}`}>
+          {riskLabel(metrics.risk_score)}
         </div>
       </div>
     </div>
@@ -54,14 +60,14 @@ function RouteComparison({ metrics }) {
       <div className="p-2 rounded bg-slate-900 border border-slate-800 flex items-center justify-between">
         <div className="space-y-0.5 w-2/5">
           <div className="text-[9px] text-cyan-400 font-mono leading-tight">Optimized</div>
-          <div className="text-[10px] text-slate-200 font-bold leading-tight">{Math.floor(metrics.estimated_voyage_hours / 24)}d {Math.round(metrics.estimated_voyage_hours % 24)}h</div>
+          <div className="text-[10px] text-slate-200 font-bold leading-tight">{formatDuration(metrics.estimated_voyage_hours)}</div>
           <div className="text-[9px] text-slate-400 leading-tight">{metrics.distance_km.toFixed(0)} km</div>
         </div>
         <div className="text-slate-600 font-bold text-[9px]">VS</div>
         <div className="space-y-0.5 w-2/5 text-right">
-          <div className="text-[9px] text-slate-400 font-mono leading-tight">Shortest</div>
-          <div className="text-[10px] text-slate-200 font-bold leading-tight">{Math.floor(metrics.estimated_voyage_hours / 24)}d {Math.round((metrics.estimated_voyage_hours + 12) % 24)}h</div>
-          <div className="text-[9px] text-slate-400 leading-tight">{(metrics.distance_km * 1.05).toFixed(0)} km</div>
+          <div className="text-[9px] text-slate-400 font-mono leading-tight">Direct baseline</div>
+          <div className="text-[10px] text-slate-200 font-bold leading-tight">{Number.isFinite(metrics.direct_estimated_voyage_hours) ? formatDuration(metrics.direct_estimated_voyage_hours) : 'Time unavailable'}</div>
+          <div className="text-[9px] text-slate-400 leading-tight">{Number.isFinite(metrics.direct_distance_nm) ? `${formatNumber(metrics.direct_distance_nm * 1.852)} km` : 'Distance unavailable'}</div>
         </div>
       </div>
     </div>
@@ -116,13 +122,13 @@ function WhyThisRoute({ xaiExplanation, loading }) {
 
       {isOpen && xaiExplanation && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#0a1122] border border-slate-700 rounded-lg shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+          <div role="dialog" aria-modal="true" aria-label="Detailed route explanation" className="bg-[#0a1122] border border-slate-700 rounded-lg shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-[#050b18]">
               <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                 <BrainCircuit className="w-4 h-4 text-indigo-400" />
-                Detailed AI Route Explanation
+                Detailed Route Explanation
               </h3>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
+              <button aria-label="Close explanation" onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -175,13 +181,13 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
     let count = 0;
     if (icebergsPredicted && Array.isArray(icebergsPredicted)) {
       icebergsPredicted.forEach(berg => {
-        if (berg.snapshots && berg.snapshots[step] && berg.snapshots[step].speed_knots !== undefined) {
+        if (Number.isFinite(berg.snapshots?.[step]?.speed_knots)) {
           sumSpeed += berg.snapshots[step].speed_knots;
           count++;
         }
       });
     }
-    const avgSpeed = count > 0 ? (sumSpeed / count) : 0;
+    const avgSpeed = count > 0 ? (sumSpeed / count) : null;
     return { time: step, value: avgSpeed, x: idx, count };
   });
 
@@ -196,8 +202,13 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
   const getX = (idx) => (idx / Math.max(1, timeSteps.length - 1)) * width;
   const getY = (val) => height - (val / maxValue) * height;
 
-  const points = seriesData.map(d => `${getX(d.x)},${getY(d.value)}`).join(' ');
-  const areaPoints = `${getX(0)},${height} ${points} ${getX(seriesData.length - 1)},${height}`;
+  // Split at missing samples: absent forecast values must not appear as zero.
+  const segments = [];
+  seriesData.forEach(d => {
+    if (!d.count) { segments.push([]); return; }
+    if (!segments.length) segments.push([]);
+    segments[segments.length - 1].push(`${getX(d.x)},${getY(d.value)}`);
+  });
 
   return (
     <div className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-2">
@@ -206,7 +217,7 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
           <ThermometerSnowflake className="w-3.5 h-3.5 text-cyan-400" />
           Iceberg Forecast
         </h2>
-        <span className="text-[9px] text-slate-500">(Next {hours/24} Days)</span>
+        <span className="text-[9px] text-slate-500">(Next {hours} Hours)</span>
       </div>
       
       {!hasData ? (
@@ -234,12 +245,11 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
                     <stop offset="100%" stopColor="rgb(34 211 238)" stopOpacity="0"/>
                   </linearGradient>
                 </defs>
-                <polygon points={areaPoints} fill="url(#lineGradient)" />
-                <polyline points={points} fill="none" stroke="rgb(34 211 238)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                {segments.filter(s => s.length > 1).map((segment, i) => <polyline key={i} points={segment.join(' ')} fill="none" stroke="rgb(34 211 238)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />)}
                 
                 {/* Data points */}
-                {seriesData.map((d, i) => (
-                  <circle key={i} cx={getX(d.x)} cy={getY(d.value)} r="2.5" fill="#050b18" stroke="rgb(34 211 238)" strokeWidth="1.5" />
+                {seriesData.filter(d => d.count).map((d, i) => (
+                  <circle key={i} cx={getX(d.x)} cy={getY(d.value)} r="2.5" fill="#050b18" stroke="rgb(34 211 238)" strokeWidth="1.5"><title>{d.time}: {d.value.toFixed(2)} knots</title></circle>
                 ))}
               </svg>
            </div>
@@ -264,10 +274,11 @@ function AlertsPanel({ metrics }) {
           <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
           System Alerts
         </h2>
-        <button className="text-[9px] text-cyan-400 hover:text-cyan-300">View All ➔</button>
       </div>
       
       <div className="space-y-1.5 overflow-y-auto max-h-32 pr-1">
+        {metrics.forecast_covers_voyage === false && <p className="text-[10px] text-amber-300">Voyage exceeds the {metrics.forecast_hours}h forecast by {metrics.uncovered_voyage_hours}h. Later iceberg positions are unknown.</p>}
+        {metrics.baseline_is_navigable === false && <p className="text-[10px] text-amber-300">Direct baseline fails the current model's traversal checks.</p>}
         {metrics.direct_route_collision_hazards && metrics.direct_route_collision_hazards.length > 0 ? (
           <div className="flex gap-2 p-2 rounded bg-red-950/20 border border-red-900/30">
             <div className="w-4 h-4 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -275,13 +286,12 @@ function AlertsPanel({ metrics }) {
             </div>
             <div>
               <div className="text-[10px] font-bold text-red-400 leading-tight flex items-center justify-between">
-                High iceberg concentration
-                <span className="text-[8px] text-slate-500 font-normal ml-2">2 hrs ago</span>
+                {metrics.direct_route_collision_hazards.length} baseline hazard intersections
               </div>
-              <div className="text-[9px] text-slate-400 mt-0.5 leading-tight">Lat -69.4°S, Lon 76.1°E</div>
+              <div className="text-[9px] text-slate-400 mt-0.5 leading-tight">Reported by the current simulation for the direct baseline.</div>
             </div>
           </div>
-        ) : null}
+        ) : <p className="text-[10px] text-slate-400">{Array.isArray(metrics.direct_route_collision_hazards) ? 'No baseline hazard intersections reported.' : 'Baseline hazard data unavailable.'}</p>}
 
         <div className="flex gap-2 p-2 rounded bg-amber-950/20 border border-amber-900/20">
           <div className="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -289,10 +299,9 @@ function AlertsPanel({ metrics }) {
           </div>
           <div>
             <div className="text-[10px] font-bold text-amber-400 leading-tight flex items-center justify-between">
-              Weather condition change
-              <span className="text-[8px] text-slate-500 font-normal ml-2">5 hrs ago</span>
+              Live weather alerts unavailable
             </div>
-            <div className="text-[9px] text-slate-400 mt-0.5 leading-tight">Wind speed increased to 22 knots</div>
+            <div className="text-[9px] text-slate-400 mt-0.5 leading-tight">Forecasts use simulated environmental data.</div>
           </div>
         </div>
       </div>

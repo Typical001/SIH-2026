@@ -71,7 +71,8 @@ export default function PolarMap({
   },
   origin = { lat: -33.9249, lon: 18.4241 },
   destination = { lat: -69.4125, lon: 76.1872 },
-  routeMetrics = null
+  routeMetrics = null,
+  forecastHours = 72
 }) {
   const defaultCenter = [-52.0, 48.0];
 
@@ -111,8 +112,8 @@ export default function PolarMap({
             >
               <Tooltip sticky>
                 <div className="text-xs font-mono">
-                  <strong className="text-cyan-300">Antarctic Pack Ice Zone (SIC: 75-95%)</strong><br />
-                  Heavy Polar ice sheets & fast-ice margin.
+                  <strong className="text-cyan-300">Illustrative Antarctic Ice Zone</strong><br />
+                  Schematic overlay; not a measured SIC grid.
                 </div>
               </Tooltip>
             </Circle>
@@ -130,8 +131,8 @@ export default function PolarMap({
             >
               <Tooltip sticky>
                 <div className="text-xs font-mono">
-                  <strong className="text-cyan-300">Prydz Bay Marginal Ice Zone (SIC: 40-70%)</strong><br />
-                  Bharati Station navigation approach corridor.
+                  <strong className="text-cyan-300">Illustrative Prydz Bay Ice Zone</strong><br />
+                  Schematic overlay; not a measured SIC grid.
                 </div>
               </Tooltip>
             </Circle>
@@ -154,7 +155,7 @@ export default function PolarMap({
             <Tooltip>
               <div className="text-[11px] font-mono">
                 <div>ACC Current: <strong>{pt.ocean_spd_kts} kts</strong></div>
-                <div>ERA5 Wind: <strong>{pt.wind_spd_kts} kts</strong></div>
+                <div>Simulated Wind: <strong>{pt.wind_spd_kts} kts</strong></div>
                 <div>Sea Ice: <strong>{(pt.sic * 100).toFixed(0)}%</strong></div>
               </div>
             </Tooltip>
@@ -177,24 +178,24 @@ export default function PolarMap({
                 <div className="text-slate-300">Class: <strong>{ib.ice_class}</strong></div>
                 <div className="text-slate-300">Dimensions: <strong>{ib.length_km} × {ib.width_km} km</strong></div>
                 <div className="text-slate-300">Mass: <strong>{ib.mass_mt} Mt</strong></div>
-                <div className="text-slate-400 text-[10px]">Source: {ib.source}</div>
+                <div className="text-slate-400 text-[10px]">Simulated iceberg catalog</div>
               </div>
             </Popup>
           </Marker>
         ))}
 
         {/* Iceberg 72h Predicted Positions & 25km Safety Hazard Buffers */}
-        {layers.showPredictedBergs && icebergsPredicted.map((ib) => {
-          const radiusMeters = (ib.safety_radius_km || 25.0) * 1000.0;
+        {icebergsPredicted.map((ib) => {
+          const radiusMeters = (ib.planning_hazard_radius_km ?? ib.safety_radius_km ?? 25.0) * 1000.0;
+          const trajectory = Array.isArray(ib.trajectory_points) ? ib.trajectory_points
+            .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon))
+            .map(p => [p.lat, p.lon]) : [];
           return (
             <React.Fragment key={`pred-frag-${ib.id}`}>
               {/* Drift Trajectory Trail (Dashed Red Line) */}
-              {layers.showDriftVectors && ib.initial_lat && (
+              {layers.showDriftVectors && trajectory.length > 1 && (
                 <Polyline
-                  positions={[
-                    [ib.initial_lat, ib.initial_lon],
-                    [ib.lat, ib.lon]
-                  ]}
+                  positions={trajectory}
                   pathOptions={{
                     color: '#f87171',
                     weight: 2,
@@ -220,15 +221,15 @@ export default function PolarMap({
                   <Tooltip sticky>
                     <div className="text-xs font-mono">
                       <strong className="text-red-400">HAZARD BUFFER: {ib.name}</strong><br />
-                      Safety Radius: <strong>{ib.safety_radius_km} km</strong> ({ib.safety_radius_nm} NM)<br />
-                      Status: <span className="text-red-300 font-bold">IMPASSABLE HAZARD (Cost 99,999)</span>
+                      Planning envelope radius: <strong>{(radiusMeters / 1000).toFixed(1)} km</strong><br />
+                      <span className="text-red-300 font-bold">Simulated forecast hazard area (+{forecastHours}h)</span>
                     </div>
                   </Tooltip>
                 </Circle>
               )}
 
               {/* 72h Predicted Iceberg Center Marker */}
-              <Marker
+              {layers.showPredictedBergs && <Marker
                 position={[ib.lat, ib.lon]}
                 icon={icebergIcon}
               >
@@ -237,24 +238,24 @@ export default function PolarMap({
                     <div className="font-bold text-red-400 flex items-center justify-between gap-2 border-b border-red-500/30 pb-1">
                       <span>{ib.name}</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-950 border border-red-500/40 text-red-300 font-bold">
-                        +72h PREDICTED
+                        +{forecastHours}h PREDICTED
                       </span>
                     </div>
                     <div className="text-slate-200">
                       Coordinates: <strong>{ib.lat.toFixed(3)}°, {ib.lon.toFixed(3)}°</strong>
                     </div>
                     <div className="text-slate-200">
-                      72h Drift Distance: <strong className="text-amber-400">{ib.drift_distance_total_km} km</strong>
+                      {forecastHours}h Drift Distance: <strong className="text-amber-400">{ib.drift_distance_total_km} km</strong>
                     </div>
                     <div className="text-slate-200">
                       Safety Hazard Radius: <strong className="text-red-400">{ib.safety_radius_km} km</strong>
                     </div>
                     <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-700">
-                      Physics: ERA5 Wind Drag (C=0.032) + HYCOM Ocean Keel Drag (C=0.88)
+                      Simulated wind and ocean-current drift model
                     </div>
                   </div>
                 </Popup>
-              </Marker>
+              </Marker>}
             </React.Fragment>
           );
         })}
@@ -272,8 +273,8 @@ export default function PolarMap({
           >
             <Tooltip sticky>
               <div className="text-xs font-mono">
-                <strong className="text-amber-400">Benchmark Great Circle (Unoptimized)</strong><br />
-                <span className="text-red-400 font-semibold">⚠️ Intersects Predicted Iceberg Drift Buffers!</span>
+                <strong className="text-amber-400">Direct Baseline (Unoptimized)</strong><br />
+                <span>Reported hazard intersections: {routeMetrics?.direct_route_collision_hazards?.length ?? 'Unavailable'}</span>
               </div>
             </Tooltip>
           </Polyline>
@@ -309,12 +310,12 @@ export default function PolarMap({
                 <div className="p-1 font-mono text-xs space-y-1">
                   <div className="font-bold text-emerald-400 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>A* OPTIMAL SAFE POLAR ROUTE</span>
+                    <span>A* COMPUTED ROUTE — SIMULATION</span>
                   </div>
-                  <div>Distance: <strong className="text-white">{routeMetrics?.distance_nautical_miles || '—'} NM</strong></div>
-                  <div>ETA: <strong className="text-white">{routeMetrics?.estimated_voyage_days || '—'} Days</strong></div>
-                  <div>Fuel Savings: <strong className="text-emerald-300">+{routeMetrics?.fuel_savings_percent || '—'}%</strong></div>
-                  <div>Status: <strong className="text-emerald-400">100% Collision-Free</strong></div>
+                  <div>Distance: <strong className="text-white">{routeMetrics?.distance_nautical_miles ?? '—'} NM</strong></div>
+                  <div>ETA: <strong className="text-white">{routeMetrics?.estimated_voyage_days ?? '—'} Days</strong></div>
+                  <div>Modeled Fuel Savings: <strong className="text-emerald-300">{routeMetrics?.fuel_savings_percent ?? '—'}%</strong></div>
+                  <div>Route clearance has not been verified.</div>
                 </div>
               </Tooltip>
             </Polyline>
@@ -327,8 +328,7 @@ export default function PolarMap({
             <Popup>
               <div className="p-1 font-mono text-xs">
                 <div className="font-bold text-cyan-400">DEPARTURE PORT</div>
-                <div>Cape Town Port (-33.92°, 18.42°)</div>
-                <div className="text-[10px] text-slate-400">Polar Expedition Staging Base</div>
+                <div>{origin.name || 'Selected departure'} ({origin.lat.toFixed(2)}°, {origin.lon.toFixed(2)}°)</div>
               </div>
             </Popup>
           </Marker>
@@ -340,8 +340,7 @@ export default function PolarMap({
             <Popup>
               <div className="p-1 font-mono text-xs">
                 <div className="font-bold text-emerald-400">DESTINATION STATION</div>
-                <div>Bharati Indian Antarctic Station (-69.41°, 76.18°)</div>
-                <div className="text-[10px] text-slate-400">Larsemann Hills, East Antarctica</div>
+                <div>{destination.name || 'Selected destination'} ({destination.lat.toFixed(2)}°, {destination.lon.toFixed(2)}°)</div>
               </div>
             </Popup>
           </Marker>
@@ -350,43 +349,43 @@ export default function PolarMap({
 
       {/* Interactive Map Legend Overlay */}
       <div className="absolute bottom-4 left-4 z-20 glass-panel-glow p-3.5 rounded-xl text-xs font-mono space-y-2 max-w-[280px] pointer-events-auto select-none">
-        <div className="font-bold text-slate-200 flex items-center justify-between border-b border-cyan-500/30 pb-1.5">
+        <div className="font-bold text-slate-200 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-cyan-500/30 pb-1.5">
           <span className="text-cyan-300 flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-cyan-400" />
             MAP LAYERS & SYMBOLS
           </span>
-          <span className="text-[10px] text-slate-400 font-normal">EPSG:3857/Polar</span>
+          <span className="text-[10px] text-slate-400 font-normal">EPSG:3857</span>
         </div>
 
         <div className="space-y-1.5 text-[11px]">
           <div className="flex items-center gap-2">
             <div className="w-5 h-1 rounded bg-emerald-400 shadow-neon-green" />
-            <span className="text-emerald-300 font-semibold">A* Safe Optimal Route</span>
+            <span className="text-emerald-300 font-semibold">A* Computed Route</span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-5 h-1 border-t-2 border-dashed border-amber-400" />
-            <span className="text-amber-300">Direct Baseline (Hazardous)</span>
+            <span className="text-amber-300">Direct Baseline</span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-3.5 h-3.5 rounded-full bg-red-600/90 border border-red-400 flex items-center justify-center text-[8px] text-white">▲</div>
-            <span className="text-red-300 font-medium">72h Predicted Iceberg</span>
+            <span className="text-red-300 font-medium">{forecastHours}h Predicted Iceberg</span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full border border-dashed border-red-500 bg-red-500/25" />
-            <span className="text-red-400">25km Safety Hazard Zone</span>
+            <span className="text-red-400">Forecast Hazard Buffer</span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-3.5 h-3.5 rounded-full bg-cyan-600/80 border border-cyan-400 flex items-center justify-center text-[8px] text-white">◆</div>
-            <span className="text-cyan-300">0h Present Iceberg (USNIC)</span>
+            <span className="text-cyan-300">0h Simulated Iceberg</span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-4 h-3 rounded bg-sky-500/25 border border-sky-400/50" />
-            <span className="text-sky-300">Sea Ice Concentration Grid</span>
+            <span className="text-sky-300">Illustrative Ice Zones</span>
           </div>
         </div>
       </div>

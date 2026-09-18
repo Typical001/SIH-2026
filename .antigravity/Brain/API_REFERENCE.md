@@ -1,5 +1,20 @@
 # API reference
 
+## Current contract changes — 2026-09-18
+
+These changes supersede the historical parameter/metric descriptions below. Existing route geometry/XAI fields remain; legacy iceberg keys containing 72h are retained for compatibility.
+
+- Route latitude must be -75 to 25, longitude -180 to 180; endpoints must differ and longitude span must be less than 180 degrees. Unsupported inputs/classes or grids over 50,000 cells return 422. No navigable path/blocked endpoint returns 409 NO_ROUTE_FOUND without a success payload.
+- Supported classes: Polar Class 1 (PC1), Polar Class 3 (PC3), Polar Class 7 (PC7), Open Water Vessel. Existing speed 5–30 knots, safety buffer 5–100 km and forecast 0–168 hours bounds remain.
+- Metocean coordinates are geographically bounded, steps are 0.25–20 degrees, bounds must be ordered, and grids are limited to 10,000 samples; violations return 422.
+- Route waypoints retain exact endpoints and geodesic interpolation with spacing at most 5 km. Baseline geometry follows the same spherical distance calculation.
+- Each predicted iceberg in the route response adds planning_hazard_radius_km, the radius of the conservative envelope actually avoided. safety_radius_km remains its final-time drift buffer.
+- route_metrics adds direct_fuel_consumption_tons, direct_estimated_voyage_hours, baseline_is_navigable, forecast_hazards_considered, requested_forecast_hours, forecast_hours (available coverage), forecast_covers_voyage, uncovered_voyage_hours, hazard_mode, warnings, fuel_model and risk_model.
+- fuel_savings_percent is signed and may be negative; risk_score is an uncalibrated 0–100 exposure index, with LOW/MODERATE/HIGH labels, not a probability. min_iceberg_distance_km is null when no forecasts exist. The misleading icebergs_avoided_count and fixed latency_compensation_status fields were removed.
+- Direct baseline fuel/time are hypothetical when baseline_is_navigable is false. Coverage warnings are mandatory context for voyages longer than the available forecast. XAI uses actual node factors, including endpoint samples; it remains a heuristic summary.
+
+## Historical contract snapshot — 2026-09-17
+
 Source: `backend/main.py`, updated 2026-09-17 at `3684d67` plus the local NAV-02 restoration. Local base: `http://localhost:8000`. All application endpoints use GET and return JSON. Interactive schema is available at `/docs`, ReDoc at `/redoc`, and OpenAPI JSON at `/openapi.json` while the service runs. No authentication or explicit response models are configured.
 
 ## Endpoints

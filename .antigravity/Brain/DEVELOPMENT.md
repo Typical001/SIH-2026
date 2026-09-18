@@ -1,5 +1,7 @@
 # Development and deployment
 
+**2026-09-18 routing update:** run `backend/venv/Scripts/python.exe -B backend/test_route_correctness.py` from the application root in addition to the two existing backend suites and frontend test/build commands. Deploy frontend/backend together for planning-envelope and forecast-gap displays. Route bounds, metric semantics and limitations are documented in API_REFERENCE.md and ARCHITECTURE.md; these supersede the older troubleshooting notes below.
+
 Updated 2026-09-17 at `3684d67` plus local request/no-route/error-state repairs. The test command/dependencies and regression suites are restored. See [TESTING.md](TESTING.md).
 
 ## Local setup on Windows

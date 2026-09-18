@@ -15,6 +15,11 @@ export default function Navbar({
   vesselIceClass, 
   forecastHours
 }) {
+  const focusPanel = id => {
+    const panel = document.getElementById(id);
+    panel?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    panel?.focus({ preventScroll: true });
+  };
   return (
     <header className="h-14 px-5 bg-[#050b18] border-b border-slate-800 flex items-center justify-between z-30 shrink-0 select-none relative">
       {/* Brand & Mission Identification */}
@@ -38,15 +43,15 @@ export default function Navbar({
 
       {/* Center: Navigation Tabs */}
       <div className="flex-1 flex justify-center items-center gap-2">
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-900/40 text-cyan-300 text-xs font-semibold border border-cyan-500/30">
+        <span aria-current="page" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-900/40 text-cyan-300 text-xs font-semibold border border-cyan-500/30">
           <Home className="w-4 h-4" />
           Dashboard
-        </button>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition">
+        </span>
+        <button onClick={() => focusPanel('route-planning')} className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition">
           <Map className="w-4 h-4" />
           Route Planner
         </button>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition">
+        <button onClick={() => focusPanel('iceberg-forecast')} className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-semibold transition">
           <ThermometerSnowflake className="w-4 h-4" />
           Forecast
         </button>
@@ -68,11 +73,10 @@ export default function Navbar({
 
       {/* Right: User Profile */}
       <div className="w-1/4 flex justify-end items-center gap-3">
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-slate-300 text-xs transition">
+        <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 text-slate-300 text-xs">
           <User className="w-4 h-4 text-cyan-400" />
           Team PolarNav
-          <span className="text-[10px] ml-1 opacity-50">▼</span>
-        </button>
+        </span>
       </div>
     </header>
   );

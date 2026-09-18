@@ -1,23 +1,16 @@
-"""
-Risk Matrix & Pathfinding Engine Module (Step 4):
-Implements spatial grid graph generation and A* (A-Star) pathfinding over
-the Southern Ocean / Antarctica navigation corridor.
+"""Simulation routing with checked segments, directed costs and explicit limits.
 
-Cost Matrix Weights:
-- Open Water = 1.0
-- Sea Ice Zone = 1.0 to 15.0 (dependent on Sea Ice Concentration and Vessel Ice Class)
-- Predicted Iceberg Hazard Zone = 99,999.0 (Impassable safety hazard buffer)
-- Ocean Current Vector Assistance: Energy/fuel optimization
+Known land and forecast envelopes are excluded from graph edges. Sea-ice
+costs vary by vessel; only open-water ice exclusion is a hard vessel rule.
+The land mask is incomplete and the environmental fields are synthetic.
 """
-
-from typing import List, Dict, Any, Tuple, Optional
 import math
 import numpy as np
 import networkx as nx
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Point, Polygon, LineString
 from shapely.ops import unary_union
 
-from data_engine import MetoceanEngine, Iceberg, POLAR_STATIONS, get_initial_icebergs
+from data_engine import MetoceanEngine
 from drift_engine import DriftPhysicsEngine
 
 
@@ -25,37 +18,18 @@ class NoRouteFoundError(Exception):
     """The navigation graph has no traversable connection between endpoints."""
 
 
-def haversine_nm(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """
-    Computes Great Circle Distance in Nautical Miles between two coordinates.
-    1 NM = 1.852 km
-    """
-    R_NM = 3440.065  # Earth radius in Nautical Miles
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    delta_phi = math.radians(lat2 - lat1)
-    delta_lambda = math.radians(lon2 - lon1)
-
-    a = math.sin(delta_phi / 2.0) ** 2 + \
-        math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0) ** 2
-    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
-    return R_NM * c
-
-
-def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    return haversine_nm(lat1, lon1, lat2, lon2) * 1.852
-
+from navigation_geometry import haversine_nm, haversine_km, bearing, great_circle_points, segment_distance_km
 
 
 # =============================================================================
-# LAND-SEA MASK  (Natural Earth 1:10m coastline polygons – Indian Ocean sector)
-# Grid nodes whose (lat, lon) centroid falls inside any polygon below receive
-# base_cost = HAZARD_IMPASSABLE_COST and are excluded from A* routing.
+# LAND-SEA MASK  (hand-entered simplified polygons – Indian Ocean sector)
+# Boundary points and complete rendered route segments are checked against
+# these polygons. This is not a complete or sourced navigational coastline.
 # =============================================================================
 
 class LandMask:
     """
-    Lightweight land-sea mask built from simplified Natural Earth shoreline
+    Lightweight land-sea mask built from hand-entered, unverified shoreline
     vertices for the India <-> Southern Ocean shipping corridor.
 
     Landmasses covered:
@@ -70,7 +44,7 @@ class LandMask:
     exceptions even if a polygon has minor self-intersections.
     """
 
-    # Sri Lanka - Natural Earth 1:10m simplified coastline (lon, lat)
+    # Sri Lanka - approximate coastline (lon, lat)
     _RAW_POLYGONS = [
         # Sri Lanka
         [
@@ -123,357 +97,268 @@ class LandMask:
     @classmethod
     def is_land(cls, lat: float, lon: float) -> bool:
         """Return True if the (lat, lon) point lies on a landmass."""
-        return cls._get_land().contains(Point(lon, lat))  # Shapely: (x=lon, y=lat)
+        return cls._get_land().covers(Point(lon, lat))  # Shapely: (x=lon, y=lat)
+
+
+class InvalidRouteInput(ValueError):
+    """Invalid or unsupported planning parameters."""
 
 
 class PolarPathfinder:
-    """
-    Generates dynamic navigation graphs and runs A* search for lowest-cost,
-    ice-safe maritime routes.
-    """
+    """Bounded simulation planner with checked edges and directed current costs."""
 
     HAZARD_IMPASSABLE_COST = 99999.0
+    MIN_CURRENT_MULTIPLIER = 0.85
+    ICE_CLASSES = ("Polar Class 1 (PC1)", "Polar Class 3 (PC3)",
+                   "Polar Class 7 (PC7)", "Open Water Vessel")
+    MAX_GRID_NODES = 50000
 
-    def __init__(
-        self,
-        grid_resolution_deg: float = 0.8,
-        vessel_ice_class: str = "Polar Class 3 (PC3)",
-        cruising_speed_knots: float = 14.5
-    ):
+    def __init__(self, grid_resolution_deg=0.8,
+                 vessel_ice_class="Polar Class 3 (PC3)", cruising_speed_knots=14.5):
+        if not math.isfinite(grid_resolution_deg) or not 0.25 <= grid_resolution_deg <= 2:
+            raise InvalidRouteInput("Grid resolution must be between 0.25 and 2 degrees.")
+        if vessel_ice_class not in self.ICE_CLASSES:
+            raise InvalidRouteInput("Unsupported vessel ice class.")
+        if not math.isfinite(cruising_speed_knots) or not 5 <= cruising_speed_knots <= 30:
+            raise InvalidRouteInput("Cruising speed must be between 5 and 30 knots.")
         self.res = grid_resolution_deg
         self.vessel_ice_class = vessel_ice_class
         self.cruising_speed_knots = cruising_speed_knots
 
-    def _get_ice_penalty_factor(self, sic: float) -> float:
-        """
-        Calculates penalty multiplier for sea ice concentration based on vessel rating.
-        """
-        if "PC1" in self.vessel_ice_class:  # Heavy Icebreaker
-            return 1.0 + 3.0 * (sic ** 1.2)
-        elif "PC3" in self.vessel_ice_class:  # Polar Research Vessel (e.g. Bharati expedition ship)
-            return 1.0 + 8.5 * (sic ** 1.4)
-        elif "PC7" in self.vessel_ice_class:  # Light Ice Strengthened
-            return 1.0 + 25.0 * (sic ** 1.6)
-        else:  # Open Water / Standard Commercial Vessel
-            return 1.0 + 80.0 * (sic ** 1.8)
+    @staticmethod
+    def validate_route_inputs(start, end, safety_buffer_km=25):
+        for coord in (start, end):
+            if len(coord) != 2 or not all(math.isfinite(x) for x in coord):
+                raise InvalidRouteInput("Coordinates must be finite latitude/longitude pairs.")
+            if not -75 <= coord[0] <= 25 or not -180 <= coord[1] <= 180:
+                raise InvalidRouteInput("Supported corridor is 75 S to 25 N, longitude -180 to 180.")
+        if abs(start[1] - end[1]) >= 180:
+            raise InvalidRouteInput("Antimeridian-spanning routes are not supported by this grid.")
+        if haversine_nm(*start, *end) < 1e-6:
+            raise InvalidRouteInput("Departure and destination must be distinct.")
+        if not math.isfinite(safety_buffer_km) or not 5 <= safety_buffer_km <= 100:
+            raise InvalidRouteInput("Safety buffer must be between 5 and 100 km.")
 
-    def build_navigation_graph(
-        self,
-        start_coord: Tuple[float, float],
-        end_coord: Tuple[float, float],
-        iceberg_forecasts: List[Dict[str, Any]],
-        safety_buffer_km: float = 25.0
-    ) -> Tuple[nx.Graph, List[Tuple[float, float]], List[Dict[str, Any]]]:
-        """
-        Builds a 2D spatial navigation grid graph with dynamic hazard weighting.
-        """
-        start_lat, start_lon = start_coord
-        end_lat, end_lon = end_coord
+    def _get_ice_penalty_factor(self, sic):
+        if "PC1" in self.vessel_ice_class:
+            return 1 + 3 * sic ** 1.2
+        if "PC3" in self.vessel_ice_class:
+            return 1 + 8.5 * sic ** 1.4
+        if "PC7" in self.vessel_ice_class:
+            return 1 + 25 * sic ** 1.6
+        return 1 + 80 * sic ** 1.8
 
-        min_lat = min(start_lat, end_lat) - 2.5
-        max_lat = max(start_lat, end_lat) + 2.5
-        min_lon = min(start_lon, end_lon) - 4.5
-        max_lon = max(start_lon, end_lon) + 4.5
+    def _ice_allowed(self, sic):
+        # Polar Class alone does not specify a certified concentration limit.
+        # Open-water planning must not silently enter modeled ice.
+        return self.vessel_ice_class != "Open Water Vessel" or sic <= 0
 
-        # Latitude bounds: full corridor from departure port to Antarctic
-        # waters.  Upper cap at 25°N covers the entire Indian subcontinent
-        # and Sri Lanka; lower cap at 75°S avoids unreachable polar grids.
-        min_lat = max(-75.0, min_lat)   # never past 75°S
-        max_lat = min(25.0,  max_lat)   # never above 25°N
+    def _hazards(self, forecasts, buffer_km):
+        hazards = []
+        for fc in forecasts:
+            anchor = fc["predicted_position_72h"]
+            center = (anchor["lat"], anchor["lon"])
+            samples = fc.get("trajectory_points") or [
+                {**fc.get("initial_position", anchor), "safety_radius_km": fc["safety_radius_km"]},
+                {**anchor, "safety_radius_km": fc["safety_radius_km"]}
+            ]
+            # Enclose the entire supplied drift trajectory, not only its final point.
+            # Half the longest sample interval adds a conservative allowance for
+            # interpolated movement between samples (triangle inequality).
+            radius = max(buffer_km, fc["safety_radius_km"])
+            for point in samples:
+                radius = max(radius, haversine_km(*center, point["lat"], point["lon"])
+                             + max(buffer_km, point.get("safety_radius_km", fc["safety_radius_km"])))
+            max_gap = max((haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])
+                           for a, b in zip(samples, samples[1:])), default=0)
+            hazards.append({"id": fc["iceberg_id"], "name": fc["name"],
+                            "lat": center[0], "lon": center[1],
+                            "radius_km": radius + max_gap / 2,
+                            "radius_nm": (radius + max_gap / 2) / 1.852})
+        return hazards
 
-        lats = np.arange(min_lat, max_lat + self.res * 0.5, self.res)
-        lons = np.arange(min_lon, max_lon + self.res * 0.5, self.res)
+    def _node_data(self, point, hazards):
+        lat, lon = point
+        sic = MetoceanEngine.get_sea_ice_concentration(lat, lon)
+        ocean = MetoceanEngine.get_ocean_current(lat, lon)
+        wind = MetoceanEngine.get_wind_vector(lat, lon)
+        caution, blocked = 0.0, False
+        for hz in hazards:
+            distance = haversine_km(lat, lon, hz["lat"], hz["lon"])
+            blocked |= distance <= hz["radius_km"]
+            caution = max(caution, max(0, 2 - distance / hz["radius_km"]) * 40)
+        on_land = LandMask.is_land(lat, lon)
+        impassable = blocked or on_land or not self._ice_allowed(sic)
+        return dict(lat=lat, lon=lon, sic=sic, ocean_u=ocean["u"], ocean_v=ocean["v"],
+                    ocean_spd=ocean["speed_knots"], wind_spd=wind["speed_knots"],
+                    on_land=on_land, in_hazard=blocked, proximity_caution=caution,
+                    base_cost=self.HAZARD_IMPASSABLE_COST if impassable else self._get_ice_penalty_factor(sic) + caution)
 
-        graph = nx.Graph()
-        nodes_grid = []
-        hazard_polygons = []
+    def _segment_clear(self, a, b, hazards):
+        if a == b:
+            return False
+        if any(segment_distance_km((h["lat"], h["lon"]), a, b) <= h["radius_km"] for h in hazards):
+            return False
+        samples = great_circle_points(a, b)
+        if any(not -75 <= p[0] <= 25 for p in samples):
+            return False
+        # Intersect the whole rendered polyline, so narrow known land barriers
+        # between clear endpoints cannot be skipped.
+        if LandMask._get_land().intersects(LineString([(p[1], p[0]) for p in samples])):
+            return False
+        return all(self._ice_allowed(MetoceanEngine.get_sea_ice_concentration(*p)) for p in samples)
 
-        # Prepare iceberg safety circles/polygons
-        for fc in iceberg_forecasts:
-            pred_lat = fc["predicted_position_72h"]["lat"]
-            pred_lon = fc["predicted_position_72h"]["lon"]
-            eff_radius_km = max(safety_buffer_km, fc["safety_radius_km"])
-            hazard_polygons.append({
-                "id": fc["iceberg_id"],
-                "name": fc["name"],
-                "lat": pred_lat,
-                "lon": pred_lon,
-                "radius_km": eff_radius_km,
-                "radius_nm": eff_radius_km / 1.852
-            })
+    def _edge(self, graph, u, v):
+        data = graph.nodes[u]
+        alignment = math.cos(bearing(u, v) - math.atan2(data["ocean_u"], data["ocean_v"]))
+        multiplier = max(self.MIN_CURRENT_MULTIPLIER, min(1.2, 1 - alignment * data["ocean_spd"] / 20))
+        distance = haversine_nm(*u, *v)
+        graph.add_edge(u, v, distance_nm=distance,
+                       weight=distance * (data["base_cost"] + graph.nodes[v]["base_cost"]) / 2 * multiplier)
 
-        # Add all grid nodes with localized metocean and risk cost
-        node_map = {}
-        for lat in lats:
-            for lon in lons:
-                node_key = (round(float(lat), 3), round(float(lon), 3))
-                sic = MetoceanEngine.get_sea_ice_concentration(lat, lon)
-                ocean = MetoceanEngine.get_ocean_current(lat, lon)
-                wind = MetoceanEngine.get_wind_vector(lat, lon)
+    def build_navigation_graph(self, start_coord, end_coord, iceberg_forecasts, safety_buffer_km=25):
+        self.validate_route_inputs(start_coord, end_coord, safety_buffer_km)
+        low_lat, high_lat = max(-75, min(start_coord[0], end_coord[0]) - 2.5), min(25, max(start_coord[0], end_coord[0]) + 2.5)
+        low_lon, high_lon = max(-180, min(start_coord[1], end_coord[1]) - 4.5), min(180, max(start_coord[1], end_coord[1]) + 4.5)
+        lats = np.arange(low_lat, high_lat + 1e-9, self.res)
+        lons = np.arange(low_lon, high_lon + 1e-9, self.res)
+        if len(lats) * len(lons) > self.MAX_GRID_NODES:
+            raise InvalidRouteInput("Requested route grid is too large.")
+        hazards = self._hazards(iceberg_forecasts, safety_buffer_km)
+        graph = nx.DiGraph()
+        nodes = {}
+        for i, lat in enumerate(lats):
+            for j, lon in enumerate(lons):
+                point = (float(lat), float(lon))
+                data = self._node_data(point, hazards)
+                if data["base_cost"] < self.HAZARD_IMPASSABLE_COST:
+                    graph.add_node(point, **data)
+                    nodes[i, j] = point
+        # Check each undirected geometry once, then retain separate costs.
+        for (i, j), u in nodes.items():
+            for di, dj in [(1, 0), (0, 1), (1, 1), (1, -1)]:
+                v = nodes.get((i + di, j + dj))
+                if v is not None and self._segment_clear(u, v, hazards):
+                    self._edge(graph, u, v)
+                    self._edge(graph, v, u)
+        endpoints = [tuple(start_coord), tuple(end_coord)]
+        for point in endpoints:
+            data = self._node_data(point, hazards)
+            if data["base_cost"] >= self.HAZARD_IMPASSABLE_COST:
+                raise NoRouteFoundError("An endpoint is on known land, in a forecast hazard, or in unsuitable modeled ice.")
+            graph.add_node(point, **data)
+            for neighbor in nodes.values():
+                if neighbor != point and haversine_nm(*point, *neighbor) < self.res * 120 and self._segment_clear(point, neighbor, hazards):
+                    self._edge(graph, point, neighbor)
+                    self._edge(graph, neighbor, point)
+        # Close endpoints need not detour to a coarse grid node.
+        if haversine_nm(*endpoints[0], *endpoints[1]) < self.res * 120 and self._segment_clear(*endpoints, hazards):
+            self._edge(graph, *endpoints)
+            self._edge(graph, endpoints[1], endpoints[0])
+        return graph, endpoints, hazards
 
-                # Check proximity to all predicted iceberg safety zones
-                in_hazard_zone = False
-                proximity_caution_score = 0.0
+    def _voyage_metrics(self, points):
+        distance, hours, fuel, max_sic = 0.0, 0.0, 0.0, 0.0
+        # Explicit illustrative propulsion law, not a vessel-calibrated model.
+        daily_burn = 36.5 * (0.2 + 0.8 * (self.cruising_speed_knots / 14.5) ** 3)
+        for a, b in zip(points, points[1:]):
+            length = haversine_nm(*a, *b)
+            sic = max(MetoceanEngine.get_sea_ice_concentration(*p) for p in (a, b))
+            duration = length / (self.cruising_speed_knots * (1 - .25 * sic))
+            distance += length
+            hours += duration
+            fuel += duration / 24 * daily_burn * (1 + .45 * sic)
+            max_sic = max(max_sic, sic)
+        return distance, hours, fuel, max_sic
 
-                for hz in hazard_polygons:
-                    dist_km = haversine_km(lat, lon, hz["lat"], hz["lon"])
-                    if dist_km <= hz["radius_km"]:
-                        in_hazard_zone = True
-                        break
-                    elif dist_km <= hz["radius_km"] * 2.0:
-                        # Soft safety buffer margin
-                        soft_ratio = (hz["radius_km"] * 2.0 - dist_km) / hz["radius_km"]
-                        proximity_caution_score = max(proximity_caution_score, soft_ratio * 40.0)
-
-                # ── Land-sea mask: terrestrial nodes are impassable ────
-                on_land = LandMask.is_land(float(lat), float(lon))
-
-                # Node base traversal cost
-                if on_land:
-                    node_cost = self.HAZARD_IMPASSABLE_COST
-                elif in_hazard_zone:
-                    node_cost = self.HAZARD_IMPASSABLE_COST
-                else:
-                    ice_factor = self._get_ice_penalty_factor(sic)
-                    node_cost = ice_factor + proximity_caution_score
-
-                graph.add_node(
-                    node_key,
-                    lat=node_key[0],
-                    lon=node_key[1],
-                    sic=sic,
-                    ocean_u=ocean["u"],
-                    ocean_v=ocean["v"],
-                    ocean_spd=ocean["speed_knots"],
-                    wind_spd=wind["speed_knots"],
-                    in_hazard=in_hazard_zone,
-                    on_land=on_land,
-                    base_cost=node_cost
-                )
-                nodes_grid.append(node_key)
-                node_map[node_key] = node_cost
-
-        # Connect neighboring nodes (8-connectivity: cardinal + diagonals)
-        directions = [
-            (-1, 0), (1, 0), (0, -1), (0, 1),
-            (-1, -1), (-1, 1), (1, -1), (1, 1)
-        ]
-
-        lat_indices = {round(float(l), 3): i for i, l in enumerate(lats)}
-        lon_indices = {round(float(l), 3): j for j, l in enumerate(lons)}
-
-        lat_list = list(lat_indices.keys())
-        lon_list = list(lon_indices.keys())
-
-        for i, lat_val in enumerate(lat_list):
-            for j, lon_val in enumerate(lon_list):
-                u = (lat_val, lon_val)
-                u_cost = node_map.get(u, 1.0)
-                if u_cost >= self.HAZARD_IMPASSABLE_COST:
-                    continue  # Impassable node, skip outbound edges
-
-                for di, dj in directions:
-                    ni, nj = i + di, j + dj
-                    if 0 <= ni < len(lat_list) and 0 <= nj < len(lon_list):
-                        v = (lat_list[ni], lon_list[nj])
-                        v_cost = node_map.get(v, 1.0)
-                        if v_cost >= self.HAZARD_IMPASSABLE_COST:
-                            continue  # Impassable target node
-
-                        # Edge weight = Haversine nautical distance * avg node cost factor * current drift alignment
-                        dist_nm = haversine_nm(u[0], u[1], v[0], v[1])
-                        avg_cost_factor = (u_cost + v_cost) / 2.0
-
-                        # Current assistance factor
-                        node_u_data = graph.nodes[u]
-                        d_lat_deg = v[0] - u[0]
-                        d_lon_deg = v[1] - u[1]
-                        # Heading angle of ship step
-                        step_angle = math.atan2(d_lon_deg * math.cos(math.radians(u[0])), d_lat_deg)
-                        curr_angle = math.atan2(node_u_data["ocean_u"], node_u_data["ocean_v"])
-                        current_alignment = math.cos(step_angle - curr_angle)
-                        # Speed aid or penalty (up to +/- 10% cost modulation)
-                        current_aid_multiplier = 1.0 - (current_alignment * (node_u_data["ocean_spd"] / 20.0))
-                        current_aid_multiplier = max(0.85, min(1.20, current_aid_multiplier))
-
-                        edge_weight = dist_nm * avg_cost_factor * current_aid_multiplier
-                        graph.add_edge(u, v, weight=edge_weight, distance_nm=dist_nm)
-
-        # Add exact start and end nodes to graph and connect to nearest grid neighbors
-        start_node = (round(start_lat, 3), round(start_lon, 3))
-        end_node = (round(end_lat, 3), round(end_lon, 3))
-
-        graph.add_node(start_node, lat=start_lat, lon=start_lon, sic=0.0, base_cost=1.0, in_hazard=False)
-        graph.add_node(end_node, lat=end_lat, lon=end_lon, sic=0.8, base_cost=2.0, in_hazard=False)
-
-        # Connect start to closest accessible grid nodes
-        for node in nodes_grid:
-            dist = haversine_nm(start_lat, start_lon, node[0], node[1])
-            if dist < self.res * 120.0 and graph.nodes[node].get("base_cost", 1.0) < self.HAZARD_IMPASSABLE_COST:
-                graph.add_edge(start_node, node, weight=dist * graph.nodes[node]["base_cost"], distance_nm=dist)
-
-        # Connect end to closest accessible grid nodes
-        for node in nodes_grid:
-            dist = haversine_nm(end_lat, end_lon, node[0], node[1])
-            if dist < self.res * 120.0 and graph.nodes[node].get("base_cost", 1.0) < self.HAZARD_IMPASSABLE_COST:
-                graph.add_edge(node, end_node, weight=dist * graph.nodes[node]["base_cost"], distance_nm=dist)
-
-        return graph, [start_node, end_node], hazard_polygons
-
-    def calculate_optimal_route(
-        self,
-        start_coord: Tuple[float, float],
-        end_coord: Tuple[float, float],
-        iceberg_forecasts: Optional[List[Dict[str, Any]]] = None,
-        safety_buffer_km: float = 25.0
-    ) -> Dict[str, Any]:
-        """
-        Executes A* pathfinding and calculates route metrics (distance, ETA, fuel savings, risk score).
-        """
+    def calculate_optimal_route(self, start_coord, end_coord, iceberg_forecasts=None,
+                                safety_buffer_km=25, forecast_hours=72):
+        self.validate_route_inputs(start_coord, end_coord, safety_buffer_km)
+        if not isinstance(forecast_hours, int) or not 0 <= forecast_hours <= 168:
+            raise InvalidRouteInput("Forecast horizon must be an integer from 0 to 168 hours.")
         if iceberg_forecasts is None:
-            iceberg_forecasts = DriftPhysicsEngine.get_all_forecasts(base_safety_buffer_km=safety_buffer_km)
-
-        graph, (start_node, end_node), hazard_polygons = self.build_navigation_graph(
-            start_coord=start_coord,
-            end_coord=end_coord,
-            iceberg_forecasts=iceberg_forecasts,
-            safety_buffer_km=safety_buffer_km
-        )
-
-        def heuristic(u, v):
-            return haversine_nm(u[0], u[1], v[0], v[1])
-
-        # Run A* algorithm
+            iceberg_forecasts = DriftPhysicsEngine.get_all_forecasts(
+                forecast_hours=forecast_hours, base_safety_buffer_km=safety_buffer_km)
+        available_hours = min([forecast_hours] + [
+            max((p.get("time_hours", 0) for p in fc.get("trajectory_points", [])), default=0)
+            for fc in iceberg_forecasts])
+        graph, (start, end), hazards = self.build_navigation_graph(
+            start_coord, end_coord, iceberg_forecasts, safety_buffer_km)
         try:
-            path_nodes = nx.astar_path(
-                graph,
-                source=start_node,
-                target=end_node,
-                heuristic=heuristic,
-                weight="weight"
-            )
+            path = nx.astar_path(graph, start, end,
+                                 heuristic=lambda a, b: self.MIN_CURRENT_MULTIPLIER * haversine_nm(*a, *b),
+                                 weight="weight")
         except (nx.NetworkXNoPath, nx.NodeNotFound) as exc:
-            # A failed search must not produce success geometry, metrics or explanations.
-            raise NoRouteFoundError(
-                "No route found for the selected endpoints and planning settings."
-            ) from exc
-
-        # Process waypoints
-        waypoints = [[float(lat), float(lon)] for lat, lon in path_nodes]
-
-        # Calculate metrics along the optimal route
-        total_distance_nm = 0.0
-        cumulative_risk_score = 0.0
-        max_sic_encountered = 0.0
-        iceberg_proximity_min_km = 9999.0
-
-        for i in range(len(waypoints) - 1):
-            p1 = waypoints[i]
-            p2 = waypoints[i + 1]
-            seg_dist = haversine_nm(p1[0], p1[1], p2[0], p2[1])
-            total_distance_nm += seg_dist
-
-            mid_lat = (p1[0] + p2[0]) / 2.0
-            mid_lon = (p1[1] + p2[1]) / 2.0
-            sic = MetoceanEngine.get_sea_ice_concentration(mid_lat, mid_lon)
-            max_sic_encountered = max(max_sic_encountered, sic)
-
-            # Check min distance to any predicted iceberg
-            for hz in hazard_polygons:
-                dist_km = haversine_km(mid_lat, mid_lon, hz["lat"], hz["lon"])
-                iceberg_proximity_min_km = min(iceberg_proximity_min_km, dist_km)
-
-        # Baseline Direct Route calculation for comparison
-        direct_distance_nm = haversine_nm(start_coord[0], start_coord[1], end_coord[0], end_coord[1])
-        
-        # Check direct route iceberg collisions
-        direct_collisions = []
-        direct_lats = np.linspace(start_coord[0], end_coord[0], 40)
-        direct_lons = np.linspace(start_coord[1], end_coord[1], 40)
-        direct_waypoints = [[float(la), float(lo)] for la, lo in zip(direct_lats, direct_lons)]
-
-        for d_pt in direct_waypoints:
-            for hz in hazard_polygons:
-                dist_km = haversine_km(d_pt[0], d_pt[1], hz["lat"], hz["lon"])
-                if dist_km <= hz["radius_km"]:
-                    if hz["id"] not in direct_collisions:
-                        direct_collisions.append(hz["id"])
-
-        # Voyage Time Calculation
-        # Adjusted speed accounts for sea ice penetration
-        avg_speed_kts = self.cruising_speed_knots * (1.0 - 0.25 * max_sic_encountered)
-        estimated_voyage_hours = total_distance_nm / avg_speed_kts
-        estimated_voyage_days = estimated_voyage_hours / 24.0
-
-        # Fuel consumption modeling (Metric tons heavy fuel oil equivalent)
-        # Specific fuel oil consumption ~ 180 g/kWh; ~ 38 metric tons/day at 14.5 kts
-        base_fuel_tons_per_day = 36.5
-        ice_resistance_factor = 1.0 + (max_sic_encountered * 0.45)
-        fuel_consumption_tons = estimated_voyage_days * base_fuel_tons_per_day * ice_resistance_factor
-
-        # Direct baseline fuel (which would suffer severe stall in ice + iceberg danger)
-        direct_fuel_tons = (direct_distance_nm / self.cruising_speed_knots / 24.0) * base_fuel_tons_per_day * 1.35
-        fuel_savings_pct = max(4.5, round(((direct_fuel_tons - fuel_consumption_tons) / direct_fuel_tons) * 100.0, 1))
-
-        # Risk score (0 = Perfect Safe, 100 = Critical Danger)
-        # Since A* routes avoid all hazard buffers, risk is low (dominated only by unavoidable marginal ice pack)
-        risk_score = round(min(28.0, (max_sic_encountered * 22.0) + (10.0 if iceberg_proximity_min_km < 35.0 else 2.0)), 1)
-
-        # XAI Explanation Generation
-        waypoint_explanations = []
-        sample_step = max(1, len(path_nodes) // 10)
-        for idx in range(0, len(path_nodes), sample_step):
-            node = path_nodes[idx]
-            node_data = graph.nodes.get(node, {})
-            sic_val = node_data.get("sic", 0.0)
-            ice_penalty = self._get_ice_penalty_factor(sic_val)
-            waypoint_explanations.append({
-                "lat": node[0],
-                "lon": node[1],
-                "decision_factors": {
-                    "sic_value": round(sic_val, 3),
-                    "ice_penalty_applied": round(ice_penalty, 2),
-                    "ocean_current_spd_kts": round(node_data.get("ocean_spd", 0.0), 2),
-                    "wind_spd_kts": round(node_data.get("wind_spd", 0.0), 2),
-                    "base_cost_weight": round(node_data.get("base_cost", 1.0), 2)
-                }
-            })
-
-        xai_explanation = {
-            "primary_routing_driver": "Iceberg Avoidance & Sea Ice Minimization" if max_sic_encountered > 0.1 else "Distance & Current Optimization",
-            "route_modifiers": {
-                "max_sea_ice_penalty_pct": round((self._get_ice_penalty_factor(max_sic_encountered) - 1.0) * 100, 1),
-                "iceberg_proximity_caution": 10.0 if iceberg_proximity_min_km < 35.0 else 0.0
-            },
-            "waypoint_explanations": waypoint_explanations
-        }
-
+            raise NoRouteFoundError("No route found for the selected endpoints and planning settings.") from exc
+        # Final defensive validation includes all exact endpoint connectors.
+        if any(not self._segment_clear(a, b, hazards) for a, b in zip(path, path[1:])):
+            raise NoRouteFoundError("Selected route failed segment validation.")
+        points = [path[0]]
+        for a, b in zip(path, path[1:]):
+            points.extend(great_circle_points(a, b)[1:])
+        baseline = great_circle_points(start_coord, end_coord)
+        distance, hours, fuel, max_sic = self._voyage_metrics(points)
+        direct_distance, direct_hours, direct_fuel, _ = self._voyage_metrics(baseline)
+        collisions = [h["id"] for h in hazards if any(
+            segment_distance_km((h["lat"], h["lon"]), a, b) <= h["radius_km"]
+            for a, b in zip(baseline, baseline[1:]))]
+        minimum = min((segment_distance_km((h["lat"], h["lon"]), a, b)
+                       for h in hazards for a, b in zip(path, path[1:])), default=None)
+        caution = max((graph.nodes[n]["proximity_caution"] for n in path), default=0)
+        # Transparent exposure index, not a collision probability or certification.
+        risk = round(min(100, max_sic * 100 + caution / 2), 1)
+        savings = round((direct_fuel - fuel) / direct_fuel * 100, 1) if direct_fuel > 0 else None
+        sample_indices = sorted(set([0, len(path)-1] + list(range(0, len(path), max(1, len(path)//10)))))
+        explanations = []
+        for idx in sample_indices:
+            node = path[idx]
+            data = graph.nodes[node]
+            explanations.append({"lat": node[0], "lon": node[1], "decision_factors": {
+                "sic_value": round(data["sic"], 3),
+                "ice_penalty_applied": round(self._get_ice_penalty_factor(data["sic"]), 2),
+                "ocean_current_spd_kts": round(data["ocean_spd"], 2),
+                "wind_spd_kts": round(data["wind_spd"], 2),
+                "base_cost_weight": round(data["base_cost"], 2)}})
+        warnings = ["Simplified, incomplete land mask and synthetic environmental data; not verified for navigation.",
+                    "Polar Class cost weights are not certified vessel operating limits."]
+        if hours > available_hours:
+            warnings.append("Voyage extends beyond the supplied iceberg forecast horizon.")
         return {
             "status": "OPTIMAL_ROUTE_COMPUTED",
-            "algorithm": "A-Star Dynamic Risk Pathfinding (NetworkX + Shapely)",
-            "origin": {"lat": start_coord[0], "lon": start_coord[1]},
-            "destination": {"lat": end_coord[0], "lon": end_coord[1]},
-            "vessel_ice_class": self.vessel_ice_class,
-            "cruising_speed_knots": self.cruising_speed_knots,
-            "waypoints": waypoints,
-            "direct_baseline_waypoints": direct_waypoints,
+            "algorithm": "Directed A* with checked spherical segments",
+            "origin": {"lat": start[0], "lon": start[1]},
+            "destination": {"lat": end[0], "lon": end[1]},
+            "vessel_ice_class": self.vessel_ice_class, "cruising_speed_knots": self.cruising_speed_knots,
+            "waypoints": [list(p) for p in points],
+            "direct_baseline_waypoints": [list(p) for p in baseline],
             "route_metrics": {
-                "distance_nautical_miles": round(total_distance_nm, 1),
-                "distance_km": round(total_distance_nm * 1.852, 1),
-                "direct_distance_nm": round(direct_distance_nm, 1),
-                "estimated_voyage_hours": round(estimated_voyage_hours, 1),
-                "estimated_voyage_days": round(estimated_voyage_days, 2),
-                "fuel_consumption_tons": round(fuel_consumption_tons, 1),
-                "fuel_savings_percent": fuel_savings_pct,
+                "distance_nautical_miles": round(distance, 1), "distance_km": round(distance * 1.852, 1),
+                "direct_distance_nm": round(direct_distance, 1),
+                "estimated_voyage_hours": round(hours, 1), "estimated_voyage_days": round(hours / 24, 2),
+                "fuel_consumption_tons": round(fuel, 1), "fuel_savings_percent": savings,
+                "direct_fuel_consumption_tons": round(direct_fuel, 1),
+                "direct_estimated_voyage_hours": round(direct_hours, 1),
+                "baseline_is_navigable": all(self._segment_clear(a, b, hazards) for a, b in zip(baseline, baseline[1:])),
                 "iceberg_hazard_buffer_km": safety_buffer_km,
-                "min_iceberg_distance_km": round(iceberg_proximity_min_km, 1),
-                "icebergs_avoided_count": len(hazard_polygons),
-                "direct_route_collision_hazards": direct_collisions,
-                "max_sea_ice_concentration_pct": round(max_sic_encountered * 100.0, 1),
-                "risk_score": risk_score,
-                "risk_rating": "LOW (POLAR SAFE)" if risk_score < 30 else ("MODERATE" if risk_score < 60 else "CRITICAL"),
-                "latency_compensation_status": "72h Physics Forecast Active"
+                "min_iceberg_distance_km": round(minimum, 1) if minimum is not None else None,
+                "forecast_hazards_considered": len(hazards),
+                "direct_route_collision_hazards": collisions,
+                "max_sea_ice_concentration_pct": round(max_sic * 100, 1),
+                "risk_score": risk, "risk_rating": "LOW" if risk < 30 else "MODERATE" if risk < 60 else "HIGH",
+                "risk_model": "Uncalibrated ice/proximity exposure index, not a probability",
+                "fuel_model": "Illustrative cubic propulsion plus 20% hotel load, 36.5 t/day at 14.5 knots",
+                "requested_forecast_hours": forecast_hours,
+                "forecast_hours": available_hours, "forecast_covers_voyage": hours <= available_hours,
+                "uncovered_voyage_hours": round(max(0, hours - available_hours), 1),
+                "hazard_mode": "Conservative envelope of supplied drift trajectory; no arrival-time optimization",
+                "warnings": warnings
             },
-            "hazard_zones": hazard_polygons,
-            "xai_explanation": xai_explanation
+            "hazard_zones": hazards,
+            "xai_explanation": {
+                "primary_routing_driver": "Modeled ice, distance, current and forecast-envelope costs",
+                "route_modifiers": {
+                    "max_sea_ice_penalty_pct": round((self._get_ice_penalty_factor(max_sic) - 1) * 100, 1),
+                    "iceberg_proximity_caution": round(caution, 2)},
+                "waypoint_explanations": explanations
+            }
         }

@@ -1,5 +1,15 @@
 # Architecture and calculations
 
+## Routing changes — 2026-09-18
+
+Current routing uses a bounded DiGraph, separate current-adjusted weights for each direction, and a 0.85×great-circle heuristic (each edge costs at least this amount). Invalid endpoints are rejected; exact endpoint nodes carry sampled model attributes. All edges and connectors must clear known land and spherical forecast envelopes. Final output is rechecked and sampled along great-circle arcs at no more than 5 km spacing. Land checks intersect that emitted polyline; open-water SIC is sampled at the same spacing. This does not certify sub-sample ice hazards or missing coastlines.
+
+Forecast envelopes conservatively enclose all supplied trajectory samples and interpolated movement, with maximum buffer radii. This trades possible false no-route outcomes for coverage of earlier positions. It does not optimize against vessel arrival time, and available horizon metadata explicitly identifies uncovered voyage hours.
+
+Both routes use the same segment-wise model: effective speed = cruise×(1−0.25×SIC), daily fuel = 36.5×[0.2+0.8×(cruise/14.5)^3], ice fuel factor = 1+0.45×SIC. These are illustrative assumptions, not calibrated vessel performance. Savings are signed relative to this hypothetical baseline. Risk is min(100, 100×maximum sampled SIC + half maximum node proximity caution), an uncalibrated index. Endpoint XAI is derived from actual node attributes; no fixed 0/0.8 endpoint ice values remain.
+
+The historical formulas below describe the previous checkpoint and are superseded by this section.
+
 Updated 2026-09-17 against `3684d67` plus uncommitted NAV-01/02/06 repairs. Successful routing and explanation formulas remain unchanged.
 
 ## Runtime flow

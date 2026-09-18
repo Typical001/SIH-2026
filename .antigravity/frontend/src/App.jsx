@@ -10,18 +10,18 @@ import RouteComparisonModal from './components/RouteComparisonModal';
 const PRESET_COORDINATES = {
   cape_town_to_bharati: {
     name: 'Cape Town ➔ Bharati Station (Larsemann Hills)',
-    origin: { lat: -33.9249, lon: 18.4241 },
-    destination: { lat: -69.4125, lon: 76.1872 }
+    origin: { lat: -33.9249, lon: 18.4241, name: 'Cape Town' },
+    destination: { lat: -69.4125, lon: 76.1872, name: 'Bharati Station' }
   },
   cape_town_to_maitri: {
     name: 'Cape Town ➔ Maitri Station (Schirmacher Oasis)',
-    origin: { lat: -33.9249, lon: 18.4241 },
-    destination: { lat: -70.7667, lon: 11.7333 }
+    origin: { lat: -33.9249, lon: 18.4241, name: 'Cape Town' },
+    destination: { lat: -70.7667, lon: 11.7333, name: 'Maitri Station' }
   },
   hobart_to_casey: {
     name: 'Hobart ➔ Casey Station (Wilkes Land)',
-    origin: { lat: -42.8821, lon: 147.3272 },
-    destination: { lat: -66.2822, lon: 110.5283 }
+    origin: { lat: -42.8821, lon: 147.3272, name: 'Hobart' },
+    destination: { lat: -66.2822, lon: 110.5283, name: 'Casey Station' }
   }
 };
 
@@ -111,6 +111,11 @@ export default function App() {
         signal: controller.signal
       });
       if (!resp.ok) {
+        if (resp.status === 422) {
+          if (controller.signal.aborted || activeRequest.current !== controller) return;
+          setErrorMsg('Unsupported route settings. Choose distinct endpoints between 75°S and 25°N without crossing the date line, and check vessel and forecast settings.');
+          return;
+        }
         if (resp.status === 409) {
           const failure = await resp.json();
           if (controller.signal.aborted || activeRequest.current !== controller) return;
@@ -217,6 +222,7 @@ export default function App() {
 
         {/* Central Map */}
         <MapArea
+          forecastHours={forecastHours}
           waypoints={waypoints}
           directWaypoints={directWaypoints}
           icebergsPresent={icebergsPresent}

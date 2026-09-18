@@ -25,7 +25,7 @@ const INDIAN_PORTS = [
   { id: 'port_blair', name: 'Port Blair',                              lat: 11.66, lon: 92.73 },
 ];
 
-function PortSearchDropdown({ value, onChange }) {
+function PortSearchDropdown({ value, onChange, defaultName }) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
@@ -55,7 +55,9 @@ function PortSearchDropdown({ value, onChange }) {
         <Search className="w-3 h-3 text-slate-500 shrink-0" />
         <input
           type="text"
-          value={open ? query : (selectedPort ? selectedPort.name : '')}
+          aria-label="Departure port"
+          value={open ? query : (selectedPort ? selectedPort.name : defaultName)}
+          onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); setQuery(''); } }}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           placeholder="Search port…"
@@ -63,7 +65,8 @@ function PortSearchDropdown({ value, onChange }) {
         />
         {selectedPort && !open && (
           <button
-            onMouseDown={(e) => { e.stopPropagation(); onChange(null); setQuery(''); setOpen(false); }}
+            aria-label="Reset to preset departure"
+            onClick={(e) => { e.stopPropagation(); onChange(null); setQuery(''); setOpen(false); }}
             className="text-slate-500 hover:text-red-400 transition text-[9px] px-1"
           >✕</button>
         )}
@@ -77,14 +80,13 @@ function PortSearchDropdown({ value, onChange }) {
           {filtered.map(port => (
             <li
               key={port.id}
-              onMouseDown={() => { onChange(port); setOpen(false); setQuery(''); }}
               className={`px-2 py-1.5 cursor-pointer flex justify-between items-center gap-2 transition
                 ${value === port.id
                   ? 'bg-cyan-950/80 text-cyan-300 border-l-2 border-cyan-400'
                   : 'text-slate-300 hover:bg-slate-800'
                 }`}
             >
-              <span className="truncate">{port.name}</span>
+              <button type="button" className="w-full text-left" onClick={() => { onChange(port); setOpen(false); setQuery(''); }}>{port.name}</button>
             </li>
           ))}
         </ul>
@@ -100,9 +102,9 @@ function RoutePlanning({
   loading, onRecalculate 
 }) {
   const presets = [
-    { id: 'cape_town_to_bharati', name: 'Cape Town ➔ Bharati' },
-    { id: 'cape_town_to_maitri',  name: 'Cape Town ➔ Maitri' },
-    { id: 'hobart_to_casey',      name: 'Hobart ➔ Casey' }
+    { id: 'cape_town_to_bharati', name: 'Bharati Station' },
+    { id: 'cape_town_to_maitri',  name: 'Maitri Station' },
+    { id: 'hobart_to_casey',      name: 'Casey Station' }
   ];
 
   const iceClasses = [
@@ -117,7 +119,7 @@ function RoutePlanning({
     : null;
 
   return (
-    <div className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-2.5">
+    <div id="route-planning" tabIndex={-1} className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-2.5">
       <h2 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-100 uppercase tracking-wider mb-1">
         <Anchor className="w-3.5 h-3.5 text-cyan-400" />
         Route Planning
@@ -125,11 +127,12 @@ function RoutePlanning({
       <div className="space-y-2">
         <div className="space-y-1">
           <label className="text-[9px] font-mono text-slate-400 uppercase">From</label>
-          <PortSearchDropdown value={selectedPortId} onChange={(p) => onChangeOriginOverride(p ? { lat: p.lat, lon: p.lon } : null)} />
+          <PortSearchDropdown value={selectedPortId} defaultName={originOverride ? `${originOverride.lat}, ${originOverride.lon}` : selectedPreset === 'hobart_to_casey' ? 'Hobart' : 'Cape Town'} onChange={(p) => onChangeOriginOverride(p ? { lat: p.lat, lon: p.lon, name: p.name } : null)} />
         </div>
         <div className="space-y-1">
           <label className="text-[9px] font-mono text-slate-400 uppercase">To</label>
           <select
+            aria-label="Destination station"
             value={selectedPreset}
             onChange={(e) => onSelectPreset(e.target.value)}
             className="w-full bg-slate-900/80 border border-slate-700/80 text-cyan-300 rounded px-2 py-1 text-[10px] font-mono focus:outline-none focus:border-cyan-400"
@@ -142,6 +145,7 @@ function RoutePlanning({
         <div className="space-y-1">
           <label className="text-[9px] font-mono text-slate-400 uppercase">Ship Type</label>
           <select
+            aria-label="Vessel ice class"
             value={vesselIceClass}
             onChange={(e) => onChangeVesselIceClass(e.target.value)}
             className="w-full bg-slate-900/80 border border-slate-700/80 text-slate-200 rounded px-2 py-1 text-[10px] font-mono focus:outline-none focus:border-cyan-400"
@@ -166,7 +170,7 @@ function RoutePlanning({
 
 function IcebergForecast({ forecastHours, onChangeForecastHours, onRecalculate, loading }) {
   return (
-    <div className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-2.5">
+    <div id="iceberg-forecast" tabIndex={-1} className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-2.5">
       <h2 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-100 uppercase tracking-wider mb-1">
         <ThermometerSnowflake className="w-3.5 h-3.5 text-cyan-400" />
         Iceberg Forecast
@@ -174,13 +178,14 @@ function IcebergForecast({ forecastHours, onChangeForecastHours, onRecalculate, 
       <div className="space-y-1">
         <label className="text-[9px] font-mono text-slate-400 uppercase">Forecast Horizon</label>
         <select
+          aria-label="Forecast horizon"
           value={forecastHours}
           onChange={(e) => onChangeForecastHours(Number(e.target.value))}
           className="w-full bg-slate-900/80 border border-slate-700/80 text-slate-200 rounded px-2 py-1 text-[10px] font-mono focus:outline-none focus:border-cyan-400"
         >
-          <option value="24">Next 24 Days</option>
+          <option value="24">Next 24 Hours</option>
           <option value="48">Next 48 Hours</option>
-          <option value="72">Next 7 Days</option>
+          <option value="72">Next 72 Hours</option>
         </select>
       </div>
       <button
@@ -196,14 +201,14 @@ function IcebergForecast({ forecastHours, onChangeForecastHours, onRecalculate, 
 
 function MapLayers({ layers, onToggleLayer }) {
   const layerConfigs = [
-    { key: 'showAStarRoute',     label: 'A* Safe Route',       color: 'cyan' },
+    { key: 'showAStarRoute',     label: 'A* Computed Route',       color: 'cyan' },
     { key: 'showDirectRoute',    label: 'Direct Baseline',     color: 'cyan' },
     { key: 'showPredictedBergs', label: 'Predicted Icebergs',  color: 'cyan' },
     { key: 'showPresentBergs',   label: 'Present Icebergs',    color: 'cyan' },
     { key: 'showHazardBuffers',  label: 'Hazard Buffers',      color: 'cyan' },
-    { key: 'showSeaIce',         label: 'Sea Ice (SIC)',       color: 'cyan' },
+    { key: 'showSeaIce',         label: 'Illustrative Ice Zones',       color: 'cyan' },
     { key: 'showDriftVectors',   label: 'Drift Trails',        color: 'cyan' },
-    { key: 'showMetoceanGrid',   label: 'Metocean Grid',       color: 'cyan' },
+    { key: 'showMetoceanGrid',   label: 'Metocean Grid (unavailable)', disabled: true },
   ];
 
   return (
@@ -213,18 +218,19 @@ function MapLayers({ layers, onToggleLayer }) {
         Layers
       </h2>
       <div className="space-y-1.5">
-        {layerConfigs.map(({ key, label, color }) => (
+        {layerConfigs.map(({ key, label, disabled }) => (
           <label key={key} className="flex items-center gap-2 cursor-pointer group">
             <div className="relative flex items-center justify-center">
               <input
                 type="checkbox"
-                checked={layers[key]}
+                checked={!disabled && layers[key]}
+                disabled={disabled}
                 onChange={() => onToggleLayer(key)}
                 className="sr-only"
               />
               <div className={`w-3 h-3 rounded-sm border transition ${
                 layers[key] 
-                  ? `bg-${color}-600 border-${color}-400` 
+                  ? 'bg-cyan-600 border-cyan-400'
                   : 'bg-slate-900 border-slate-600 group-hover:border-slate-400'
               }`}>
                 {layers[key] && <div className="absolute inset-0 m-auto w-1.5 h-1.5 bg-white rounded-[1px]"></div>}
