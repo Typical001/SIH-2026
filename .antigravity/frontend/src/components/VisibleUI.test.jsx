@@ -42,6 +42,24 @@ it('shows actual preset departure/destination and all three hour horizons', () =
   expect(tree.root.findAllByType('input').find(i => i.props.disabled).props.checked).toBe(false);
 });
 
+it('shows the active route summary on the home route planner', () => {
+  render(
+    <LeftControls
+      selectedPreset="cape_town_to_bharati"
+      layers={{}}
+      route={{
+        origin: { name: 'Mumbai Port', lat: 18.94, lon: 72.82 },
+        destination: { name: 'Bharati Station', lat: -69.41, lon: 76.19 }
+      }}
+      routeMetrics={{ distance_nautical_miles: 1200 }}
+    />
+  );
+  const summary = tree.root.findByProps({ 'aria-label': 'Active route summary' });
+  expect(content(summary)).toContain('Mumbai Port');
+  expect(content(summary)).toContain('Bharati Station');
+  expect(content(summary)).toContain('Route Ready');
+});
+
 it('supports keyboard-clickable port selection and reset without losing the selected name', () => {
   const onChangeOriginOverride = vi.fn();
   render(<LeftControls selectedPreset="cape_town_to_bharati" layers={{}} originOverride={{ lat: 18.94, lon: 72.82 }} onChangeOriginOverride={onChangeOriginOverride} />);
@@ -130,4 +148,22 @@ it('connects navbar shortcuts to the controls and analytics', () => {
   expect(document.getElementById.mock.calls).toEqual([['route-planning'], ['iceberg-forecast']]);
   expect(focus).toHaveBeenCalledTimes(2);
   expect(onOpenReport).toHaveBeenCalledOnce();
+});
+
+it('exposes the offline and online data mode toggle', () => {
+  const onChangeDataMode = vi.fn();
+  render(<Navbar dataMode="offline" onChangeDataMode={onChangeDataMode} />);
+  const offline = tree.root.findByProps({ 'aria-label': 'Offline data mode' });
+  const online = tree.root.findByProps({ 'aria-label': 'Online data mode' });
+  expect(offline.props['aria-pressed']).toBe(true);
+  expect(online.props['aria-pressed']).toBe(false);
+  act(() => online.props.onClick());
+  expect(onChangeDataMode).toHaveBeenCalledWith('online');
+});
+
+it('labels online fallback data as online mode instead of offline mode', () => {
+  render(<Navbar dataMode="online" isOffline dataSource="Analytic Model Simulation" lastSyncedTimestamp="2026-09-19T10:00:00Z" />);
+  expect(text()).toContain('ONLINE MODE: Live provider unavailable');
+  expect(text()).toContain('Analytic Model Simulation');
+  expect(text()).not.toContain('OFFLINE MODE:');
 });

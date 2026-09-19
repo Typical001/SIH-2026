@@ -1,100 +1,94 @@
-# Architecture and calculations
+# Architecture
 
-## Routing changes — 2026-09-18
+Reviewed **2026-09-19**, baseline **2cc8271** (with PDF Export feature). This describes actual source behavior, including incomplete integration, rather than claims in module docstrings.
 
-Current routing uses a bounded DiGraph, separate current-adjusted weights for each direction, and a 0.85×great-circle heuristic (each edge costs at least this amount). Invalid endpoints are rejected; exact endpoint nodes carry sampled model attributes. All edges and connectors must clear known land and spherical forecast envelopes. Final output is rechecked and sampled along great-circle arcs at no more than 5 km spacing. Land checks intersect that emitted polyline; open-water SIC is sampled at the same spacing. This does not certify sub-sample ice hazards or missing coastlines.
+## Components and request flow
 
-Forecast envelopes conservatively enclose all supplied trajectory samples and interpolated movement, with maximum buffer radii. This trades possible false no-route outcomes for coverage of earlier positions. It does not optimize against vessel arrival time, and available horizon metadata explicitly identifies uncovered voyage hours.
+`frontend/src/main.jsx` mounts App under React StrictMode. App owns route parameters, scalar request dependencies, AbortController/request ownership, results, explanation, errors, offline metadata, layer flags and the UTC clock. It composes Navbar, LeftControls, MapArea/PolarMap, DecisionSupport, BottomStatusBar and RouteComparisonModal.
 
-Both routes use the same segment-wise model: effective speed = cruise×(1−0.25×SIC), daily fuel = 36.5×[0.2+0.8×(cruise/14.5)^3], ice fuel factor = 1+0.45×SIC. These are illustrative assumptions, not calibrated vessel performance. Savings are signed relative to this hypothetical baseline. Risk is min(100, 100×maximum sampled SIC + half maximum node proximity caution), an uncalibrated index. Endpoint XAI is derived from actual node attributes; no fixed 0/0.8 endpoint ice values remain.
+A calculation clears geometry, hazards, metrics and explanations before fetching `${VITE_API_URL || ''}/api/v1/polar-route`. Completion is accepted only by the current request. Missing numeric metrics/invalid waypoints/non-array overlays are rejected, but nested iceberg/XAI schemas are not fully checked. Offline state and its timestamp are only replaced on success, so they can describe an earlier request during loading/failure.
 
-The historical formulas below describe the previous checkpoint and are superseded by this section.
+### PDF Report Export (`pdfGenerator.js`)
 
-Updated 2026-09-17 against `3684d67` plus uncommitted NAV-01/02/06 repairs. Successful routing and explanation formulas remain unchanged.
+Client-side utility `frontend/src/utils/pdfGenerator.js` utilizes `jsPDF` and `jspdf-autotable` to dynamically generate an **Official Bridge Navigational Plan PDF** upon user request from `DecisionSupport.jsx` or `RouteComparisonModal.jsx`.
+- **Branding**: Official `PolarNav Engine` footer with UTC generation timestamp.
+- **Section 1**: Voyage Metadata & Ship Specifications (Vessel name, Ice class, formatted lat/lon departure & arrival coordinates, A* pathfinder route mode).
+- **Section 2**: High-Level Voyage Metrics (Total Distance NM, Est Duration Hours/Days, Projected Fuel Burn Tons, Model Risk Score, Max Sea-Ice Concentration).
+- **Section 3**: Explainable Risk & Hazard Breakdown (XAI primary routing driver, sea-ice penalty %, hazard cautions, tracked iceberg envelopes).
+- **Section 4**: Polar Code Compliance & Contingency Checklist.
+- **Section 5**: Waypoint Schedule & Lat/Long Table (Sampled waypoints with lat/lon, leg speed, safety status, notes).
 
-## Runtime flow
+The backend route handler performs:
 
-```mermaid
-flowchart LR
-  Controls[LeftControls] --> App[App state and fetch]
-  App --> API[FastAPI main.py]
-  API --> Data[Static catalog and MetoceanEngine]
-  Data --> Drift[DriftPhysicsEngine]
-  Drift --> Router[PolarPathfinder]
-  Router --> API
-  API --> App
-  App --> MapArea[MapArea] --> Map[PolarMap]
-  App --> Panels[DecisionSupport and RouteComparisonModal]
-  App --> Footer[BottomStatusBar]
-```
+1. FastAPI query validation and engine coordinate validation.
+2. `fetch_environmental_layer(start_lat, start_lon)`: external wind request, current helper and analytic sea ice; save an environmental snapshot if possible. If offline, query SQLite. No cache produces 503 INITIAL_SYNC_REQUIRED.
+3. `get_initial_icebergs()`, then `DriftPhysicsEngine.get_all_forecasts(...)`.
+4. `PolarPathfinder(... resolution=.85 ...)`, graph creation, directed A*, final segment validation, metrics and explanation.
+5. Route serialization, planning-envelope radii and origin-preflight source/offline metadata duplicated into route_metrics.
 
-`main.jsx` mounts `App` in React StrictMode. `App.jsx` owns route parameters, layer visibility, response arrays and loading state. `Navbar` opens Analytics and displays loading status; App renders the error alert and Retry. `App` owns a one-second UTC clock passed to `BottomStatusBar`; the footer labels it UTC, shows calculation/result availability and explicitly marks simulation mode. LeftControls supplies both full-route calculation buttons. The backend reconstructs forecasts and a navigation graph per route request. There is no shared route cache or persistent storage; the land polygon union is cached lazily in process memory.
+The preflight environmental values are not injected into the drift/router. They call providers again. Unexpected preflight exceptions are converted to offline metadata and execution continues; later provider/DB failures can escape as 500.
 
-## Module responsibilities
+## Provider and cache behavior
 
-| Source | Responsibility |
-| --- | --- |
-| `backend/main.py` | Five GET handlers, query validation, CORS and route-response assembly |
-| `backend/data_engine.py` | Iceberg dataclass, static catalog, stations, analytic wind/current/SIC functions |
-| `backend/drift_engine.py` | Hourly propagation, snapshots, final position and buffer polygon coordinates |
-| `backend/pathfinder.py` | Haversine distances, simplified land mask, navigation graph, A*, metrics |
-| `frontend/src/App.jsx` | Parameters, requests, data and component composition |
-| `frontend/src/components/panels/LeftControls.jsx` | Presets, port search, vessel class, horizon selector, eight layer controls and calculation buttons |
-| `frontend/src/components/PolarMap.jsx` | Leaflet tiles, markers, lines, circles, popups and fit-to-route |
-| `frontend/src/components/panels/DecisionSupport.jsx` | Loading/empty states or successful metrics, explanation dialog, comparison, drift-speed chart and alerts |
-| `frontend/src/components/panels/MapArea.jsx` | Wrapper forwarding map props to PolarMap |
-| `frontend/src/components/panels/BottomStatusBar.jsx` | Mounted footer with result state, simulation label and UTC clock |
-| `frontend/src/components/StatusBar.jsx` | Unused alternative footer |
-| `frontend/src/components/RouteComparisonModal.jsx` | Comparison table and model explanation |
-| `frontend/src/components/Navbar.jsx` | Brand, navigation placeholders, Analytics action and loading banner |
+The default process setting is fast demo mode (`POLARNAV_LIVE_DATA` unset or false). In that mode the preflight, wind, current and iceberg catalog use deterministic analytic/model data directly, avoiding per-coordinate network calls. Live provider requests are opt-in with `POLARNAV_LIVE_DATA=1`; the live path retains the timeout, cache and provenance limitations below.
+
+| Path | Actual data path | Failure behavior |
+| --- | --- | --- |
+| Wind preflight | Open-Meteo forecast, `models=ecmwf_ifs025`; first hourly speed/direction | SQLite lookup; no record raises ValueError. Missing fields in a 200 response default to 10 km/h and 270 degrees and are marked live. |
+| Wind for drift/routing | `fetch_era5_wind_data`; archive only when called directly with date_str, otherwise forecast | SQLite wind; no record raises ValueError. Successful wind getter does not itself save a snapshot. |
+| Ocean current | Open-Meteo Marine current velocity/direction | Analytic current helper; cached as normal result |
+| Sea ice | Analytic latitude/longitude function | No measured satellite feed |
+| Icebergs | Attempted NOAA `natice.noaa.gov/pub/iceberg/icebergs.json`, Point-like coordinate assumptions | Fixed 12-iceberg catalog; no SQLite iceberg read |
+
+Process caches have a 300-second TTL. Wind/current keys round coordinates to 0.1 degrees; wind additionally includes date/latest. Neither includes forecast hour. Wind ignores time_hours; live current uses the current sample, and cached fallback current can also be reused across hours. The first hourly weather entry is chosen without comparing its timestamp to forecast start. The route backtest parameter is never forwarded.
+
+Wind converts km/h to m/s and meteorological direction with negative sin/cos; current uses positive sin/cos. Provider units/schema/direction contracts have not been verified in this review. No network retry/backoff, bulk field download, shared forecast snapshot, total request deadline or concurrency/rate budget is implemented. Drift and graph node sampling can issue thousands of sequential coordinate-specific HTTP requests. A 2.5-second wind timeout/1.5-second current timeout is per call, not per route.
+
+### SQLite
+
+Importing data_engine attempts database initialization beside the source at `backend/polar_nav_offline.db`. database functions accept db_path for direct callers; the application has no environment-based path setting.
+
+- `ocean_environmental_cache`: autoincrement ID, lat/lon, SIC, wind u/v, current u/v, timestamp. Coordinates/vectors are rounded to four decimals on write.
+- `iceberg_registry_cache`: iceberg_id primary key, serialized geometry, area and timestamp; INSERT OR REPLACE.
+
+Environmental lookup prefers coordinates matching at one decimal, then the newest row within +/-3 latitude and +/-4 longitude degrees, then the newest row anywhere. It has no maximum age/distance, provenance, observation time or indexed spatial search; the regional match is newest, not nearest. Snapshot time is insertion time. Writes open/commit/close a connection per sample. No retention policy or configured deployment persistent disk exists.
+
+Both live and demo iceberg loops now serialize records with `json.dumps` and attempt SQLite writes. `get_latest_icebergs` remains unused during fallback, and the saved geometry is a Point Feature rather than the advertised registry polygon. Persistence errors are logged at debug level in demo mode.
 
 ## Drift model
 
-Wind and current values come from latitude bands and trigonometric formulas. The implemented velocity is `0.88 × ocean_velocity + rotation(-18 degrees) × (0.032 × wind_velocity)`. This is a fixed rotation of the wind contribution, not a separately solved Coriolis acceleration model.
+The hourly integrator combines `0.88 * ocean_vector` with `0.032 * wind_vector` rotated -18 degrees. It uses 111.139 km/latitude degree and longitude scaled by `max(0.1, cos(latitude))`. These are heuristic choices, not a calibrated dynamic/uncertainty model.
 
-The default integrator records hourly points from 0 through 72 hours (73 records). It converts velocity to angular displacement using 111.139 km per latitude degree and a latitude-dependent longitude scale, with cosine clamped to at least 0.1.
+At the normal one-hour step, an H-hour forecast has H+1 trajectory records; snapshots include 0, 24, 48 when reached and the terminal hour. Each point carries position, speed, bearing and a radius: base buffer + half iceberg length + a speed/time term. The final buffer polygon has 24 angular samples plus closure. `drift_distance_total_km` is endpoint displacement, not integrated traveled distance. Legacy keys `predicted_position_72h`/`icebergs_predicted_72h` hold the selected horizon.
 
-At time `t`, the buffer is `base_buffer_km + iceberg.length_km / 2 + speed_knots × 0.12 × (t / 24)`. The polygon contains 24 sampled vertices plus the closing point. Coordinates are generated manually; imported Shapely symbols are not used for this polygon construction. `drift_distance_total_km` is approximate initial-to-final displacement, not summed trajectory length.
+Coordinates in API routes, drift points and hazard_polygon arrays use latitude then longitude. Shapely geometry uses longitude then latitude. The drift hazard_polygon is not a standard GeoJSON polygon.
 
-Snapshots include the start, 24/48 hours when reached, and the terminal step. Fields named `predicted_position_72h` contain the terminal position even when another horizon is requested.
+## Graph and geometry
 
-## Routing model
+`navigation_geometry.py` shares spherical haversine distances, bearings, great-circle interpolation (at most 5 km steps) and minimum point-to-minor-arc distance. The graph bounds surround the endpoints with latitude/longitude margins, clamp to the supported domain and reject more than 50,000 grid nodes. Route input domain is latitude -75..25, longitude -180..180, differing endpoints and longitude span under 180 degrees.
 
-The API constructs a grid at 0.85-degree resolution. The corridor extends 2.5 degrees beyond endpoint latitudes and 4.5 degrees beyond endpoint longitudes, with latitude bounds clamped to -75 and +25 degrees. Eight neighboring directions form an undirected NetworkX graph.
+LandMask contains five hand-entered polygons, not complete coastlines. Nodes on land, in forecast circles or in modeled ice for an Open Water Vessel are excluded. Exact endpoints keep actual node conditions and use checked connectors. Edges are tested against spherical hazard circles, sampled domain/SIC and Shapely intersections of the emitted polyline with known land. The selected path is checked again and emitted at <=5 km spacing. Thin known polygon barriers are checked geometrically, while unsampled narrow SIC features can still be missed.
 
-Grid points inside a final-position iceberg circle or one of the limited land-mask polygons have impassable cost 99,999. Other points receive a sea-ice multiplier plus a proximity penalty up to 40 within twice the hazard radius.
+Each forecast hazard is a final-center circle containing all supplied trajectory positions and their radii, plus half the largest consecutive trajectory gap. This is a conservative envelope, potentially causing false no-route results; it does not predict future positions beyond the supplied trajectory or compare hazards with vessel arrival times.
 
-| Class match | Sea-ice multiplier for concentration `s` |
-| --- | --- |
-| PC1 | `1 + 3 × s^1.2` |
-| PC3 | `1 + 8.5 × s^1.4` |
-| PC7 | `1 + 25 × s^1.6` |
-| Other | `1 + 80 × s^1.8` |
+NetworkX DiGraph stores separate directional edge weights: distance times average node cost times a bounded current multiplier (0.85..1.20). Node cost includes sea ice and proximity caution. A* uses 0.85 times spherical distance as an admissible lower bound. It minimizes this graph cost, not fuel consumption directly. Missing/disconnected/blocked paths raise NoRouteFoundError.
 
-Edge cost is nautical distance times average endpoint cost times a current-alignment multiplier clamped to 0.85–1.20. A* uses Haversine distance as its heuristic. Exact endpoints attach to nearby accessible grid nodes. Neither ordinary edges nor endpoint connectors receive full segment-intersection checks.
+## Metrics and explanation
 
-If A* reports NetworkXNoPath or NodeNotFound, NoRouteFoundError stops calculation before geometry, baseline, metrics or explanations are created. FastAPI translates it to HTTP 409 with detail.code=NO_ROUTE_FOUND. The frontend shows a specific no-route alert and empty results. The interpolated fallback introduced by c996de7 is removed. Success responses retain xai_explanation. Failure describes the modeled graph, not every possible real-world passage.
+Computed route and great-circle direct baseline share one illustrative segment model:
 
-## Metrics and coordinate conventions
+- Daily burn: `36.5 * (0.2 + 0.8 * (speed / 14.5)^3)` tons/day.
+- Segment speed: `speed * (1 - 0.25 * SIC)`; fuel also multiplies by `1 + 0.45 * SIC`.
+- SIC is the maximum at each dense segment's endpoints. Modeled current affects search weights but is not used as transit-speed/fuel advection in this calculation.
+- Savings: `(baseline_fuel - route_fuel) / baseline_fuel * 100`; negative values are retained.
+- Risk: `min(100, max_SIC * 100 + max_node_caution / 2)`, rounded and labeled LOW below 30, MODERATE below 60, otherwise HIGH. It is an uncalibrated exposure index.
 
-Distance sums Haversine segment lengths. Effective speed is `cruising_speed × (1 - 0.25 × maximum_SIC)`. Fuel uses 36.5 tons/day and an ice-resistance factor `1 + 0.45 × maximum_SIC`. The baseline fuel calculation applies a fixed 1.35 multiplier. Reported savings are floored at 4.5%, and risk is capped at 28; these constrain results by construction.
+Baseline navigability is checked separately; metrics for a blocked baseline are hypothetical. Hazard collision IDs use segment-circle tests, and minimum iceberg distance is to envelope centers, not clearance from their boundaries; it is null with no hazards.
 
-Waypoints, trajectories and hazard coordinate arrays use **[latitude, longitude]**. They are not GeoJSON coordinates. Shapely land rings use **(longitude, latitude)**. One nautical mile is 1.852 km. API radii use kilometers; Leaflet Circle receives meters. The map uses Leaflet's default EPSG:3857 projection despite its polar label; declared projection packages are not configured.
+Available coverage is the minimum of the requested horizon and each supplied trajectory's terminal time. The response flags voyage portions beyond that horizon. XAI samples actual path-node factors, including both endpoints, and may exceed ten samples. It is a descriptive heuristic summary, not a learned explanation or causal optimality proof.
 
-## Route request lifecycle — restored locally
+## Rendering and deployment boundaries
 
-`fetchRoute` depends on scalar start/end coordinates, forecast hours, vessel class, buffer and speed. Each request owns an AbortController in a ref; starting another aborts the previous controller. Effect cleanup aborts and clears ownership. Guards after JSON parsing and in catch/finally prevent superseded success/error/loading updates, even if a mocked transport ignores cancellation. Clock ticks, data/layer/dialog updates and equivalent coordinate objects do not refetch. StrictMode may start/cancel/replace an initial development request; network abort does not guarantee cancellation of work already received by the backend. No debounce was added.
+Leaflet uses EPSG:3857. Route/baseline geometry comes from the API; drift trails use supplied intermediate points. Fixed ice circles are illustrative, and the unpopulated metocean layer is disabled. Risk classes are literal Tailwind values; chart missing samples remain gaps. Several simulation/provider labels have not yet been reconciled with the mixed data path.
 
-## Errors and result states — restored locally
-
-A request clears route/baseline arrays, initial/predicted icebergs, metrics, explanation and prior error. Loading/empty DecisionSupport replaces the entire results panel, unmounting the explanation dialog, chart and alerts. Analytics remains closable and unavailable without results. Network/HTTP/JSON or unusable-response failures show a role=alert message with Retry; only a 409 bearing NO_ROUTE_FOUND gets the specific no-route message. Footer status follows current result availability, not a fixed online/safety claim.
-
-Minimum response validation requires at least two finite latitude/longitude pairs; finite distance_nautical_miles, distance_km, estimated_voyage_hours, fuel_consumption_tons and risk_score; and array types for supplied baseline/iceberg collections. This protects the summary-card numeric operations but is not full validation of nested markers, snapshots or explanation schemas.
-
-## Explanation generation and chart
-
-`xai_explanation` is calculated after routing. The primary driver is selected by whether maximum sampled SIC exceeds 0.1. Modifiers report an ice-penalty percentage and a 10-or-0 proximity flag based on a 35 km threshold. These are summaries, not a trace of alternative routes or the actual per-edge cost decomposition (the graph's proximity penalty can reach 40).
-
-Waypoint samples use stride `max(1, len(path_nodes) // 10)`; the sample count is not capped at ten and the last waypoint is not guaranteed to be included. Each record exposes coordinates, SIC, ice penalty, current/wind speed and base cost. Missing graph attributes default to zero or one. Exact start/end nodes receive hardcoded SIC 0/0.8 and base cost 1/2; wind/current speed may be absent. A short open-water API probe showed the destination explanation reporting SIC 0.8 despite zero maximum sampled route SIC. Failed searches now produce no explanations; endpoint defaults on successful searches remain an issue. This is not validated explainability (NAV-25).
-
-DecisionSupport's chart averages available `snapshots[hour].speed_knots` across the iceberg catalog at 0/24/48/72 hours as applicable, then renders an SVG line/area. It represents mean drift speed, not path, forecast error or confidence. It does not show the supplied hourly trajectory series. It has a no-data state and is mounted only with available route metrics; the metric fixture has been removed. Current UI horizons are 24/48/72; `forecastHours || 72` would mislabel a future zero-hour UI selection.
+Vite proxies relative `/api` calls to localhost:8000 in development. Vercel's current all-path SPA rewrite provides no API proxy; a separate backend requires VITE_API_URL at build time. CORS allows all origins with credentials. Backend endpoints are synchronous, unauthed and have no rate limiter. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for current priorities.

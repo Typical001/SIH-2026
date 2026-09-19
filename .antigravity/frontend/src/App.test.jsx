@@ -70,7 +70,7 @@ describe('route request lifecycle', () => {
       await act(async () => controls()[callback](value));
       expect(requests).toHaveLength(previous + 1);
       expect(requests[previous - 1].signal.aborted).toBe(true);
-      expect(new URL(requests.at(-1).url).searchParams.get(key)).toBe(expected);
+      expect(new URL(requests.at(-1).url, 'http://localhost').searchParams.get(key)).toBe(expected);
     }
     await act(async () => controls().onChangeOriginOverride({ lat: 18.94, lon: 72.82 }));
     expect(requests).toHaveLength(7);

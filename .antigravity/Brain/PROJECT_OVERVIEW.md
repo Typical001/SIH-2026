@@ -1,65 +1,51 @@
 # Project overview
 
-Updated 2026-09-17 against `3684d67` plus the uncommitted NAV-01/02/06 restoration. See [CHANGELOG.md](CHANGELOG.md) for the redesign, regressions and repairs.
+Current as of **2026-09-19**, `main` at **2cc8271** (with PDF Export feature). PolarNav addresses SIH-26059, Dynamic Route Optimization & Iceberg Movement Forecasting for Polar Navigation. The implemented product is a prototype decision-support dashboard, not a certified navigation system or a trained AI forecasting model.
 
-## Purpose and scope
+## Implemented workflow
 
-PolarNav demonstrates how iceberg forecasts and environmental traversal costs influence expedition routes to Antarctic research stations. Intended demonstration users include planners, researchers and SIH evaluators; these are inferred use cases rather than a verified requirements specification.
+1. Select Bharati, Maitri or Casey. Presets depart Cape Town for Bharati/Maitri and Hobart for Casey; a searchable list of 13 Indian ports can override departure.
+2. Select PC1, PC3, PC7 or Open Water Vessel and a 24/48/72-hour forecast. Settings automatically request a full route; Optimize Route and Run Forecast both recalculate that route.
+3. The backend validates inputs, attempts an environmental fetch at departure, loads an iceberg catalog, projects drift and searches a directed geographic graph.
+4. The map shows computed/baseline routes, current/predicted iceberg positions, trajectory trails, planning envelopes and optional illustrative ice circles. Markers, trails and buffers toggle independently. The metocean control is disabled because the frontend does not fetch a grid.
+5. DecisionSupport and Analytics show returned metrics, baseline comparisons, sampled explanation factors, average forecast drift speeds, hazard intersections and forecast coverage gaps. Missing results remain empty; failed calculations show an alert and Retry.
+6. Users can click **Export PDF** in DecisionSupport or **Export PDF Report** in the Analytics Modal to download an official 5-section bridge execution report powered by **PolarNav Engine**, populated with live calculated route metrics, waypoints, XAI factors, and Polar Code checklists.
 
-There is no database, authentication, account management, persisted voyage history, real satellite ingestion, trained machine-learning model or scheduled data refresh service. The new “AI Route Explanation” is generated from deterministic conditions and sampled graph attributes, not an LLM or learned explanation model.
+Request cancellation and ownership guards suppress stale responses, including JSON parsing races. A one-second UTC display clock does not cause route requests. An offline banner reflects origin metadata.
 
-## Current capabilities and controls
+## Technology and modules
 
-| Area | Current implementation |
+| Layer | Implementation |
 | --- | --- |
-| Layout | Navbar, 256px left controls, central map, 256px decision-support sidebar and bottom status bar |
-| Presets | Cape Town–Bharati, Cape Town–Maitri, Hobart–Casey |
-| Origin | Searchable list of 13 Indian ports; clearing the selected port restores the preset origin |
-| Vessel | PC1, PC3, PC7 and Open Water cost formulas |
-| Forecast | Select values 24, 48 and 72 **hours**; labels incorrectly say “Next 24 Days”, “Next 48 Hours”, “Next 7 Days” |
-| Safety buffer | State stays at 25 km; former buffer slider is absent; API accepts 5–100 km |
-| Speed | State stays at 14.5 knots; no rendered control; API accepts 5–30 knots |
-| Layers | Eight checkboxes, now including present icebergs and metocean; the latter has no data fetch |
-| Map | Route/baseline lines, present/predicted markers, hazard circles, straight drift trails and two illustrative SIC circles |
-| Decision support | Route summary, heuristic explanation and detail dialog, comparison, average drift-speed chart and alerts |
-| Analytics | Comparison modal; unavailable dialog while no successful results exist |
+| UI | React 18.3.1, Vite 5.4.21, Tailwind, Lucide, Leaflet/React Leaflet, jsPDF 3.0.4, jspdf-autotable 5.0.2 |
+| PDF Reporting | Client-side `pdfGenerator.js` utility exporting official 5-section bridge navigational plans with PolarNav Engine branding |
+| API | FastAPI, Pydantic query constraints, Uvicorn; five application GET endpoints |
+| Routing | NetworkX directed A*, Shapely land checks, shared spherical geometry |
+| Drift | Hourly dead reckoning using weighted wind/current vectors and a fixed rotation |
+| Data | requests-based Open-Meteo forecast/archive/marine and attempted NOAA iceberg feed; analytic fallback components |
+| Persistence | Standard-library SQLite environmental and iceberg tables; 300-second process caches |
+| Tests | unittest/ASGI backend checks; Vitest 4.1.11 with React Test Renderer 18.3.1 |
+| Hosting files | Python 3.10 Docker/Render backend and Vercel SPA frontend configuration |
 
-Manual latitude/longitude inputs and the 0–72-hour slider were removed with `ControlDeck.jsx`. The “From” search is blank when the preset origin is active, even though a Cape Town or Hobart origin is used. Selecting a preset does not clear a selected Indian-port override.
+There is no account/authentication system, saved-voyage store, background ingestion job, WebSocket feed, trained model, CI workflow or automatic Brain updater in the reviewed source.
 
-Only Analytics has a navigation-tab action. Dashboard, Route Planner, Forecast, user-profile and View All buttons have no implemented actions. `StatusBar.jsx` exists but is not mounted; App uses `panels/BottomStatusBar.jsx`.
+## Data reality
 
-## Demonstration workflow and actual request behavior
+- Wind normally attempts the Open-Meteo ECMWF IFS forecast; failure uses SQLite or raises a missing-cache error. The retained analytic wind helper is used for controlled tests, not the normal runtime fallback.
+- Currents attempt Open-Meteo Marine and fall back to an analytic model. A HYCOM label in a string is not evidence of a direct HYCOM integration.
+- Sea-ice concentration is always analytic; there is no measured AMSR2 ingestion.
+- Icebergs attempt a NOAA GeoJSON URL, then fall back to 12 fixed examples. The live feed schema/reachability was not verified. Persistence currently fails silently because `json` is not imported in data_engine; stored iceberg records are not read during fallback.
+- The origin preflight's `is_offline`, source label and receipt time are copied to the route response, although downstream calculations independently refetch data and can mix sources.
+- `backtest_date` is accepted by the API but unused. Forecast wind sampling ignores the supplied forecast hour and reads the first hourly value.
 
-1. Start backend and frontend following [DEVELOPMENT.md](DEVELOPMENT.md).
-2. Select a preset, optional Indian departure port and vessel class.
-3. Select a horizon; interpret numeric values as hours despite incorrect labels.
-4. Optimize Route or Run Forecast invokes the same full route endpoint; these are not separate calculation pipelines.
-5. Inspect the map, explanation, speed chart and Analytics with the limitations below.
+## Current route guarantees and limits
 
-Parameter changes trigger requests automatically through scalar coordinate/settings dependencies. Clock, loading/result, layer and Analytics rerenders do not refetch. Starting a request aborts its predecessor; cleanup aborts on parameter changes or unmount. Stale completions cannot replace data or loading/error state. Both calculation buttons still refresh with unchanged settings. Requests are not debounced.
+Input limits, complete edge/connector checks against the known polygons and conservative iceberg envelopes, exact endpoints, directed costs, consistent spherical baseline geometry, signed savings, PDF report generation, and forecast-gap reporting are implemented. No-route returns 409 instead of invented success geometry. Open-water vessels reject sampled modeled ice.
 
-## Failure and data integrity limitations
+The land mask remains incomplete. Polar Class weights are not operating limits; risk and fuel are illustrative models. Hazards cover the supplied trajectory conservatively rather than matching vessel arrival times. Many voyage durations exceed the forecast horizon. Therefore a successful route, LOW risk label or baseline comparison does not establish navigability.
 
-Starting a request clears geometry, iceberg arrays, metrics and explanations. DecisionSupport displays calculating/no-results text; its chart, explanation dialog and alerts unmount until successful results return. Analytics shows an unavailable dialog without results. An accessible error alert provides Retry. Minimal validation checks route coordinates, the numeric fields used by the new summary cards and overlay-array types. This is not a complete nested response-schema validator.
+The map uses EPSG:3857 and external Esri tiles; two circles are explicitly illustrative ice zones. The UI has no manual coordinate, speed, buffer or backtest-date input. API speed defaults to 14.5 knots and buffer to 25 km. Backend station metadata includes McMurdo south of the supported route latitude domain; it is not a selectable UI destination.
 
-Backend graph failure now returns HTTP 409 with NO_ROUTE_FOUND and no success geometry/metrics/explanations. Success-path LOW risk and safety claims still do not establish traversability; geometry, model and comparison issues remain open. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+## Current quality status
 
-## Technology and dependencies
-
-| Area | Stack / status |
-| --- | --- |
-| Frontend | React 18.3.1, React DOM, React Leaflet 4, Leaflet 1.9 |
-| Styling | Tailwind CSS 3, PostCSS, Autoprefixer, Lucide React |
-| Build | Vite 5; lock resolves Vite 5.4.21 and React plugin 4.7.0 |
-| Testing | npm test runs 20 component cases using pinned Vitest 4.1.11 and React Test Renderer 18.3.1; 8 backend checks also pass |
-| API | FastAPI, Uvicorn, Pydantic |
-| Computation | NumPy, NetworkX, Shapely |
-| Other declarations | SciPy, requests, proj4, proj4leaflet, clsx and tailwind-merge have no demonstrated runtime use in reviewed application source |
-
-Python requirements use minimum versions without a lockfile. Test dependencies are now declared, locked and installed, and the test script is restored. No isolated clean-install verification was performed. Bundled Node and Java editor extensions are support artifacts, not services.
-
-## Data and external resources
-
-The backend defines 12 static icebergs and six stations/ports: Cape Town, Bharati, Maitri, McMurdo, Casey and Rothera. Hobart and Indian ports are frontend constants. USNIC, ERA5, HYCOM and AMSR2 names describe simulated sources here.
-
-The app references Esri ocean tiles, CDN Leaflet CSS and Google Fonts. The default API base is an embedded Render URL, not verified during this review. `backend/response.json` is a committed response sample with 76 waypoints and 12 icebergs; it lacks the new `xai_explanation` and is not read as an application fallback. No credentials are needed by the simulated backend. No first-party license was found.
+Frontend build passes cleanly, frontend tests are **37/37 passing**, and controlled backend checks are **27/27 passing** with substituted providers. Live integration, offline completeness and provider workload remain unresolved. Prioritized fixes and acceptance criteria are in [KNOWN_ISSUES.md](KNOWN_ISSUES.md); evidence is in [TESTING.md](TESTING.md).

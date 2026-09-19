@@ -6,10 +6,12 @@ import {
   AlertTriangle, 
   Map,
   BrainCircuit,
-  X
+  X,
+  FileText
 } from 'lucide-react';
+import { generateVoyageReportPDF } from '../../utils/pdfGenerator';
 
-function RouteOverview({ metrics, safetyColor, isLowRisk, isModerateRisk }) {
+function RouteOverview({ metrics, safetyColor, isLowRisk, isModerateRisk, onExportPDF }) {
   const styles = {
     emerald: 'bg-emerald-950/50 border-emerald-500/30 text-emerald-400',
     amber: 'bg-amber-950/50 border-amber-500/30 text-amber-400',
@@ -17,10 +19,22 @@ function RouteOverview({ metrics, safetyColor, isLowRisk, isModerateRisk }) {
   };
   return (
     <div className="rounded-lg border border-slate-800/80 bg-slate-900/40 p-3 space-y-3">
-      <h2 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-100 uppercase tracking-wider">
-        <Map className="w-3.5 h-3.5 text-cyan-400" />
-        Route Overview
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-100 uppercase tracking-wider">
+          <Map className="w-3.5 h-3.5 text-cyan-400" />
+          Route Overview
+        </h2>
+        {onExportPDF && (
+          <button 
+            onClick={onExportPDF}
+            title="Export Official PDF Bridge Navigational Plan"
+            className="flex items-center gap-1 text-[9px] font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 hover:bg-cyan-900/80 px-2 py-0.5 rounded transition-colors"
+          >
+            <FileText className="w-3 h-3" />
+            Export PDF
+          </button>
+        )}
+      </div>
       
       <div className="grid grid-cols-3 gap-1">
         <div className="space-y-0.5">
@@ -167,7 +181,6 @@ function WhyThisRoute({ xaiExplanation, loading }) {
 }
 
 function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
-  // Extract time steps based on forecastHours (e.g., 24, 48, 72)
   const hours = forecastHours || 72;
   const stepsCount = hours / 24;
   const timeSteps = ['0h'];
@@ -175,7 +188,6 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
     timeSteps.push(`${i * 24}h`);
   }
 
-  // Calculate Average Drift Speed (kts) at each step from actual API data
   const seriesData = timeSteps.map((step, idx) => {
     let sumSpeed = 0;
     let count = 0;
@@ -192,17 +204,12 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
   });
 
   const hasData = seriesData.some(d => d.count > 0);
-
-  // Calculate coordinates for SVG
   const width = 200;
   const height = 60;
-  
-  const maxValue = Math.max(0.1, ...seriesData.map(d => d.value)) * 1.5; // Add some headroom
-  
+  const maxValue = Math.max(0.1, ...seriesData.map(d => d.value)) * 1.5;
   const getX = (idx) => (idx / Math.max(1, timeSteps.length - 1)) * width;
   const getY = (val) => height - (val / maxValue) * height;
 
-  // Split at missing samples: absent forecast values must not appear as zero.
   const segments = [];
   seriesData.forEach(d => {
     if (!d.count) { segments.push([]); return; }
@@ -231,7 +238,6 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
            </div>
            
            <div className="flex-1 relative w-full h-full">
-              {/* Y-axis grid lines */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                  {[...Array(3)].map((_, i) => (
                    <div key={i} className="w-full border-t border-slate-800/50 h-0"></div>
@@ -247,14 +253,12 @@ function IcebergForecastChart({ icebergsPredicted, forecastHours }) {
                 </defs>
                 {segments.filter(s => s.length > 1).map((segment, i) => <polyline key={i} points={segment.join(' ')} fill="none" stroke="rgb(34 211 238)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />)}
                 
-                {/* Data points */}
                 {seriesData.filter(d => d.count).map((d, i) => (
                   <circle key={i} cx={getX(d.x)} cy={getY(d.value)} r="2.5" fill="#050b18" stroke="rgb(34 211 238)" strokeWidth="1.5"><title>{d.time}: {d.value.toFixed(2)} knots</title></circle>
                 ))}
               </svg>
            </div>
 
-           {/* X-axis labels */}
            <div className="flex justify-between w-full mt-1 text-[8px] text-slate-500 font-mono">
               {timeSteps.map((step, i) => (
                 <span key={i}>{step}</span>
@@ -316,7 +320,10 @@ export default function DecisionSupport({
   loading,
   xaiExplanation,
   icebergsPredicted,
-  forecastHours
+  forecastHours,
+  waypoints = [],
+  origin,
+  destination
 }) {
   if (loading || !routeMetrics) {
     return (
@@ -334,10 +341,24 @@ export default function DecisionSupport({
   const isModerateRisk = metrics.risk_score >= 30 && metrics.risk_score < 60;
   const safetyColor = isLowRisk ? 'emerald' : isModerateRisk ? 'amber' : 'red';
 
+  const handleExportPDF = () => {
+    generateVoyageReportPDF({
+      routeMetrics: metrics,
+      waypoints,
+      origin,
+      destination,
+      vesselIceClass,
+      cruisingSpeed,
+      xaiExplanation,
+      icebergsPredicted,
+      forecastHours
+    });
+  };
+
   return (
     <aside className="w-64 h-full bg-[#050b18] border-l border-slate-800 flex flex-col z-20 shrink-0 select-none overflow-y-auto">
       <div className="p-3 space-y-3 flex-1 flex flex-col">
-        <RouteOverview metrics={metrics} safetyColor={safetyColor} isLowRisk={isLowRisk} isModerateRisk={isModerateRisk} />
+        <RouteOverview metrics={metrics} safetyColor={safetyColor} isLowRisk={isLowRisk} isModerateRisk={isModerateRisk} onExportPDF={handleExportPDF} />
         <WhyThisRoute xaiExplanation={xaiExplanation} loading={loading} />
         <RouteComparison metrics={metrics} />
         <IcebergForecastChart icebergsPredicted={icebergsPredicted} forecastHours={forecastHours} />

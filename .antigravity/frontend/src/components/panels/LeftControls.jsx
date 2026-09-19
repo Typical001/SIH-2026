@@ -99,7 +99,7 @@ function RoutePlanning({
   selectedPreset, onSelectPreset, 
   originOverride, onChangeOriginOverride, 
   vesselIceClass, onChangeVesselIceClass, 
-  loading, onRecalculate 
+  loading, onRecalculate, route, routeMetrics
 }) {
   const presets = [
     { id: 'cape_town_to_bharati', name: 'Bharati Station' },
@@ -124,6 +124,22 @@ function RoutePlanning({
         <Anchor className="w-3.5 h-3.5 text-cyan-400" />
         Route Planning
       </h2>
+      {route?.origin && route?.destination && (
+        <div className="rounded border border-cyan-500/20 bg-cyan-950/20 px-2 py-2 space-y-1.5" aria-label="Active route summary">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[8px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Active Route</span>
+            <span className={`text-[8px] font-mono font-bold uppercase ${loading ? 'text-amber-300' : routeMetrics ? 'text-emerald-300' : 'text-slate-400'}`}>
+              {loading ? 'Calculating' : routeMetrics ? 'Route Ready' : 'Ready'}
+            </span>
+          </div>
+          <div className="text-[11px] font-semibold text-slate-100 leading-tight">
+            {route.origin.name} <span className="text-cyan-400">→</span> {route.destination.name}
+          </div>
+          <div className="text-[8px] font-mono text-slate-400 leading-relaxed">
+            {route.origin.lat.toFixed(2)}°, {route.origin.lon.toFixed(2)}° <span className="text-slate-600">→</span> {route.destination.lat.toFixed(2)}°, {route.destination.lon.toFixed(2)}°
+          </div>
+        </div>
+      )}
       <div className="space-y-2">
         <div className="space-y-1">
           <label className="text-[9px] font-mono text-slate-400 uppercase">From</label>

@@ -22,6 +22,7 @@ from data_engine import (
     MetoceanEngine,
     Iceberg,
     fetch_environmental_layer
+    , set_live_data_enabled
 )
 from drift_engine import DriftPhysicsEngine
 from pathfinder import InvalidRouteInput, NoRouteFoundError, PolarPathfinder
@@ -155,7 +156,8 @@ def get_polar_route(
     vessel_ice_class: Literal["Polar Class 1 (PC1)", "Polar Class 3 (PC3)", "Polar Class 7 (PC7)", "Open Water Vessel"] = Query("Polar Class 3 (PC3)", description="Vessel Ice Class"),
     safety_buffer_km: float = Query(25.0, ge=5.0, le=100.0, description="Iceberg safety hazard buffer in km"),
     cruising_speed_knots: float = Query(14.5, ge=5.0, le=30.0, description="Vessel cruising speed in knots"),
-    backtest_date: Optional[str] = Query(None, description="Optional YYYY-MM-DD date for historical ERA5 reanalysis backtesting")
+    backtest_date: Optional[str] = Query(None, description="Optional YYYY-MM-DD date for historical ERA5 reanalysis backtesting"),
+    data_mode: Literal["offline", "online"] = Query("offline", description="Offline analytic demo data or online provider requests")
 ):
     """
     Calculates a simulated A* route avoiding the supplied forecast envelopes.
@@ -169,6 +171,10 @@ def get_polar_route(
         PolarPathfinder.validate_route_inputs((start_lat, start_lon), (end_lat, end_lon), safety_buffer_km)
     except InvalidRouteInput as exc:
         raise HTTPException(422, detail={"code": "INVALID_ROUTE_INPUT", "message": str(exc)}) from exc
+
+    # Keep the default showcase path deterministic and fast. Online mode is
+    # explicit because provider latency/rate limits can make route planning slow.
+    set_live_data_enabled(data_mode == "online")
 
     # 1. Fetch Environmental Layer & Check Offline Status / Cache
     try:

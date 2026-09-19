@@ -1,42 +1,35 @@
-# PolarNav project documentation
+# PolarNav project Brain
 
-**Latest routing checkpoint — 2026-09-18:** local changes add validated inputs, checked segments/endpoints, directed search costs, consistent baseline geometry, signed fuel savings and explicit forecast coverage. UI fixes remain in place. See API_REFERENCE.md for contract additions and TESTING.md for verification. Model/coastline limitations remain documented in KNOWN_ISSUES.md; this is a simulation.
+Reviewed **2026-09-19**, against local `main` at **2cc8271** (with PDF Export feature). This is the current documentation snapshot, replacing the overlapping September 17/18 checkpoint notes. Paths are relative to the application directory `.antigravity` unless stated otherwise.
 
-**UI checkpoint — 2026-09-18:** baseline `6d1f221` plus local visible-UI fixes. Horizon/endpoint labels, comparisons, alerts, risk colors, forecast layers and navigation shortcuts are corrected. See [CHANGELOG.md](CHANGELOG.md), [KNOWN_ISSUES.md](KNOWN_ISSUES.md) and [TESTING.md](TESTING.md) for changes and verification. Routing improvements were subsequently applied as described above. The September 17 snapshot below is historical.
+PolarNav is the SIH-26059 polar route planning prototype: React dashboard, FastAPI service, iceberg drift forecasts and directed A* routing. It features an **Official PDF Bridge Navigational Report export** powered by **PolarNav Engine**, attempting external wind/current/iceberg requests and using SQLite environmental caching. This is a decision-support prototype; sea ice is synthetic, currents and icebergs can fall back to models, and provider provenance/offline handling remain under engineering review. It is not validated for operational navigation.
 
-Updated: **2026-09-17**. Committed baseline: **`3684d67`** on main; current working tree restores NAV-01/02/06 and frontend test infrastructure (uncommitted). Application version: `1.0.0`. The working tree was clean before these repairs.
+## Start here
 
-PolarNav is a SIH 2026 demonstration for problem statement **26059**: Antarctic route planning and iceberg drift forecasting. React displays routes calculated by FastAPI using a static iceberg catalog, synthetic environmental fields, deterministic drift formulas and NetworkX A*.
-
-**Current maturity: simulation prototype; the three request/error/no-route regressions are repaired locally.** UI safety labels, modeled savings, online indicators and explanations are not evidence of live feeds or validated navigation safety.
-
-## Current status
-
-- `c996de7` replaced the old controls/telemetry layout with `LeftControls`, `MapArea`, `DecisionSupport` and `BottomStatusBar`; added route explanations and a snapshot-based drift-speed chart.
-- The same commit removed NAV-01 request guards, NAV-02 explicit no-route handling and NAV-06 honest error/empty states. All three are now repaired in the working tree while preserving the panel redesign and successful route explanations.
-- `dccfa3b` restored all eleven Brain documents and both regression-test files, byte-for-byte relative to `6097e6c`. It did not restore the corresponding application fixes, test script or test dependencies.
-- Current verification: **3 original backend checks, 5 no-route engine/ASGI tests and 20 frontend component tests pass (28 total); production build passes.** The frontend test script and pinned dependencies are restored.
-- Blocked/missing graph paths now yield HTTP 409 / NO_ROUTE_FOUND with no geometry, metrics or explanations. The earlier false-success diagnostic is retained as history in TESTING. Identical-endpoint division by zero remains an open issue.
-- The issue register contains **27 entries: 22 open, 4 fixed locally (NAV-01/02/06/24), 1 retired because its manual-coordinate UI was removed**. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
-- DecisionSupport and Analytics show loading/empty states without fixture results; errors expose Retry. The footer displays simulation/result status and a UTC clock. Test dependencies were installed; no browser, hosted deployment, isolated clean-install or scientific validation was performed. See [TESTING.md](TESTING.md).
-
-## Documentation guide
-
-| Document | Contents |
+| Document | Purpose |
 | --- | --- |
-| [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) | Current features, removed controls, workflow and scope |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Components, data flow, drift/routing formulas and explanations |
-| [API_REFERENCE.md](API_REFERENCE.md) | Endpoints, units, explanation schema and current failure behavior |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Windows setup, configuration, deployment and troubleshooting |
-| [TESTING.md](TESTING.md) | Current results, historical results, diagnostics and coverage gaps |
-| [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Prioritized findings, regressions and acceptance criteria |
-| [CHANGELOG.md](CHANGELOG.md) | Committed changes and local restoration |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Main-only collaboration and change-record requirements |
-| [FILE_INVENTORY.md](FILE_INVENTORY.md) | Current source roles, removed files and supporting artifacts |
-| [GIT_CHANGE_HISTORY.md](GIT_CHANGE_HISTORY.md) | Per-commit, per-file history through 3684d67 |
+| [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) | Current features, workflow, PDF report export and limitations |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Request flow, providers/cache, PDF generator, geometry, costs and models |
+| [API_REFERENCE.md](API_REFERENCE.md) | Actual parameters, response fields, report data, and error behavior |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Local setup, PDF dependency configuration and deployment |
+| [TESTING.md](TESTING.md) | Current 37/37 frontend and 27/27 backend results, verification boundaries |
+| [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Prioritized remaining work and status of NAV findings |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Main-only collaboration and change records |
+| [FILE_INVENTORY.md](FILE_INVENTORY.md) | Every application/support file (including pdfGenerator.js) |
+| [GIT_CHANGE_HISTORY.md](GIT_CHANGE_HISTORY.md) | Verified local commit/file history through 2cc8271 |
+| [CHANGELOG.md](CHANGELOG.md) | Changes and dated historical review records |
 
-## Scope and paths
+## Current verification
 
-Documents live in `.antigravity/Brain`; the application root is `.antigravity` and the Git root is its parent. Source paths are application-root-relative unless explicitly marked otherwise.
+- Frontend: **37/37 tests pass** (100% pass rate). Production build passes cleanly with `jsPDF` and `jspdf-autotable`.
+- Backend: **24 unittest cases and 3 pipeline checks pass (27/27)** with external providers replaced by deterministic fixtures. This does not establish passing live integration.
+- Isolated diagnostics previously found cache/provenance issues; the current default demo path avoids external-provider latency. Live-mode cache validity, schema validation and endpoint error consistency remain unresolved.
 
-All application-owned source, tests, configuration and existing Brain documents were read; JSON/lockfiles were inspected as data and dependency metadata. Physical files were inventoried across the entire application directory. Vendor runtimes, installed packages, Java extensions, executables and generated artifacts were categorized, not audited line by line or reverse engineered. The preceding full review was documentation-only; the current restoration changes application/test/package files and updates Brain. The build regenerated ignored `frontend/dist` output; exact paths are in CHANGELOG. No commit, push or deployment was performed.
+See [TESTING.md](TESTING.md) for exact conditions. No browser, hosted deployment, clean install, live-provider contract or scientific validation was performed in this review.
+
+## Recent changes and next work
+
+- **PDF Voyage Execution Report Export**: Created `frontend/src/utils/pdfGenerator.js` powered by **PolarNav Engine**, rendering an official 5-section bridge execution report (Metadata, High-level metrics, XAI risk breakdown, Polar Code checklist, Waypoint table) downloadable directly from `DecisionSupport.jsx` and `RouteComparisonModal.jsx`.
+- `6d1f221` restored request ownership, no-route errors, honest empty states and test tooling. `dedbb48` corrected visible controls, directed search, segment checks, baseline geometry, forecast envelopes and model metrics. `2cc8271` added provider requests, SQLite, an offline banner, same-origin API default and an accepted-but-unused backtest date.
+
+Next priorities are bounding provider requests, correcting cache persistence/spatial validity, propagating actual data provenance and forecast times, and handling outages consistently. Complete coastline/vessel/model validation remains separate work.

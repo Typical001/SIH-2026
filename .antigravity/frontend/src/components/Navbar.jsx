@@ -16,7 +16,10 @@ export default function Navbar({
   vesselIceClass, 
   forecastHours,
   isOffline,
-  lastSyncedTimestamp
+  lastSyncedTimestamp,
+  dataSource,
+  dataMode = 'offline',
+  onChangeDataMode
 }) {
   const focusPanel = id => {
     const panel = document.getElementById(id);
@@ -72,16 +75,41 @@ export default function Navbar({
             Calculating route...
           </div>
         )}
-        {isOffline && (
+        {dataMode === 'online' ? (
+          <div role="status" className={`flex items-center gap-2 px-4 py-1.5 rounded-full border text-[11px] font-bold shadow-xl ${isOffline
+            ? 'bg-amber-950/90 border-amber-500/80 text-amber-200 animate-pulse'
+            : 'bg-emerald-950/90 border-emerald-500/70 text-emerald-200'}`}>
+            {isOffline && <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />}
+            {isOffline
+              ? `ONLINE MODE: Live provider unavailable; using ${dataSource || 'fallback model'}${lastSyncedTimestamp ? ` from ${new Date(lastSyncedTimestamp).toLocaleString()}` : ''}`
+              : 'ONLINE MODE: Live provider data enabled'}
+          </div>
+        ) : isOffline ? (
           <div role="status" className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-950/90 border border-amber-500/80 text-amber-200 text-[11px] font-bold shadow-xl animate-pulse">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-            OFFLINE MODE: Routing based on cached satellite data from {lastSyncedTimestamp ? new Date(lastSyncedTimestamp).toLocaleString() : 'Local Database'}
+            OFFLINE MODE: Using fast analytic demo data
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Right: User Profile */}
       <div className="w-1/4 flex justify-end items-center gap-3">
+        <div className="flex items-center rounded-full border border-slate-700 bg-slate-900/80 p-0.5" aria-label="Data mode">
+          <button
+            type="button"
+            aria-label="Offline data mode"
+            aria-pressed={dataMode === 'offline'}
+            onClick={() => onChangeDataMode?.('offline')}
+            className={`px-2 py-1 rounded-full text-[9px] font-bold transition ${dataMode === 'offline' ? 'bg-amber-500/20 text-amber-300' : 'text-slate-500 hover:text-slate-300'}`}
+          >OFFLINE</button>
+          <button
+            type="button"
+            aria-label="Online data mode"
+            aria-pressed={dataMode === 'online'}
+            onClick={() => onChangeDataMode?.('online')}
+            className={`px-2 py-1 rounded-full text-[9px] font-bold transition ${dataMode === 'online' ? 'bg-emerald-500/20 text-emerald-300' : 'text-slate-500 hover:text-slate-300'}`}
+          >ONLINE</button>
+        </div>
         <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 text-slate-300 text-xs">
           <User className="w-4 h-4 text-cyan-400" />
           Team PolarNav

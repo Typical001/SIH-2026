@@ -31,6 +31,7 @@ export default function App() {
   const [vesselIceClass, setVesselIceClass] = useState('Polar Class 3 (PC3)');
   const [safetyBufferKm, setSafetyBufferKm] = useState(25);
   const [cruisingSpeed, setCruisingSpeed] = useState(14.5);
+  const [dataMode, setDataMode] = useState('offline');
   // null = use preset origin; { lat, lon } = user-defined Indian port or custom coords
   const [originOverride, setOriginOverride] = useState(null);
   
@@ -39,6 +40,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
   const [lastSyncedTimestamp, setLastSyncedTimestamp] = useState(null);
+  const [dataSource, setDataSource] = useState(null);
   const activeRequest = useRef(null);
 
   // Route & Metocean Data
@@ -88,6 +90,9 @@ export default function App() {
     activeRequest.current = controller;
     setLoading(true);
     setErrorMsg(null);
+    setIsOffline(false);
+    setLastSyncedTimestamp(null);
+    setDataSource(null);
     // Remove previous results while calculating for the current settings.
     setWaypoints([]);
     setDirectWaypoints([]);
@@ -105,6 +110,7 @@ export default function App() {
       vessel_ice_class: vesselIceClass,
       safety_buffer_km: safetyBufferKm.toString(),
       cruising_speed_knots: cruisingSpeed.toString()
+      ,data_mode: dataMode
     });
 
     try {
@@ -154,6 +160,7 @@ export default function App() {
       setXaiExplanation(data.xai_explanation || null);
       setIsOffline(data.is_offline || false);
       setLastSyncedTimestamp(data.last_synced_timestamp || null);
+      setDataSource(data.data_source || null);
     } catch (err) {
       if (controller.signal.aborted || activeRequest.current !== controller) return;
       console.warn('Route calculation failed:', err);
@@ -164,7 +171,7 @@ export default function App() {
         setLoading(false);
       }
     }
-  }, [startLat, startLon, endLat, endLon, forecastHours, vesselIceClass, safetyBufferKm, cruisingSpeed]);
+  }, [startLat, startLon, endLat, endLon, forecastHours, vesselIceClass, safetyBufferKm, cruisingSpeed, dataMode]);
 
   // Initial fetch on load & when parameters change
   useEffect(() => {
@@ -197,6 +204,9 @@ export default function App() {
         forecastHours={forecastHours}
         isOffline={isOffline}
         lastSyncedTimestamp={lastSyncedTimestamp}
+        dataSource={dataSource}
+        dataMode={dataMode}
+        onChangeDataMode={setDataMode}
       />
 
       {errorMsg && (
@@ -229,6 +239,8 @@ export default function App() {
           onToggleLayer={toggleLayer}
           onRecalculate={fetchRoute}
           loading={loading}
+          route={currentCoords}
+          routeMetrics={routeMetrics}
         />
 
         {/* Central Map */}
@@ -254,6 +266,9 @@ export default function App() {
           xaiExplanation={xaiExplanation}
           icebergsPredicted={icebergsPredicted}
           forecastHours={forecastHours}
+          waypoints={waypoints}
+          origin={currentCoords.origin}
+          destination={currentCoords.destination}
         />
       </div>
 
@@ -266,6 +281,13 @@ export default function App() {
         onClose={() => setIsReportOpen(false)}
         routeMetrics={routeMetrics}
         vesselIceClass={vesselIceClass}
+        waypoints={waypoints}
+        origin={currentCoords.origin}
+        destination={currentCoords.destination}
+        cruisingSpeed={cruisingSpeed}
+        xaiExplanation={xaiExplanation}
+        icebergsPredicted={icebergsPredicted}
+        forecastHours={forecastHours}
       />
     </div>
   );

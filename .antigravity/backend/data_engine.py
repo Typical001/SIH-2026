@@ -13,7 +13,9 @@ from datetime import datetime, timezone
 import numpy as np
 import math
 import requests
+import json
 import logging
+import os
 import time
 import database
 
@@ -30,6 +32,14 @@ _CACHE_TTL_SEC = 300
 _WIND_CACHE: Dict[str, Tuple[float, Dict[str, float]]] = {}
 _CURRENT_CACHE: Dict[str, Tuple[float, Dict[str, float]]] = {}
 _ICEBERG_CACHE: Optional[Tuple[float, List['Iceberg']]] = None
+_OPEN_METEO_RATE_LIMITED_UNTIL: float = 0
+_LIVE_DATA_ENABLED = os.getenv("POLARNAV_LIVE_DATA", "0").strip().lower() in {"1", "true", "yes"}
+
+
+def set_live_data_enabled(enabled: bool) -> None:
+    """Select live providers for the next request; false keeps fast demo mode."""
+    global _LIVE_DATA_ENABLED
+    _LIVE_DATA_ENABLED = bool(enabled)
 
 
 @dataclass
@@ -283,6 +293,24 @@ def get_initial_icebergs() -> List[Iceberg]:
         if now - cached_time < _CACHE_TTL_SEC:
             return cached_data
 
+    # Demo mode uses the deterministic catalog immediately. This keeps a route
+    # calculation independent of provider latency and rate limits. Set
+    # POLARNAV_LIVE_DATA=1 when live ingestion is explicitly desired.
+    if not _LIVE_DATA_ENABLED:
+        fallback = get_initial_icebergs_mock()
+        for ib in fallback:
+            try:
+                geojson_polygon = json.dumps({
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [ib.lon, ib.lat]},
+                    "properties": ib.to_dict()
+                })
+                database.save_iceberg_snapshot(ib.id, geojson_polygon, ib.length_km * ib.width_km)
+            except Exception as exc:
+                logger.debug("Could not persist demo iceberg %s: %s", ib.id, exc)
+        _ICEBERG_CACHE = (now, fallback)
+        return fallback
+
     # Attempt live USNIC API fetch
     try:
         url = "https://natice.noaa.gov/pub/iceberg/icebergs.json"
@@ -353,6 +381,17 @@ def fetch_environmental_layer(lat: float, lon: float) -> Dict[str, Any]:
     3. No Cache Available: If database.get_latest_ocean_snapshot returns None,
        raises ValueError("No cached satellite data available. Initial sync required.")
     """
+    if not _LIVE_DATA_ENABLED:
+        now_iso = datetime.now(timezone.utc).isoformat()
+        return {
+            "is_offline": True,
+            "data_source": "Analytic Model Simulation",
+            "last_synced_timestamp": now_iso,
+            "wind": MetoceanEngine.get_wind_vector_mock(lat, lon),
+            "ocean": MetoceanEngine.get_ocean_current_mock(lat, lon),
+            "sic": MetoceanEngine.get_sea_ice_concentration(lat, lon),
+        }
+
     try:
         url_wind = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=wind_speed_10m,wind_direction_10m&models=ecmwf_ifs025"
         resp_wind = requests.get(url_wind, timeout=2.5)
@@ -398,27 +437,40 @@ def fetch_environmental_layer(lat: float, lon: float) -> Dict[str, Any]:
         logger.warning(f"Live API network request failed: {exc}. Failing over to SQLite offline cache.")
 
         cached_ocean = database.get_latest_ocean_snapshot(lat, lon)
-        if not cached_ocean:
-            raise ValueError("No cached satellite data available. Initial sync required.")
+        if cached_ocean:
+            spd_mps = round(math.hypot(cached_ocean["u_wind"], cached_ocean["v_wind"]), 2)
+            spd_curr = round(math.hypot(cached_ocean["u_current"], cached_ocean["v_current"]), 3)
 
-        spd_mps = round(math.hypot(cached_ocean["u_wind"], cached_ocean["v_wind"]), 2)
-        spd_curr = round(math.hypot(cached_ocean["u_current"], cached_ocean["v_current"]), 3)
+            return {
+                "is_offline": True,
+                "data_source": "Offline Cache",
+                "last_synced_timestamp": cached_ocean.get("timestamp"),
+                "wind": {
+                    "u": cached_ocean["u_wind"], "v": cached_ocean["v_wind"],
+                    "speed_mps": spd_mps, "speed_knots": round(spd_mps * 1.94384, 1),
+                    "data_source": "Offline Cache"
+                },
+                "ocean": {
+                    "u": cached_ocean["u_current"], "v": cached_ocean["v_current"],
+                    "speed_mps": spd_curr, "speed_knots": round(spd_curr * 1.94384, 2),
+                    "data_source": "Offline Cache"
+                },
+                "sic": cached_ocean["sea_ice_concentration"]
+            }
+
+        # Fallback to analytic model simulation if offline and no SQLite snapshot exists
+        mock_wind = MetoceanEngine.get_wind_vector_mock(lat, lon)
+        mock_ocean = MetoceanEngine.get_ocean_current_mock(lat, lon)
+        mock_sic = MetoceanEngine.get_sea_ice_concentration(lat, lon)
+        now_iso = datetime.now(timezone.utc).isoformat()
 
         return {
             "is_offline": True,
-            "data_source": "Offline Cache",
-            "last_synced_timestamp": cached_ocean.get("timestamp"),
-            "wind": {
-                "u": cached_ocean["u_wind"], "v": cached_ocean["v_wind"],
-                "speed_mps": spd_mps, "speed_knots": round(spd_mps * 1.94384, 1),
-                "data_source": "Offline Cache"
-            },
-            "ocean": {
-                "u": cached_ocean["u_current"], "v": cached_ocean["v_current"],
-                "speed_mps": spd_curr, "speed_knots": round(spd_curr * 1.94384, 2),
-                "data_source": "Offline Cache"
-            },
-            "sic": cached_ocean["sea_ice_concentration"]
+            "data_source": "Analytic Model Simulation",
+            "last_synced_timestamp": now_iso,
+            "wind": mock_wind,
+            "ocean": mock_ocean,
+            "sic": mock_sic
         }
 
 
@@ -428,15 +480,27 @@ def fetch_era5_wind_data(lat: float, lon: float, date_str: Optional[str] = None)
 
     1. If `date_str` is provided (historical/backtest), queries Open-Meteo Archive API (`models=era5`).
     2. If no date is passed or if ERA5 has publication lag (>5 days delay), queries ECMWF IFS live forecast API (`models=ecmwf_ifs025`).
-    3. If network/API times out or fails (2.5s timeout), logs a warning and falls back to SQLite offline cache.
+    3. If network/API times out or fails (1.0s timeout), logs a warning and falls back to SQLite offline cache or model simulation.
     4. Annotates output with explicit "data_source" metadata.
     """
+    global _OPEN_METEO_RATE_LIMITED_UNTIL
     cache_key = f"{round(lat, 1)}:{round(lon, 1)}:{date_str or 'latest'}"
     now = time.time()
     if cache_key in _WIND_CACHE:
         cached_time, cached_val = _WIND_CACHE[cache_key]
         if now - cached_time < _CACHE_TTL_SEC:
             return cached_val
+
+    if not _LIVE_DATA_ENABLED:
+        mock_val = MetoceanEngine.get_wind_vector_mock(lat, lon)
+        _WIND_CACHE[cache_key] = (now, mock_val)
+        return mock_val
+
+    # If Open-Meteo failed/rate-limited recently, short-circuit to fast model simulation
+    if now < _OPEN_METEO_RATE_LIMITED_UNTIL:
+        mock_val = MetoceanEngine.get_wind_vector_mock(lat, lon)
+        _WIND_CACHE[cache_key] = (now, mock_val)
+        return mock_val
 
     # 1. Historical Backtesting Query (ERA5 Archive)
     if date_str:
@@ -446,7 +510,7 @@ def fetch_era5_wind_data(lat: float, lon: float, date_str: Optional[str] = None)
                 f"latitude={lat}&longitude={lon}&start_date={date_str}&end_date={date_str}"
                 f"&hourly=wind_speed_10m,wind_direction_10m,wind_u_component_10m,wind_v_component_10m&models=era5"
             )
-            resp = requests.get(url, timeout=2.5)
+            resp = requests.get(url, timeout=1.0)
             if resp.status_code == 200:
                 data = resp.json()
                 hourly = data.get("hourly", {})
@@ -475,6 +539,7 @@ def fetch_era5_wind_data(lat: float, lon: float, date_str: Optional[str] = None)
                     _WIND_CACHE[cache_key] = (now, result)
                     return result
         except Exception as exc:
+            _OPEN_METEO_RATE_LIMITED_UNTIL = now + 60
             logger.warning(f"ERA5 Archive query failed for date {date_str} at ({lat}, {lon}): {exc}")
 
     # 2. Real-Time ECMWF IFS Forecast Query
@@ -483,7 +548,7 @@ def fetch_era5_wind_data(lat: float, lon: float, date_str: Optional[str] = None)
             f"https://api.open-meteo.com/v1/forecast?"
             f"latitude={lat}&longitude={lon}&hourly=wind_speed_10m,wind_direction_10m&models=ecmwf_ifs025"
         )
-        resp = requests.get(url, timeout=2.5)
+        resp = requests.get(url, timeout=1.0)
         if resp.status_code == 200:
             data = resp.json()
             hourly = data.get("hourly", {})
@@ -507,27 +572,36 @@ def fetch_era5_wind_data(lat: float, lon: float, date_str: Optional[str] = None)
                 }
                 _WIND_CACHE[cache_key] = (now, result)
                 return result
+        else:
+            _OPEN_METEO_RATE_LIMITED_UNTIL = now + 60
     except Exception as exc:
+        _OPEN_METEO_RATE_LIMITED_UNTIL = now + 60
         logger.warning(f"ECMWF IFS Live Forecast query failed at ({lat}, {lon}): {exc}")
 
     # 3. Fail-Safe Offline SQLite Cache Query
-    cached = database.get_latest_ocean_snapshot(lat, lon)
-    if cached:
-        spd = round(math.hypot(cached["u_wind"], cached["v_wind"]), 2)
-        fallback = {
-            "u": cached["u_wind"],
-            "v": cached["v_wind"],
-            "speed_mps": spd,
-            "speed_knots": round(spd * 1.94384, 1),
-            "direction_deg": 270.0,
-            "data_source": "Offline Cache",
-            "is_offline": True,
-            "last_synced_timestamp": cached.get("timestamp")
-        }
-        _WIND_CACHE[cache_key] = (now, fallback)
-        return fallback
+    try:
+        cached = database.get_latest_ocean_snapshot(lat, lon)
+        if cached:
+            spd = round(math.hypot(cached["u_wind"], cached["v_wind"]), 2)
+            fallback = {
+                "u": cached["u_wind"],
+                "v": cached["v_wind"],
+                "speed_mps": spd,
+                "speed_knots": round(spd * 1.94384, 1),
+                "direction_deg": 270.0,
+                "data_source": "Offline Cache",
+                "is_offline": True,
+                "last_synced_timestamp": cached.get("timestamp")
+            }
+            _WIND_CACHE[cache_key] = (now, fallback)
+            return fallback
+    except Exception:
+        pass
 
-    raise ValueError("No cached satellite data available. Initial sync required.")
+    # 4. Fallback to Analytic Model Simulation
+    mock_val = MetoceanEngine.get_wind_vector_mock(lat, lon)
+    _WIND_CACHE[cache_key] = (now, mock_val)
+    return mock_val
 
 
 class MetoceanEngine:
@@ -610,12 +684,23 @@ class MetoceanEngine:
         """
         Fetches live ocean current vectors via Open-Meteo Marine API / HYCOM endpoints with fallback to model simulation.
         """
+        global _OPEN_METEO_RATE_LIMITED_UNTIL
         cache_key = f"{round(lat, 1)}:{round(lon, 1)}"
         now = time.time()
         if cache_key in _CURRENT_CACHE:
             cached_time, cached_val = _CURRENT_CACHE[cache_key]
             if now - cached_time < _CACHE_TTL_SEC:
                 return cached_val
+
+        if not _LIVE_DATA_ENABLED:
+            result = cls.get_ocean_current_mock(lat, lon, time_hours)
+            _CURRENT_CACHE[cache_key] = (now, result)
+            return result
+
+        if now < _OPEN_METEO_RATE_LIMITED_UNTIL:
+            result = cls.get_ocean_current_mock(lat, lon, time_hours)
+            _CURRENT_CACHE[cache_key] = (now, result)
+            return result
 
         try:
             url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&current=ocean_current_velocity,ocean_current_direction"
