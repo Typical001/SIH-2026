@@ -1,16 +1,18 @@
 # API reference
 
-Verified from source **2026-09-19**, **2cc8271** (with PDF Export feature). Local base `http://localhost:8000`. All five application endpoints are GET/JSON; FastAPI also provides `/docs`, `/redoc`, `/openapi.json`. There is no authentication or explicit response-model validation.
+Verified from source **2026-09-19**, **2cc8271** (with Frontend Login System and PDF Export features). Local base `http://localhost:8000`. Endpoints include GET/JSON routing, stations, metocean, icebergs, health, and POST authentication handlers; FastAPI also provides `/docs`, `/redoc`, `/openapi.json`.
 
 ## Endpoints
 
-| Path | Response / behavior |
-| --- | --- |
-| `/api/health` | Fixed service/version/engine/feed strings, cors_enabled and timestamp_utc; no active health checks |
-| `/api/v1/stations` | status=success and six-entry stations dictionary |
-| `/api/v1/icebergs` | status, forecast_hours, total_icebergs, icebergs_present, icebergs_predicted_72h, detailed_forecasts |
-| `/api/v1/metocean` | status=success and grid with bounds, points, total_points |
-| `/api/v1/polar-route` | Computed/baseline geometry, iceberg data, metrics, endpoints, explanation, origin-preflight offline metadata, and PDF report data payload |
+| Path | Method | Response / behavior |
+| --- | --- | --- |
+| `/api/health` | GET | Fixed service/version/engine/feed strings, cors_enabled and timestamp_utc; no active health checks |
+| `/api/v1/stations` | GET | status=success and six-entry stations dictionary |
+| `/api/v1/icebergs` | GET | status, forecast_hours, total_icebergs, icebergs_present, icebergs_predicted_72h, detailed_forecasts |
+| `/api/v1/metocean` | GET | status=success and grid with bounds, points, total_points |
+| `/api/v1/polar-route` | GET | Computed/baseline geometry, iceberg data, metrics, endpoints, explanation, origin-preflight offline metadata, and PDF report data payload |
+| `/api/v1/auth/login` | POST | Authenticates officer email/password, returning JSON Web Token (JWT) payload, role, vessel assignment, and ice class badge |
+| `/api/v1/auth/signup` | POST | Registers new Polar Officer profile with vessel name, ice class qualification, and session token |
 
 Health timestamp is hardcoded to `2026-09-18T12:00:00Z`; feed labels do not prove provider reachability or data freshness. Station metadata includes McMurdo at -77.8419 latitude, outside the route domain.
 

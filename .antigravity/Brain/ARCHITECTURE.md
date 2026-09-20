@@ -4,9 +4,14 @@ Reviewed **2026-09-19**, baseline **2cc8271** (with PDF Export feature). This de
 
 ## Components and request flow
 
-`frontend/src/main.jsx` mounts App under React StrictMode. App owns route parameters, scalar request dependencies, AbortController/request ownership, results, explanation, errors, offline metadata, layer flags and the UTC clock. It composes Navbar, LeftControls, MapArea/PolarMap, DecisionSupport, BottomStatusBar and RouteComparisonModal.
+`frontend/src/main.jsx` mounts App under React StrictMode. App is wrapped with `AuthProvider` (`AuthContext.jsx`) and owns route parameters, scalar request dependencies, AbortController/request ownership, results, explanation, errors, offline metadata, layer flags and the UTC clock. It composes Navbar, LeftControls, MapArea/PolarMap, DecisionSupport, BottomStatusBar, RouteComparisonModal, and LoginModal.
 
-A calculation clears geometry, hazards, metrics and explanations before fetching `${VITE_API_URL || ''}/api/v1/polar-route`. Completion is accepted only by the current request. Missing numeric metrics/invalid waypoints/non-array overlays are rejected, but nested iceberg/XAI schemas are not fully checked. Offline state and its timestamp are only replaced on success, so they can describe an earlier request during loading/failure.
+### Authentication & Officer Session (`AuthContext.jsx` & `LoginModal.jsx`)
+
+Client-side authentication context [`AuthContext.jsx`](file:///c:/Users/prath/Downloads/SIH%202026/Project%202026/polar-navigation-dashboard/.antigravity/frontend/src/context/AuthContext.jsx) manages user state (`user`, `isAuthenticated`, `login`, `quickLogin`, `logout`) with `localStorage` persistence.
+- **Mandatory Command Auth Gate**: When `isAuthenticated` is false, [`App.jsx`](file:///c:/Users/prath/Downloads/SIH%202026/Project%202026/polar-navigation-dashboard/.antigravity/frontend/src/App.jsx) suppresses route planning requests and renders a full-screen command lock overlay. [`LoginModal.jsx`](file:///c:/Users/prath/Downloads/SIH%202026/Project%202026/polar-navigation-dashboard/.antigravity/frontend/src/components/LoginModal.jsx) runs with `isMandatory={true}` (close button hidden; backdrop click disabled).
+- **1-Click Quick Access**: Officers can authenticate using email/password or instant Quick Access chips (Capt. Alex Vance, Dr. Priya Sharma, Cmdr. Henrik Lind).
+- **Navbar Profile & Instant Logout**: Interactive user badge in [`Navbar.jsx`](file:///c:/Users/prath/Downloads/SIH%202026/Project%202026/polar-navigation-dashboard/.antigravity/frontend/src/components/Navbar.jsx) showing officer rank, vessel assignment, ice class certification, and a Sign Out button that revokes privileges and locks the UI immediately.
 
 ### PDF Report Export (`pdfGenerator.js`)
 
@@ -21,7 +26,7 @@ Client-side utility `frontend/src/utils/pdfGenerator.js` utilizes `jsPDF` and `j
 The backend route handler performs:
 
 1. FastAPI query validation and engine coordinate validation.
-2. `fetch_environmental_layer(start_lat, start_lon)`: external wind request, current helper and analytic sea ice; save an environmental snapshot if possible. If offline, query SQLite. No cache produces 503 INITIAL_SYNC_REQUIRED.
+2. `fetch_environmental_layer(start_lat, start_lon)`: external wind request, current helper and analytic sea ice; save an environmental snapshot if possible. If offline, query SQLite. No cache produces 503 INITIAL_SYNC_REQUIRED. Open-Meteo requests utilize a 60s in-memory rate-limit circuit breaker fallback.
 3. `get_initial_icebergs()`, then `DriftPhysicsEngine.get_all_forecasts(...)`.
 4. `PolarPathfinder(... resolution=.85 ...)`, graph creation, directed A*, final segment validation, metrics and explanation.
 5. Route serialization, planning-envelope radii and origin-preflight source/offline metadata duplicated into route_metrics.

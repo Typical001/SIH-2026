@@ -7,6 +7,18 @@ import Navbar from './components/Navbar';
 // Exercise App's real hooks while isolating map/network rendering.
 vi.mock('./components/PolarMap', () => ({ default: (props) => <map {...props} /> }));
 vi.mock('./components/panels/LeftControls', () => ({ default: (props) => <controls {...props} /> }));
+vi.mock('./context/AuthContext', () => ({
+  AuthProvider: ({ children }) => <>{children}</>,
+  useAuth: () => ({
+    user: { name: 'Capt. Alex Vance', email: 'captain@polarnav.ai', role: 'Captain', badge: 'PC3 Master' },
+    isAuthenticated: true,
+    loading: false,
+    login: vi.fn(),
+    quickLogin: vi.fn(),
+    logout: vi.fn()
+  }),
+  DEMO_USERS: {}
+}));
 
 let app;
 let requests;
@@ -304,5 +316,10 @@ describe('redesigned dashboard regressions', () => {
     expect(text()).not.toContain('Old explanation');
     expect(app.root.findByType('map').props.waypoints).toEqual([[-34, 18], [-69, 76]]);
     expect(navbar().loading).toBe(false);
+  });
+
+  it('renders authenticated officer badge and command UI', async () => {
+    await mount();
+    expect(text()).toContain('Capt. Alex Vance');
   });
 });

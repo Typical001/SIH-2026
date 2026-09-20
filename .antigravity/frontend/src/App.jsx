@@ -5,6 +5,8 @@ import DecisionSupport from './components/panels/DecisionSupport';
 import BottomStatusBar from './components/panels/BottomStatusBar';
 import MapArea from './components/panels/MapArea';
 import RouteComparisonModal from './components/RouteComparisonModal';
+import LoginModal from './components/LoginModal';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Preset Geographic Coordinates
 const PRESET_COORDINATES = {
@@ -25,7 +27,8 @@ const PRESET_COORDINATES = {
   }
 };
 
-export default function App() {
+export function AppContent() {
+  const { isAuthenticated } = useAuth();
   const [selectedPreset, setSelectedPreset] = useState('cape_town_to_bharati');
   const [forecastHours, setForecastHours] = useState(72);
   const [vesselIceClass, setVesselIceClass] = useState('Polar Class 3 (PC3)');
@@ -37,6 +40,7 @@ export default function App() {
   
   const [loading, setLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
   const [lastSyncedTimestamp, setLastSyncedTimestamp] = useState(null);
@@ -58,24 +62,22 @@ export default function App() {
     showDirectRoute: true,
     showPredictedBergs: true,
     showPresentBergs: true,
-    showHazardBuffers: true,
-    showDriftVectors: true,
-    showSeaIce: true,
-    showMetoceanGrid: false
+    showDriftTrails: true,
+    showMetoceanGrid: false,
+    showSeaIce: true
   });
 
-  const toggleLayer = (layerKey) => {
-    setLayers((prev) => ({
-      ...prev,
-      [layerKey]: !prev[layerKey]
-    }));
+  const toggleLayer = key => {
+    setLayers(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const presetCoords = PRESET_COORDINATES[selectedPreset] || PRESET_COORDINATES.cape_town_to_bharati;
-  const currentCoords = {
-    ...presetCoords,
-    origin: originOverride ?? presetCoords.origin
-  };
+  const currentCoords = originOverride 
+    ? {
+        name: `${originOverride.name || 'Custom Origin'} ➔ ${PRESET_COORDINATES[selectedPreset].destination.name}`,
+        origin: originOverride,
+        destination: PRESET_COORDINATES[selectedPreset].destination
+      }
+    : PRESET_COORDINATES[selectedPreset];
 
   // Depend on coordinate values, not the new objects created on each render.
   const startLat = currentCoords.origin.lat;
@@ -173,14 +175,15 @@ export default function App() {
     }
   }, [startLat, startLon, endLat, endLon, forecastHours, vesselIceClass, safetyBufferKm, cruisingSpeed, dataMode]);
 
-  // Initial fetch on load & when parameters change
+  // Initial fetch on load & when parameters change (only when authenticated)
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchRoute();
     return () => {
       activeRequest.current?.abort();
       activeRequest.current = null;
     };
-  }, [fetchRoute]);
+  }, [fetchRoute, isAuthenticated]);
 
   const [timeUtc, setTimeUtc] = useState('');
   useEffect(() => {
@@ -193,6 +196,40 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#050b18] relative">
+        <Navbar
+          loading={false}
+          onOpenLogin={() => setIsLoginModalOpen(true)}
+          dataMode={dataMode}
+          onChangeDataMode={setDataMode}
+        />
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center z-10">
+          <div className="max-w-md w-full p-8 rounded-2xl bg-[#091327]/90 border border-cyan-500/40 backdrop-blur-xl shadow-2xl shadow-cyan-950/80">
+            <h2 className="text-lg font-bold text-white mb-2 tracking-wide flex items-center justify-center gap-2">
+              🔒 RESTRICTED POLAR COMMAND ACCESS
+            </h2>
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              Southern Ocean bridge route telemetry and AI decision-support models are locked. Authenticate as a certified bridge officer or select quick demo access to proceed.
+            </p>
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-500 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-900/50 transition transform active:scale-95 flex items-center justify-center gap-2"
+            >
+              Authenticate Command Privileges
+            </button>
+          </div>
+        </div>
+        <LoginModal
+          isOpen={true}
+          isMandatory={true}
+          onClose={() => setIsLoginModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#050b18]">
       {/* Top Navigation Bar */}
@@ -200,6 +237,7 @@ export default function App() {
         loading={loading}
         onRefresh={fetchRoute}
         onOpenReport={() => setIsReportOpen(true)}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
         vesselIceClass={vesselIceClass}
         forecastHours={forecastHours}
         isOffline={isOffline}
@@ -289,6 +327,20 @@ export default function App() {
         icebergsPredicted={icebergsPredicted}
         forecastHours={forecastHours}
       />
+
+      {/* Login & Authentication Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

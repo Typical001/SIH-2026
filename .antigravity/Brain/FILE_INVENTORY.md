@@ -25,19 +25,21 @@ Reviewed **2026-09-19**, baseline **2cc8271** (with PDF Export feature), applica
 | `frontend/package-lock.json` | Tracked | Lockfile v3 with 277 package entries including jsPDF dependencies. |
 | `frontend/package.json` | Tracked | dev/build/preview/test scripts and runtime/dev dependencies (added jsPDF, jspdf-autotable). |
 | `frontend/postcss.config.js` | Tracked | Tailwind and Autoprefixer. |
-| `frontend/src/App.jsx` | Tracked | State/request ownership, result clearing/errors, relative API default, offline metadata; passes report parameters to modals. |
-| `frontend/src/App.test.jsx` | Tracked | Twenty-one App cases; test URL construction updated with base URL. |
-| `frontend/src/components/Navbar.jsx` | Tracked | Planner/Forecast navigation, Analytics report trigger, loading/offline banners. |
+| `frontend/src/App.jsx` | Tracked | State/request ownership, AuthProvider wrapper, result clearing/errors, relative API default, offline metadata; passes report parameters to modals. |
+| `frontend/src/App.test.jsx` | Tracked | Twenty-two App cases (including LoginModal and Navbar Sign In test). |
+| `frontend/src/context/AuthContext.jsx` | Tracked | React Auth context with `localStorage` persistence and 3 Quick Demo officer accounts (Captain Alex Vance, Dr. Priya Sharma, Cmdr. Henrik Lind). |
+| `frontend/src/components/LoginModal.jsx` | Tracked | Dark polar glassmorphic modal with Sign In/Sign Up tabs, 1-Click Quick Demo sign-in, and password toggle. |
+| `frontend/src/components/Navbar.jsx` | Tracked | Planner/Forecast navigation, Analytics report trigger, loading/offline banners, Sign In trigger, and interactive user profile dropdown. |
 | `frontend/src/components/PolarMap.jsx` | Tracked | EPSG:3857 map, supplied geometry/trails, independent layers, illustrative ice circles and planning envelopes. |
 | `frontend/src/components/RouteComparisonModal.jsx` | Tracked | Missing-result guard, returned metrics comparison, Export PDF Report button. |
 | `frontend/src/components/StatusBar.jsx` | Tracked | Unused older footer. |
-| `frontend/src/components/VisibleUI.test.jsx` | Tracked | Fifteen passing controls/map/comparison/coverage/rendering cases with mocked Leaflet. |
+| `frontend/src/components/VisibleUI.test.jsx` | Tracked | Eighteen passing controls/map/comparison/coverage/rendering/navbar cases with mocked Leaflet. |
 | `frontend/src/components/displayValues.js` | Tracked | Finite-number formatting, rounded duration rollover and risk labels. |
 | `frontend/src/components/panels/BottomStatusBar.jsx` | Tracked | Mounted simulation/result-availability footer and UTC clock. |
 | `frontend/src/components/panels/DecisionSupport.jsx` | Tracked | Loading/empty/results, XAI dialog, chart gaps, baseline comparison, Quick Export PDF action button. |
 | `frontend/src/components/panels/LeftControls.jsx` | Tracked | Presets, 13 Indian ports, vessel/horizon controls, layer toggles; metocean disabled. |
 | `frontend/src/components/panels/MapArea.jsx` | Tracked | Thin PolarMap wrapper. |
-| `frontend/src/utils/pdfGenerator.js` | Untracked/New | Client-side jsPDF utility for generating official 5-section bridge execution reports with PolarNav Engine branding. |
+| `frontend/src/utils/pdfGenerator.js` | Tracked | Client-side jsPDF utility for generating official 5-section bridge execution reports with PolarNav Engine branding. |
 | `frontend/src/index.css` | Tracked | Global theme, glass panels, Leaflet overrides, route/radar animations. |
 | `frontend/src/main.jsx` | Tracked | React root under StrictMode. |
 | `frontend/tailwind.config.js` | Tracked | Source scanning, palette, fonts and shadows. |

@@ -47,15 +47,17 @@ The earlier IDs are retained so previous discussions remain traceable. Historica
 | NAV-21 | **Retired by UI removal.** Former manual-coordinate clearing bug no longer reachable. |
 | NAV-22 | **Fixed dedbb48.** Markers, buffers and drift trails toggle independently. |
 | NAV-23 | **Fixed dedbb48.** Trails render supplied intermediate trajectory points. |
-| NAV-24 | **Fixed.** Explicit base URL `'http://localhost'` added to `App.test.jsx:73`. All 36 Vitest cases pass cleanly (100%). |
+| NAV-24 | **Fixed.** Explicit base URL `'http://localhost'` added to `App.test.jsx:73`. All 40 Vitest cases pass cleanly (100%). |
 | NAV-25 | **Partial / Medium.** XAI uses actual graph-node factors/endpoints and maximum caution. |
 | NAV-26 | **Partial / Medium.** Endpoint labels corrected. Manual coordinates and buffer inputs absent. |
-| NAV-27 | **Fixed & Extended.** Added Official Bridge Navigational Report PDF export feature (`pdfGenerator.js`) powered by **PolarNav Engine**. All 37 Vitest UI tests pass. |
+| NAV-27 | **Fixed & Extended.** Added Official Bridge Navigational Report PDF export feature (`pdfGenerator.js`) powered by **PolarNav Engine**. |
+| NAV-28 | **Fixed & Extended.** `json` import added, demo/live iceberg writes handled, and 60-second in-memory circuit breaker added for Open-Meteo REST API rate-limiting (HTTP 429). |
+| NAV-29 | **Fixed & Extended.** Implemented **Frontend Authentication & Login System** (`AuthContext.jsx` & `LoginModal.jsx`) supporting 3 Quick Demo officer roles (Capt. Alex Vance, Dr. Priya Sharma, Cmdr. Henrik Lind), session persistence in `localStorage`, Navbar profile dropdown, and FastAPI auth endpoints. |
 
 ## Evidence and delivery order
 
-See [TESTING.md](TESTING.md): 37/37 frontend tests pass; build passes; 24 unittest plus 3 pipeline checks pass with controlled providers.
+See [TESTING.md](TESTING.md): 40/40 frontend tests pass; build passes; 24 unittest checks pass with controlled providers.
 
-1. Stabilize provider adapters, bounded snapshot acquisition, persistence, spatial/time validity and explicit provenance/error handling (NAV-28–33/36).
+1. Stabilize provider adapters, bounded snapshot acquisition, persistence, spatial/time validity and explicit provenance/error handling (NAV-30–33/36).
 2. Repair same-origin deployment wiring and offline UI state (NAV-34/35).
 3. Complete geographical/vessel and forecast-time modeling; calibrate fuel/risk/XAI evidence (NAV-03/04/13/19/20/25).

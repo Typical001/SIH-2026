@@ -32,6 +32,15 @@ Restart Vite after environment changes. Production values are embedded at build 
 
 By default the backend runs in fast demo mode: route calculations use deterministic analytic wind/current/iceberg models and do not wait for external providers. The dashboard's OFFLINE/ONLINE toggle sends `data_mode=offline|online` for each route request. This avoids provider latency and rate limits during a presentation. `POLARNAV_LIVE_DATA=1` can also enable live mode as a process default; the request toggle is the preferred UI control. Live mode is slower and retains the provider/cache limitations documented in [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
 
+## Frontend Authentication & Session Setup
+
+Authentication is managed via `AuthContext.jsx` with client-side `localStorage` persistence. It supports 3 preset Quick Demo accounts:
+- **Capt. Alex Vance** (`captain@polarnav.ai`)
+- **Dr. Priya Sharma** (`priya.sharma@polarnav.ai`)
+- **Cmdr. Henrik Lind** (`admin@polarnav.ai`)
+
+No external OAuth provider or database setup is required for authentication in local development.
+
 ## PDF Report Export Setup
 
 The PDF report generation is implemented client-side via `jspdf` and `jspdf-autotable` in `frontend/src/utils/pdfGenerator.js`. No additional backend services or binary CLI utilities are required for PDF export.

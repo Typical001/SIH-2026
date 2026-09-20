@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Home,
   Map,
@@ -6,13 +6,21 @@ import {
   PieChart,
   User,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  LogIn,
+  LogOut,
+  ChevronDown,
+  Ship,
+  ShieldCheck,
+  BadgeCheck
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ 
   loading, 
   onRefresh, 
   onOpenReport, 
+  onOpenLogin,
   vesselIceClass, 
   forecastHours,
   isOffline,
@@ -21,11 +29,27 @@ export default function Navbar({
   dataMode = 'offline',
   onChangeDataMode
 }) {
+  const { user, isAuthenticated, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const focusPanel = id => {
     const panel = document.getElementById(id);
     panel?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     panel?.focus({ preventScroll: true });
   };
+
   return (
     <header className="h-14 px-5 bg-[#050b18] border-b border-slate-800 flex items-center justify-between z-30 shrink-0 select-none relative">
       {/* Brand & Mission Identification */}
@@ -92,7 +116,7 @@ export default function Navbar({
         ) : null}
       </div>
 
-      {/* Right: User Profile */}
+      {/* Right: Data Mode Switcher & User Authentication */}
       <div className="w-1/4 flex justify-end items-center gap-3">
         <div className="flex items-center rounded-full border border-slate-700 bg-slate-900/80 p-0.5" aria-label="Data mode">
           <button
@@ -110,10 +134,86 @@ export default function Navbar({
             className={`px-2 py-1 rounded-full text-[9px] font-bold transition ${dataMode === 'online' ? 'bg-emerald-500/20 text-emerald-300' : 'text-slate-500 hover:text-slate-300'}`}
           >ONLINE</button>
         </div>
-        <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 text-slate-300 text-xs">
-          <User className="w-4 h-4 text-cyan-400" />
-          Team PolarNav
-        </span>
+
+        {isAuthenticated && user ? (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/60 text-slate-200 text-xs transition shadow-md group"
+              aria-expanded={dropdownOpen}
+              aria-haspopup="true"
+            >
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} className="w-5 h-5 rounded-full object-cover border border-cyan-400" />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-cyan-600 text-white font-bold text-[10px] flex items-center justify-center">
+                  {user.name.charAt(0)}
+                </div>
+              )}
+              <span className="font-semibold text-cyan-200 max-w-[110px] truncate">{user.name}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-cyan-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Profile Dropdown Menu */}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-[#091327] border border-cyan-500/30 rounded-xl shadow-2xl shadow-cyan-950/80 p-3 z-50 animate-fadeIn text-slate-200">
+                <div className="pb-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold text-white">{user.name}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-900/80 text-cyan-300 border border-cyan-500/40 flex items-center gap-0.5">
+                      <BadgeCheck className="w-3 h-3 text-cyan-400" />
+                      {user.badge || 'Officer'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                </div>
+
+                <div className="py-2.5 space-y-1.5 border-b border-slate-800 text-[11px]">
+                  <div className="flex items-center justify-between text-slate-300">
+                    <span className="flex items-center gap-1.5 text-slate-400">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-400" /> Role
+                    </span>
+                    <span className="font-medium text-slate-200">{user.role}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-300">
+                    <span className="flex items-center gap-1.5 text-slate-400">
+                      <Ship className="w-3.5 h-3.5 text-cyan-400" /> Vessel
+                    </span>
+                    <span className="font-medium text-cyan-300">{user.vessel}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-300">
+                    <span className="flex items-center gap-1.5 text-slate-400">
+                      <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" /> Ice Class
+                    </span>
+                    <span className="font-medium text-emerald-300 text-[10px]">{user.iceClass}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    logout();
+                  }}
+                  className="w-full mt-2 py-1.5 px-3 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 text-xs font-semibold flex items-center justify-center gap-2 transition"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out of Command
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenLogin}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-cyan-500/50 bg-gradient-to-r from-cyan-900/60 to-blue-900/60 hover:from-cyan-600 hover:to-blue-600 text-slate-100 text-xs font-bold transition shadow-lg shadow-cyan-950/50 transform active:scale-95"
+          >
+            <LogIn className="w-3.5 h-3.5 text-cyan-300" />
+            Sign In
+          </button>
+        )}
       </div>
     </header>
   );

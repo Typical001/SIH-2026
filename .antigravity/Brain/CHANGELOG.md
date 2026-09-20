@@ -1,5 +1,42 @@
 # Project changelog
 
+## 2026-09-19 — Enforce Mandatory Officer Authentication (`App.jsx` & `LoginModal.jsx`)
+
+Reason: User requested strict system protection requiring successful officer authentication before the dashboard UI, route planning, Leaflet map, and PDF exports are accessible.
+
+### Added / Modified
+- `frontend/src/App.jsx`: Added mandatory `!isAuthenticated` protection guard. When unauthenticated, background route calculations are suppressed and a full-screen **Polar Command Authentication Gate** is rendered.
+- `frontend/src/components/LoginModal.jsx`: Added `isMandatory` prop. When `isMandatory={true}`, close 'X' button is hidden and backdrop click dismissal is disabled.
+- `frontend/src/App.test.jsx`: Updated unit tests to mock `AuthContext` with authenticated state, maintaining 100% test pass rate.
+
+### Verification
+- Frontend Vitest suite: **40/40 PASSED** (100% pass rate).
+- Production build: **PASSED** (1,948 modules transformed).
+- Backend test suite: **24/24 PASSED**.
+
+## 2026-09-19 — Add Frontend Authentication & Login System (`AuthContext.jsx` & `LoginModal.jsx`)
+
+Reason: User requested a frontend Login System with officer authentication, role management, session persistence, and API integration.
+
+### Added
+- `frontend/src/context/AuthContext.jsx`: React context providing `user`, `isAuthenticated`, `login()`, `quickLogin()`, and `logout()`. Includes 3 preset Quick Demo accounts:
+  - ⚓ **Capt. Alex Vance** (*PC3 Master - R/V Kronos Explorer*)
+  - 🧭 **Dr. Priya Sharma** (*Chief Polar Hydrographer - SA Agulhas II*)
+  - ⚡ **Cmdr. Henrik Lind** (*Fleet Command Ops - Southern Fleet HQ*)
+  - Persists session state in `localStorage` under `polarnav_auth_user`.
+- `frontend/src/components/LoginModal.jsx`: Polar-themed glassmorphism modal with Sign In and Create Officer Account tabs, 1-Click Quick Demo sign-in, show/hide password toggle, and input validation.
+- `backend/main.py`: Added `POST /api/v1/auth/login` and `POST /api/v1/auth/signup` FastAPI endpoints.
+
+### Modified
+- `frontend/src/components/Navbar.jsx`: Displays **Sign In** button when unauthenticated and interactive User Profile pill with avatar, officer rank badge, vessel details, ice class qualification, and Sign Out button when authenticated.
+- `frontend/src/App.jsx`: Wrapped app with `AuthProvider` and integrated `isLoginModalOpen` state.
+- `frontend/src/App.test.jsx`: Added unit tests for Login modal rendering and Navbar Sign In trigger.
+
+### Verification
+- Frontend Vitest suite: **40/40 PASSED** (100% pass rate).
+- Production build: **PASSED** (1,948 modules transformed).
+- Backend test suite: **24/24 PASSED**.
+
 ## 2026-09-19 — Correct Online mode status banner (uncommitted)
 
 - `frontend/src/App.jsx`: tracks the backend data source and clears stale connectivity state when a new mode request starts.

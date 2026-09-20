@@ -7,6 +7,8 @@ API Endpoints:
 - GET /api/v1/icebergs: Active & 72-hour projected iceberg coordinates with drift trajectories
 - GET /api/v1/metocean: Metocean vector grid (ERA5 Wind, HYCOM Currents, AMSR2 Sea Ice)
 - GET /api/v1/stations: Polar stations & departure ports
+- POST /api/v1/auth/login: Authenticate Bridge Officer
+- POST /api/v1/auth/signup: Register Polar Officer profile
 - GET /api/health: Service health & telemetry state
 """
 
@@ -21,8 +23,8 @@ from data_engine import (
     POLAR_STATIONS,
     MetoceanEngine,
     Iceberg,
-    fetch_environmental_layer
-    , set_live_data_enabled
+    fetch_environmental_layer,
+    set_live_data_enabled
 )
 from drift_engine import DriftPhysicsEngine
 from pathfinder import InvalidRouteInput, NoRouteFoundError, PolarPathfinder
@@ -59,6 +61,64 @@ def health_check():
         "physics_engine": "72h Dead-Reckoning Integrator (ERA5 + HYCOM)",
         "pathfinding_engine": "A-Star NetworkX Multi-Factor Spatial Graph",
         "timestamp_utc": "2026-09-18T12:00:00Z"
+    }
+
+
+@app.post("/api/v1/auth/login")
+def auth_login(payload: Dict[str, Any]):
+    """
+    Authenticate Bridge Officer & return polar nav access token.
+    """
+    email = payload.get("email", "").strip()
+    password = payload.get("password", "")
+
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Invalid officer email address.")
+    
+    if not password or len(password) < 4:
+        raise HTTPException(status_code=400, detail="Password must be at least 4 characters long.")
+
+    username = email.split("@")[0].capitalize()
+    return {
+        "status": "success",
+        "user": {
+            "id": f"usr_{int(abs(hash(email)) % 100000)}",
+            "name": f"Officer {username}",
+            "email": email,
+            "role": "Bridge Command Officer",
+            "vessel": "R/V Polar Sentinel",
+            "ice_class": "Polar Class 3 (PC3)",
+            "token": f"jwt_polarnav_token_{len(email)}",
+            "badge": "PC3 Certified"
+        }
+    }
+
+
+@app.post("/api/v1/auth/signup")
+def auth_signup(payload: Dict[str, Any]):
+    """
+    Register new Polar Vessel Officer profile.
+    """
+    name = payload.get("fullName", "Officer").strip()
+    email = payload.get("email", "").strip()
+    vessel = payload.get("vesselName", "Polar Vessel Alpha").strip()
+    ice_class = payload.get("iceClass", "Polar Class 3 (PC3)").strip()
+
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Invalid email address.")
+
+    return {
+        "status": "success",
+        "user": {
+            "id": f"usr_reg_{len(email)}",
+            "name": name,
+            "email": email,
+            "role": "Bridge Officer",
+            "vessel": vessel,
+            "ice_class": ice_class,
+            "token": f"jwt_polarnav_reg_{len(email)}",
+            "badge": "Polar Master"
+        }
     }
 
 

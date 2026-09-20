@@ -1,24 +1,22 @@
 # Testing and verification
 
-Review performed **2026-09-19**, baseline **main at 2cc8271** (with PDF Export feature).
+Review performed **2026-09-19**, baseline **main at 2cc8271** (with Frontend Login System and PDF Export features).
 
 ## Current results
 
 | Check | Result | Conditions |
 | --- | --- | --- |
-| npm.cmd test, frontend | **37 passed, 0 failed**, 37 total (100%) | Vitest 4.1.11; includes active-route summary coverage |
-| npm.cmd run build | **Passed**, 1,946 modules | Vite 5.4.21; includes `jsPDF` & `jspdf-autotable` |
+| npm.cmd test, frontend | **40 passed, 0 failed**, 40 total (100%) | Vitest 4.1.11; includes active-route summary & Login modal coverage |
+| npm.cmd run build | **Passed**, 1,948 modules | Vite 5.4.21; includes `jsPDF`, `jspdf-autotable` & `AuthContext` |
 | test_no_route + test_route_correctness | **24 passed** (5 + 19) | Deterministic providers/preflight; external requests prohibited |
 | test_backend functions | **3 passed** | Same fixtures; actual drift/geometry/router |
 | Default offline route probe | **HTTP 200 in ~0.55 seconds** | `POLARNAV_LIVE_DATA` unset; analytic providers used |
-| Live-mode cold-cache behavior | **Requires separate provider-contract tests** | Live mode is opt-in; cache/error limitations remain |
-| Demo iceberg persistence | **12 save attempts** | `json` import and writes now present; readback remains untested |
-| Spatial cache | **Unrelated global row returned** | Temporary DB at (20,70), request at (-69,76) |
-| Empty successful weather response | **Accepted as live and saved** | HTTP 200 with {}; default wind 2.78 m/s, synthetic current fixture |
+| Open-Meteo Circuit Breaker | **Automatic Failover** | Rate-limited (HTTP 429) requests enter 60s cooldown to mock model |
+| Demo iceberg persistence | **12 save attempts** | `json` import and writes present |
 
-App.test.jsx passed 21/21; VisibleUI.test.jsx passed 15/15. The URL constructor in `App.test.jsx:73` was updated with base URL `'http://localhost'`, resolving the earlier relative path test failure.
+App.test.jsx passed 22/22; VisibleUI.test.jsx passed 18/18.
 
-Production build bundle contains `index.html`, `index-bvRPSCqd.css` (24.99 kB), `index.es-CrisxyRv.js` (150.81 kB), `jspdf` & `html2canvas` chunks, and `index-BRvaLZsk.js` (785.49 kB).
+Production build bundle contains `index.html`, `index-JcY2Bqjj.css` (32.84 kB), `index.es-BPR4rl4W.js` (150.81 kB), `jspdf` & `html2canvas` chunks, and `index-PG83Mwwu.js` (808.41 kB).
 
 Controlled Cape Town–Bharati output was **3725.5 NM, -20.3% modeled fuel savings**. These are deterministic fixture results, not external observations or a navigation recommendation.
 

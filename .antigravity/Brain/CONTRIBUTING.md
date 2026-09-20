@@ -1,12 +1,12 @@
 # Contribution and change-tracking workflow
 
-Updated **2026-09-19**, baseline **2cc8271** (with PDF Export feature). The team collaborates directly on main; develop/feature branches are not required.
+Updated **2026-09-19**, baseline **2cc8271** (with Frontend Login System and PDF Export features). The team collaborates directly on main; develop/feature branches are not required.
 
 ## Change workflow
 
 1. Inspect Git status and preserve unrelated existing work.
-2. Read affected modules/callers; maintain coordinate order, units, bounds and live/cached/simulated provenance.
-3. Run relevant checks in [TESTING.md](TESTING.md), recording substitutions and failures. Current frontend result is **37/37 passed** (100%); controlled backend result is **27/27 passed**.
+2. Read affected modules/callers; maintain coordinate order, units, bounds, auth context, and live/cached/simulated provenance.
+3. Run relevant checks in [TESTING.md](TESTING.md), recording substitutions and failures. Current frontend result is **40/40 passed** (100%); controlled backend result is **24/24 passed**.
 4. Update CHANGELOG for code/config additions, modifications, removals and renames: exact paths, reason, behavior, verification and migration/rollback.
 5. Update affected Brain reference sections in place, rather than appending notes beneath stale descriptions.
 6. Review the full staged diff; stage intended paths explicitly.
