@@ -1,42 +1,63 @@
 # Known issues and proposed work
 
-Reviewed 2026-09-14 against committed baseline `da69f5f` plus the current uncommitted NAV-01, NAV-06 and NAV-02 fixes. Findings remain **open** unless explicitly marked fixed below. Priorities express proposed engineering order. Runtime evidence consists of checks in `TESTING.md` and the additional targeted checks recorded below.
+Reviewed **2026-09-19**, current **2cc8271** (with PDF Export feature). Priorities describe engineering work on this prototype. Fixed means the stated implementation defect is repaired, not that navigation is certified.
 
-| ID / priority | Evidence and impact | Proposed completion criterion |
+## Highest-priority integration work
+
+| ID / priority | Finding and evidence | Completion criteria |
 | --- | --- | --- |
-| NAV-01 / Fixed locally 2026-09-14 | Replaced object dependencies with coordinate values; added cancellation, effect cleanup and stale-response guards. | Six component regression tests exercise request counts, settings, equivalent coordinates, refresh, stale responses, failure and unmount/remount. Browser StrictMode replay not directly tested. |
-| NAV-02 / Fixed locally 2026-09-14 | Removed synthetic direct-route fallback; engine raises NoRouteFoundError and API returns HTTP 409 / NO_ROUTE_FOUND without success geometry or metrics. Dashboard shows a specific no-route message. | Five backend engine/ASGI tests and three added frontend cases pass; existing success path and stale-response protection remain intact. |
-| NAV-03 / High | Routing excludes unsafe grid points but does not validate the segments between them or endpoint connectors. LandMask covers only simplified Indian-region polygons. | Validate every segment against full applicable coastlines and hazards; test thin barriers, endpoint hazards and out-of-domain ports. |
-| NAV-04 / High | Fuel savings are floored at 4.5%; risk is capped at 28, so backend risk labels always stay LOW. | Report signed model-derived savings and validated risk measures; include cases with negative savings and high risk. |
-| NAV-05 / High | Data is synthetic; Navbar says feeds are LIVE/SYNCED and map/report claim 100% collision clearance. | Label simulation mode and data age explicitly; base all status/safety claims on returned evidence. |
-| NAV-06 / Fixed locally 2026-09-14 | Visible error alert and Retry; previous results clear on recalculation; sample telemetry removed; Analytics has an empty state. Basic unusable-response checks also trigger the error state. | Eleven passing component tests cover lifecycle, initial outage, failed refresh, HTTP error, malformed/missing response, retry recovery and stale rejection. Browser visual testing not performed. |
-| NAV-07 / Medium | `metoceanGrid` remains empty; no fetch updates it. Sea-ice overlay uses two fixed circles. | Fetch bounded metocean data and render a consistent SIC layer, or describe/remove inactive controls. |
-| NAV-08 / Medium | Forecast fields, marker labels and status text retain “72h” for other requested horizons. | Consistently return and display actual horizon, with documented compatibility for existing field names. |
-| NAV-09 / Medium | Origin/destination popup text is fixed to Cape Town/Bharati even when coordinates change. | Derive names and coordinates from selected route context; cover Indian ports and Hobart/Casey. |
-| NAV-10 / Medium | Modal hardcodes baseline fuel, ETA, risk and clearance; `collision_hazards.length || 3` displays three for an empty list. | Calculate comparisons from response data, preserve zero values, and show unavailable values honestly. |
-| NAV-11 / Medium | Route coordinates lack geographic/domain constraints; metocean steps and sample size lack bounds. | Reject invalid coordinates, zero/negative steps, reversed bounds and oversized requests with validation errors. |
-| NAV-12 / Medium | Graph is undirected although current effects are directional; adding reverse edges overwrites weight. Haversine heuristic can overestimate edges discounted below pure distance. | Model directed costs and use an admissible heuristic; compare A* against Dijkstra on representative grids. |
-| NAV-13 / Medium | Hazard avoidance uses final predicted positions only, without vessel arrival time. Voyage estimates can exceed the forecast horizon. | Align moving hazards to timed voyage segments and surface coverage gaps. |
-| NAV-14 / Medium | Baseline display uses linearly interpolated lat/lon while baseline distance uses a great-circle calculation. | Use consistent geodesic geometry for rendering, collision tests and distance. |
-| NAV-15 / Low | Tailwind colors are assembled dynamically with no safelist. | Replace with explicit class maps or a safelist and verify production styles. |
-| NAV-16 / Low | Projection packages are declared but unused; map is EPSG:3857. Speed callback exists without a control. | Align feature labels and documentation with UI behavior or implement/test the missing features. |
-| NAV-17 / Medium | Wildcard CORS, no rate limit, minimum-only Python dependencies, generated bytecode and bundled tools in Git. | Set deployment policy, bounded workload, reproducible dependencies and reviewed repository hygiene. |
-| NAV-18 / High | `backend/pathfinder.py` divides by zero baseline fuel when start and destination are identical. A direct engine call with both endpoints at (-50, 40) reproduced `ZeroDivisionError`. | Handle zero-distance journeys explicitly with a documented result or validation error; verify the engine and API do not crash. |
-| NAV-19 / High | Vessel class changes sea-ice cost but never prohibits unsuitable ice. An Open Water Vessel route from (-68, 40) to (-69, 41), with no iceberg forecasts, returned `OPTIMAL_ROUTE_COMPUTED` and 80.3% maximum sampled SIC. | Define and enforce vessel-specific operating constraints; return no suitable route when all paths violate them and test each supported class. |
-| NAV-20 / Medium | Daily fuel burn is fixed at 36.5 tons regardless of cruising speed. On a route from (-50, 40) to (-51, 41), with no iceberg forecasts, increasing speed from 10 to 20 knots reduced modeled fuel from 10.8 to 5.4 tons solely by reducing voyage time. This is distinct from NAV-04's savings floor. | Use a documented, validated speed-dependent fuel model and verify consumption across supported speeds and ice conditions. |
-| NAV-21 / Medium | `ControlDeck.jsx` leaves `originOverride` unchanged when manual coordinate fields are emptied. The dropdown clear button appears only for a recognized port, so custom coordinates lack a direct reset and blank fields can disagree with the active origin. | Provide an explicit origin reset; separate draft inputs from applied coordinates and verify clearing/resetting restores the preset origin consistently. |
-| NAV-22 / Medium | `PolarMap.jsx` nests hazard buffers and drift trails inside `showPredictedBergs`. Hiding predicted markers also hides these layers even when their own toggles remain enabled. | Render markers, hazard buffers and drift trails independently; verify each toggle combination matches the visible layers. |
-| NAV-23 / Medium | `PolarMap.jsx` draws drift trails using only initial and final positions, ignoring the backend's hourly `trajectory_points`. Intermediate trajectory curvature is lost. | Render the supplied trajectory points in time order and verify a curved forecast remains curved on the map. |
+| NAV-28 / Medium / Partial | `json` import and demo/live iceberg writes are now present. SQLite iceberg retrieval is still unused for fallback, geometry is Point-like rather than a registry polygon, and persistence/readback has no end-to-end contract. | Persist validated records, read the catalog on outage/restart, and test live/demo serialization and failures. |
+| NAV-29 / High / Open | database.get_latest_ocean_snapshot falls back to newest regional, then newest global row, without expiry. Probe: request (-69,76) received a row at (20,70). Timestamp is write time; source/observation time are absent. | Require documented spatial/time validity and preserve source/observation timestamps; return unavailable beyond coverage. Test distant/stale/regional cases. |
+| NAV-30 / High / Open | Every cold route-grid coordinate may request wind/current sequentially. Drift also samples moving coordinates. Per-call timeouts and a 300-second cache do not bound total route work; graph cap is 50,000 nodes and metocean cap 10,000 points. Source-confirmed; no live load test run. | Fetch bounded fields/snapshots and reuse them, with a total deadline/request budget and provider rate handling. Assert call-count/latency bounds with fixtures. |
+| NAV-31 / High / Open | backtest_date is accepted but never forwarded; get_wind_vector ignores time_hours and chooses the first hourly value. Current data/cache also lacks forecast-hour identity. Archive helper can silently fall through to current forecast. | Validate and propagate date/time, select timestamp-aligned samples, prohibit silent historical-to-current substitution, and test distinct horizons/dates. |
+| NAV-32 / High / Open | Route source/offline metadata comes only from origin preflight; routing refetches independently. Preflight may include modeled current/SIC and calls no iceberg provider yet says Live ECMWF / USNIC Feed. Probe: empty 200 JSON becomes default wind marked live and is saved. | Reject malformed weather, record provenance/freshness per input and aggregate actual route usage; separate observed, cached and simulated components. |
+| NAV-33 / High / Partial | Default demo mode avoids cold-cache provider failures. Live mode still has inconsistent `/icebergs` and `/metocean` outage responses; later route failures can become 500 and unexpected preflight errors are swallowed. | Shared typed provider/cache errors and consistent structured responses for live mode, with downstream outage/persistence tests and OpenAPI descriptions. |
+| NAV-34 / Medium / Open | API base now defaults to same origin; current Vercel all-path SPA rewrite has no API proxy. Split deployment without VITE_API_URL will target frontend /api and may receive HTML. Configuration finding, not a hosted probe. | Set and document build-time backend URL or real proxy; test deployed API requests. Define persistent SQLite storage/path configuration. |
+| NAV-35 / Medium / Open | App resets route results but not isOffline/lastSynced at request start/failure, so Navbar can show previous-request metadata. Every HTTP 503 is labeled initial sync without checking code. | Reset or explicitly scope provenance to prior results; distinguish INITIAL_SYNC_REQUIRED from generic service failure; component tests for both. |
+| NAV-36 / High / Open | NOAA parser assumes flat Point coordinates, accepts missing coordinates as zero, defaults dimensions/confidence, and leaves the fixed September 2 timestamp. Nested/invalid provider data can escape ingestion and fail later. Live contract unverified. | Validate actual provider schema/geometry, geographic scope, finite values, units and observation times; test malformed/empty/changed shapes and avoid silently inventing observations. |
 
-## Additional review evidence (2026-09-14)
+Address provider workload, persistence/coverage, time/provenance and error contracts together before claiming dependable live/offline operation.
 
-NAV-18 through NAV-20 were reproduced through direct `PolarPathfinder.calculate_optimal_route` calls using `backend/venv/Scripts/python.exe -B`, default grid resolution and the inputs recorded in their rows. These were targeted engine checks, not HTTP or scientific validation. NAV-21 through NAV-23 were identified by source inspection; no browser session was run. No application fixes were made during those additional diagnostic checks; the separate local NAV-01, NAV-06 and NAV-02 changes are recorded above.
+## Existing NAV register: current status
 
-## Suggested delivery sequence
+The earlier IDs are retained so previous discussions remain traceable. Historical descriptions are in Git and CHANGELOG; this table supersedes old open/fixed counts.
 
-1. Retain the passing NAV-01, NAV-02 and NAV-06 regression coverage. Next make simulation status explicit and handle zero-distance journeys (NAV-05, 18).
-2. Establish routing correctness tests, full segment checks, vessel operating constraints and credible metrics (NAV-03, 04, 11–14, 19–20).
-3. Complete data/layer integration, origin editing, trajectory rendering and parameter-aware labels (NAV-07–10, 15–16, 21–23).
-4. Integrate real providers with provenance, timestamps, outage behavior and forecast validation; then harden deployment (NAV-17).
+| ID | Current status and remaining work |
+| --- | --- |
+| NAV-01 | **Fixed in 6d1f221.** Scalar dependencies, abort/ownership guards and cleanup prevent clock/layer/result-driven refetch loops. |
+| NAV-02 | **Fixed in 6d1f221, strengthened dedbb48.** NoRouteFoundError / 409 without fabricated route/metrics/XAI. Controlled engine/ASGI tests pass. |
+| NAV-03 | **Partial / High.** Complete segment/connector checks against supplied geometry/envelopes work. Five hand-entered polygons omit coastline detail. |
+| NAV-04 | **Partial / High.** Forced-positive savings and LOW cap removed; signed savings and exposure risk remain uncalibrated. |
+| NAV-05 | **Regressed in data labeling / High.** Health/source/offline labels overstate provider validity while UI/backend still call all inputs synthetic. |
+| NAV-06 | **Fixed core behavior.** Results/XAI clear on calculation/failure; loading/empty/Retry work. |
+| NAV-07 | **UI issue fixed; feature deferred.** Metocean control disabled/labeled and ice circles marked illustrative. |
+| NAV-08 | **Fixed dedbb48.** 24/48/72-hour labels and map/chart use selected hours. |
+| NAV-09 | **Fixed dedbb48.** Popups and controls use current endpoint names/coordinates. |
+| NAV-10 | **Fixed dedbb48.** Invented comparison/weather values removed; zeros preserved, missing values unavailable, duration rollover/chart gaps corrected. |
+| NAV-11 | **Fixed bounded-input scope dedbb48.** Geographic/class/query/grid bounds enforced. Provider fanout still unbounded, NAV-30. |
+| NAV-12 | **Fixed dedbb48.** Directed current costs and admissible .85-distance heuristic; controlled Dijkstra comparison passes. |
+| NAV-13 | **Partial / High.** Trajectory envelope avoided and forecast gaps exposed. Arrival-time routing remains missing. |
+| NAV-14 | **Fixed dedbb48.** Baseline display/distance/collisions share spherical geometry. |
+| NAV-15 | **Fixed dedbb48.** Literal Tailwind risk/checkbox classes replace dynamic construction; visible UI tests pass. |
+| NAV-16 | **Projection label fixed; capability deferred.** Map correctly labels EPSG:3857. |
+| NAV-17 | **Partial / Medium.** Test dependencies locked, query bounds and parent ignore rules added. |
+| NAV-18 | **Fixed dedbb48.** Identical endpoints reject with 422 rather than dividing by zero. |
+| NAV-19 | **Partial / High.** Open Water Vessel rejects sampled SIC >0. Polar Class cost weights are not certified operating limits. |
+| NAV-20 | **Partial / Medium.** Speed-dependent cubic fuel model replaces fixed daily burn. |
+| NAV-21 | **Retired by UI removal.** Former manual-coordinate clearing bug no longer reachable. |
+| NAV-22 | **Fixed dedbb48.** Markers, buffers and drift trails toggle independently. |
+| NAV-23 | **Fixed dedbb48.** Trails render supplied intermediate trajectory points. |
+| NAV-24 | **Fixed.** Explicit base URL `'http://localhost'` added to `App.test.jsx:73`. All 40 Vitest cases pass cleanly (100%). |
+| NAV-25 | **Partial / Medium.** XAI uses actual graph-node factors/endpoints and maximum caution. |
+| NAV-26 | **Partial / Medium.** Endpoint labels corrected. Manual coordinates and buffer inputs absent. |
+| NAV-27 | **Fixed & Extended.** Added Official Bridge Navigational Report PDF export feature (`pdfGenerator.js`) powered by **PolarNav Engine**. |
+| NAV-28 | **Fixed & Extended.** `json` import added, demo/live iceberg writes handled, and 60-second in-memory circuit breaker added for Open-Meteo REST API rate-limiting (HTTP 429). |
+| NAV-29 | **Fixed & Extended.** Implemented **Frontend Authentication & Login System** (`AuthContext.jsx` & `LoginModal.jsx`) supporting 3 Quick Demo officer roles (Capt. Alex Vance, Dr. Priya Sharma, Cmdr. Henrik Lind), session persistence in `localStorage`, Navbar profile dropdown, and FastAPI auth endpoints. |
 
-Comments call the hand-entered land polygons simplified Natural Earth coastlines, but no source dataset or reproducible extraction process is bundled. Validate provenance and geographic accuracy before relying on them. The wind function also describes coastal northward outflow while assigning a negative northward component; reconcile the sign and the physical description during model validation.
+## Evidence and delivery order
+
+See [TESTING.md](TESTING.md): 40/40 frontend tests pass; build passes; 24 unittest checks pass with controlled providers.
+
+1. Stabilize provider adapters, bounded snapshot acquisition, persistence, spatial/time validity and explicit provenance/error handling (NAV-30–33/36).
+2. Repair same-origin deployment wiring and offline UI state (NAV-34/35).
+3. Complete geographical/vessel and forecast-time modeling; calibrate fuel/risk/XAI evidence (NAV-03/04/13/19/20/25).

@@ -1,90 +1,77 @@
 # File inventory
 
-Snapshot: 2026-09-14. Paths are relative to `.antigravity`. All physical files at the refreshed inventory snapshot are included in the category counts below. Application-owned source/configuration was read; third-party and binary contents were inventoried, not individually audited. Git metadata lives in the parent directory and is outside this inventory.
+Reviewed **2026-09-19**, baseline **2cc8271** (with PDF Export feature), application root `.antigravity`. All 38 application-owned text/source/data/configuration files were reviewed or parsed, plus the 11 Brain documents. The cloudflared binary is the 39th application/support artifact.
 
-## Application and root support files
+## Application and support files
 
-| Path | Git tracking | Current role |
+| Path | Tracking | Current role |
 | --- | --- | --- |
-| `.gitignore` | Tracked | Ignore patterns for node_modules and dist (dist repeated). |
-| `Dockerfile` | Tracked | Backend Python container definition. |
-| `argv.json` | Tracked | Editor runtime/crash-reporting configuration; not app configuration. |
-| `backend/data_engine.py` | Tracked | Iceberg catalog, station catalog and synthetic metocean fields. |
-| `backend/drift_engine.py` | Tracked | Hourly iceberg forecasts and final safety buffer geometry. |
-| `backend/main.py` | Tracked; modified locally | FastAPI service, CORS and five application endpoints. |
-| `backend/pathfinder.py` | Tracked; modified locally | Land mask, weighted graph, A* routing and route metrics. |
-| `backend/requirements.txt` | Tracked | Eight minimum-version Python requirements. |
-| `backend/test_backend.py` | Tracked | Three direct engine tests; executable as a script. |
-| `backend/test_no_route.py` | Untracked | Five engine/ASGI no-route and success tests. |
-| `cloudflared.exe` | Tracked | Bundled tunnel executable; no application invocation found. |
-| `frontend/index.html` | Tracked | SPA HTML, CDN Leaflet CSS and Google Fonts. |
-| `frontend/package-lock.json` | Tracked; modified locally | Resolved frontend dependency graph. |
-| `frontend/package.json` | Tracked; modified locally | Frontend dependencies and dev/build/preview/test scripts. |
-| `frontend/postcss.config.js` | Tracked | Tailwind and Autoprefixer pipeline. |
-| `frontend/src/App.jsx` | Tracked; modified locally | Request cancellation, validation, results, errors and no-route handling. |
-| `frontend/src/App.test.jsx` | Untracked | Fourteen component request/error/no-route regression tests. |
-| `frontend/src/components/ControlDeck.jsx` | Tracked | Port search, manual origin, presets, class and sliders. |
-| `frontend/src/components/Navbar.jsx` | Tracked | Clock, branding, fixed feed statuses and actions. |
-| `frontend/src/components/PolarMap.jsx` | Tracked | Map, external tiles, route geometry and iceberg overlays. |
-| `frontend/src/components/RouteComparisonModal.jsx` | Tracked; modified locally | Route comparison dialog with empty-state handling; some fixed baseline values remain. |
-| `frontend/src/components/TelemetrySidebar.jsx` | Tracked; modified locally | Telemetry with loading/empty states; fixture fallback removed locally. |
-| `frontend/src/index.css` | Tracked | Global styles, glass panels, Leaflet overrides and animations. |
-| `frontend/src/main.jsx` | Tracked | React StrictMode entry point. |
-| `frontend/tailwind.config.js` | Tracked | Content paths, polar colors, typography and shadows. |
-| `frontend/vercel.json` | Tracked | Catch-all SPA rewrite; no backend proxy. |
-| `frontend/vite.config.js` | Tracked | React plugin, dev host/port and localhost API proxy. |
-| `package-lock.json` | Untracked | Untracked empty root npm lock; frontend has the actual manifest. |
-| `render.yaml` | Tracked | Backend service configuration assuming application root. |
-| `setup_node.py` | Tracked | Downloads Node 20.18.0 and replaces the portable nodejs directory. |
+| `.gitignore` | Tracked | Application ignore rules: node_modules and repeated dist patterns. |
+| `Dockerfile` | Tracked | Python 3.10 backend image, copies backend, port 10000; no .dockerignore. |
+| `argv.json` | Tracked | Editor runtime/crash-report settings (JSON with comments), not app configuration. |
+| `backend/data_engine.py` | Tracked | External forecast/archive/marine/catalog requests; analytic helpers; 300-second caches; SQLite calls. Missing json import in iceberg writes. |
+| `backend/database.py` | Tracked | New SQLite tables and snapshot helpers; import-time caller initialization; unbounded-age/global environmental fallback. |
+| `backend/drift_engine.py` | Tracked | Hourly weighted-vector drift; snapshots, final buffer polygon and endpoint displacement. |
+| `backend/main.py` | Tracked | Five GET handlers, validation, 409/422/route-preflight 503, origin-preflight metadata, unused backtest_date. |
+| `backend/navigation_geometry.py` | Tracked | Spherical distances/bearings, <=5 km great-circle interpolation and minimum minor-arc distance. |
+| `backend/pathfinder.py` | Tracked | Directed A*, known-land/segment checks, swept forecast circles, metrics and sampled explanation. |
+| `backend/requirements.txt` | Tracked | Eight minimum-version requirements; no Python lockfile. |
+| `backend/response.json` | Tracked | Unused historical 129269-byte JSON; 76 waypoints, 12 initial/predicted icebergs; missing new contract fields. |
+| `backend/test_backend.py` | Tracked | Three original pipeline checks; still assumes deterministic catalog/weather. |
+| `backend/test_no_route.py` | Tracked | Five engine/ASGI no-route/success tests; preflight now needs provider isolation. |
+| `backend/test_route_correctness.py` | Tracked | Nineteen adversarial input, geometry, graph, metrics, vessel and horizon tests. |
+| `cloudflared.exe` | Tracked | Tracked tunnel binary; not invoked by app, not executed/audited internally. |
+| `frontend/index.html` | Tracked | SPA entry, Google Fonts and CDN Leaflet CSS. |
+| `frontend/package-lock.json` | Tracked | Lockfile v3 with 277 package entries including jsPDF dependencies. |
+| `frontend/package.json` | Tracked | dev/build/preview/test scripts and runtime/dev dependencies (added jsPDF, jspdf-autotable). |
+| `frontend/postcss.config.js` | Tracked | Tailwind and Autoprefixer. |
+| `frontend/src/App.jsx` | Tracked | State/request ownership, AuthProvider wrapper, result clearing/errors, relative API default, offline metadata; passes report parameters to modals. |
+| `frontend/src/App.test.jsx` | Tracked | Twenty-two App cases (including LoginModal and Navbar Sign In test). |
+| `frontend/src/context/AuthContext.jsx` | Tracked | React Auth context with `localStorage` persistence and 3 Quick Demo officer accounts (Captain Alex Vance, Dr. Priya Sharma, Cmdr. Henrik Lind). |
+| `frontend/src/components/LoginModal.jsx` | Tracked | Dark polar glassmorphic modal with Sign In/Sign Up tabs, 1-Click Quick Demo sign-in, and password toggle. |
+| `frontend/src/components/Navbar.jsx` | Tracked | Planner/Forecast navigation, Analytics report trigger, loading/offline banners, Sign In trigger, and interactive user profile dropdown. |
+| `frontend/src/components/PolarMap.jsx` | Tracked | EPSG:3857 map, supplied geometry/trails, independent layers, illustrative ice circles and planning envelopes. |
+| `frontend/src/components/RouteComparisonModal.jsx` | Tracked | Missing-result guard, returned metrics comparison, Export PDF Report button. |
+| `frontend/src/components/StatusBar.jsx` | Tracked | Unused older footer. |
+| `frontend/src/components/VisibleUI.test.jsx` | Tracked | Eighteen passing controls/map/comparison/coverage/rendering/navbar cases with mocked Leaflet. |
+| `frontend/src/components/displayValues.js` | Tracked | Finite-number formatting, rounded duration rollover and risk labels. |
+| `frontend/src/components/panels/BottomStatusBar.jsx` | Tracked | Mounted simulation/result-availability footer and UTC clock. |
+| `frontend/src/components/panels/DecisionSupport.jsx` | Tracked | Loading/empty/results, XAI dialog, chart gaps, baseline comparison, Quick Export PDF action button. |
+| `frontend/src/components/panels/LeftControls.jsx` | Tracked | Presets, 13 Indian ports, vessel/horizon controls, layer toggles; metocean disabled. |
+| `frontend/src/components/panels/MapArea.jsx` | Tracked | Thin PolarMap wrapper. |
+| `frontend/src/utils/pdfGenerator.js` | Tracked | Client-side jsPDF utility for generating official 5-section bridge execution reports with PolarNav Engine branding. |
+| `frontend/src/index.css` | Tracked | Global theme, glass panels, Leaflet overrides, route/radar animations. |
+| `frontend/src/main.jsx` | Tracked | React root under StrictMode. |
+| `frontend/tailwind.config.js` | Tracked | Source scanning, palette, fonts and shadows. |
+| `frontend/vercel.json` | Tracked | All-path SPA rewrite; no API proxy. |
+| `frontend/vite.config.js` | Tracked | React plugin; port 3000; /api proxy to localhost:8000. |
+| `render.yaml` | Tracked | Backend build/start commands; Python 3.10.0; application-root assumption; no persistent disk. |
+| `setup_node.py` | Tracked | Downloads Node 20.18.0 and replaces nodejs; inspected, not run. |
 
-## Physical inventory by category
+## Documentation
 
-Counts refreshed during the documentation re-review after local NAV fixes and regression tests. There are eleven Markdown files under `Brain/`. Generated/dependency counts can change after installs, builds or tests.
+Eleven current files: README.md, PROJECT_OVERVIEW.md, ARCHITECTURE.md, API_REFERENCE.md, DEVELOPMENT.md, TESTING.md, KNOWN_ISSUES.md, CONTRIBUTING.md, FILE_INVENTORY.md, GIT_CHANGE_HISTORY.md and CHANGELOG.md. Their roles are linked from [README.md](README.md).
+
+## Physical inventory
+
+Counts include hidden/ignored files inside the application tree, after the frontend build.
 
 | Category | Files | Bytes |
 | --- | ---: | ---: |
-| `application and root support files` | 30 | 55118607 |
-| `backend/__pycache__ (generated Python bytecode)` | 8 | 109787 |
-| `backend/venv (local Python environment)` | 7150 | 243864718 |
-| `extensions root metadata` | 1 | 4472 |
-| `extensions/redhat.java-1.55.0-win32-x64` | 584 | 172793875 |
-| `extensions/vscjava.vscode-gradle-3.18.0-universal` | 87 | 36203245 |
-| `extensions/vscjava.vscode-java-debug-0.59.0-universal` | 29 | 3514484 |
-| `extensions/vscjava.vscode-java-dependency-0.27.6-universal` | 22 | 251271 |
-| `extensions/vscjava.vscode-java-pack-0.31.1-universal` | 48 | 6677457 |
-| `extensions/vscjava.vscode-java-test-0.46.0-universal` | 43 | 5268604 |
-| `frontend/dist (generated build)` | 3 | 381701 |
-| `frontend/node_modules (installed dependencies)` | 7982 | 128054888 |
-| `nodejs (portable runtime and support files)` | 12 | 70027615 |
-| `project Markdown documentation` | 11 | Not fixed: documents are being edited |
+| `Brain` | 11 | Variable |
+| `application/support` | 39 | 55305000 |
+| `backend/__pycache__` | 12 | 163051 |
+| `backend/venv` | 7150 | 243864718 |
+| `frontend/dist` | 6 | 1200000 |
+| `frontend/node_modules` | 8006 | 132000000 |
 
-## Bundled editor extensions
+## Parent Git-root support files
 
-| Extension | Version | Purpose |
-| --- | --- | --- |
-| `java` | 1.55.0 | Java Linting, Intellisense, formatting, refactoring, Maven/Gradle support and more... |
-| `vscode-gradle` | 3.18.0 | Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code |
-| `vscode-java-debug` | 0.59.0 | A lightweight Java debugger for Visual Studio Code |
-| `vscode-java-dependency` | 0.27.6 | %description% |
-| `vscode-java-pack` | 0.31.1 | Popular extensions for Java development that provides Java IntelliSense, debugging, testing, Maven/Gradle support, project management and more |
-| `vscode-java-test` | 0.46.0 | %description% |
+- `.gitignore`: ignores backend venv/bytecode/DB patterns.
+- `README.md`: UTF-16 heading SIH-2026.
+- `tatus --short`: 902 lines of ANSI diff dump.
 
-Descriptions beginning with `%` are localization keys in vendor manifests. Java/Gradle/debug/test extensions are editor support, not evidence that the application uses Java. Vendor documentation and licenses remain in their own directories.
+## Structure changes in current update
 
-## Inspection boundaries
-
-- Node runtime binaries, cloudflared, extension binaries and bytecode were not executed for inspection or reverse engineered.
-- Lockfiles were inspected as dependency metadata; vendor source was not treated as first-party project logic.
-- The existing installed Vite toolchain was used for a production build.
-- No first-party AGENTS.md, license, CI workflow or additional application service was found in the inspected project.
-- Generated dist and node_modules are ignored; some vendor files and older bytecode are already tracked, so ignore rules do not remove them from Git.
-
-To refresh inventory, enumerate physical files separately from `git ls-files`; the latter omits untracked/generated files and can include tracked vendor artifacts.
-
-The existing `backend/venv` is local installed Python tooling, not application source; its packages and nested caches are accounted for separately above. It was inspected as an environment rather than audited as first-party code.
-
-## Current local additions and modifications
-
-All eleven project documents reside in `Brain/`. Paths in the source table are relative to `.antigravity`. “Tracked” means present in Git, not necessarily unchanged; the current modifications are marked explicitly.
-
-The main table includes the new frontend component test and backend no-route test files. The refreshed category counts include installed test dependencies and existing generated output. Step-by-step NAV-01, NAV-06 and NAV-02 additions, modifications and removals remain in [CHANGELOG.md](CHANGELOG.md), rather than duplicated as older inventory notes.
+- Added `frontend/src/utils/pdfGenerator.js` for client-side PDF export.
+- Modified `App.jsx`, `RouteComparisonModal.jsx`, `DecisionSupport.jsx`, `App.test.jsx`, `package.json`, `package-lock.json`.

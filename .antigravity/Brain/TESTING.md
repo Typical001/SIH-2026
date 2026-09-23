@@ -1,92 +1,88 @@
 # Testing and verification
 
-## Current verification — documentation re-review, 2026-09-14
+Review performed **2026-09-19**, baseline **main at 2cc8271** (with Frontend Login System and PDF Export features).
 
-The current working tree includes the uncommitted NAV-01, NAV-06 and NAV-02 fixes on top of commit `da69f5f`. All tests below were rerun successfully in this review:
+## Current results
 
-| Command (working directory) | Result |
-| --- | --- |
-| `backend/venv/Scripts/python.exe -B backend/test_backend.py` (application root) | 3 original engine tests passed |
-| `backend/venv/Scripts/python.exe -B backend/test_no_route.py` (application root) | 5 engine/ASGI tests passed |
-| `npm.cmd test` (`frontend`) | 14 component tests passed |
-
-The frontend test runner still emits esbuild/oxc deprecation warnings. This review changed documentation only and did not repeat the production build, browser checks, hosted tests or npm audit; their earlier results below are dated evidence, not new verification. Local Markdown links and referenced source paths were checked. Current coverage is 22 tests/checks across the three commands, with geographic and scientific limitations documented below.
-
-To run both backend suites in a configured environment, run `backend/test_backend.py` and `backend/test_no_route.py` separately with that environment's Python interpreter. Frontend tests run with `npm.cmd test` from `frontend`.
-
-## Original documentation baseline results
-
-Date: 2026-09-14. These historical results describe the original `da69f5f` review before the local NAV fixes. Later sections record those fixes and current verification.
-
-| Check | Result | Scope |
+| Check | Result | Conditions |
 | --- | --- | --- |
-| Read application Python, JSX, CSS, HTML and configuration | Completed | Source-based architecture, API and issue findings |
-| Inspect local Git history/status | Completed | Five existing commits; source unchanged before documentation edits |
-| `python -B backend/test_backend.py` | Blocked during import | Python 3.14.4 lacks `shapely`; no test assertions executed |
-| `backend/venv/Scripts/python.exe -B backend/test_backend.py` | Passed | All three existing engine tests passed using the existing project environment |
-| `npm.cmd run build` in `frontend` | Passed | Node v24.14.1; installed Vite 5.4.21; 1,558 modules transformed |
-| Markdown local links and file presence | Checked during documentation completion | Documentation integrity only |
+| npm.cmd test, frontend | **40 passed, 0 failed**, 40 total (100%) | Vitest 4.1.11; includes active-route summary & Login modal coverage |
+| npm.cmd run build | **Passed**, 1,948 modules | Vite 5.4.21; includes `jsPDF`, `jspdf-autotable` & `AuthContext` |
+| test_no_route + test_route_correctness | **24 passed** (5 + 19) | Deterministic providers/preflight; external requests prohibited |
+| test_backend functions | **3 passed** | Same fixtures; actual drift/geometry/router |
+| Default offline route probe | **HTTP 200 in ~0.55 seconds** | `POLARNAV_LIVE_DATA` unset; analytic providers used |
+| Open-Meteo Circuit Breaker | **Automatic Failover** | Rate-limited (HTTP 429) requests enter 60s cooldown to mock model |
+| Demo iceberg persistence | **12 save attempts** | `json` import and writes present |
 
-Frontend output: `dist/index.html` (1.27 kB), CSS (24.24 kB) and JavaScript (353.25 kB). The build regenerated ignored output. A successful bundle does not check browser behavior, backend integration or route correctness.
+App.test.jsx passed 22/22; VisibleUI.test.jsx passed 18/18.
 
-The default Python dependency failure was resolved for verification by using the existing `backend/venv` interpreter, without installing packages. The tested route reported 3389.8 NM and 4.5% modeled fuel savings. No browser/UI session, HTTP integration test, container build, deployment verification, external feed verification or scientific model validation was performed.
+Production build bundle contains `index.html`, `index-JcY2Bqjj.css` (32.84 kB), `index.es-BPR4rl4W.js` (150.81 kB), `jspdf` & `html2canvas` chunks, and `index-PG83Mwwu.js` (808.41 kB).
 
-## Original backend engine coverage
+Controlled Cape Town–Bharati output was **3725.5 NM, -20.3% modeled fuel savings**. These are deterministic fixture results, not external observations or a navigation recommendation.
 
-`backend/test_backend.py` defines three plain-assertion tests and invokes them when run as a script:
+## Frontend reproduction
 
-1. `test_metocean_engine`: wind direction/speed, current strength, and representative open-water/pack-ice SIC values.
-2. `test_drift_physics_engine`: minimum catalog size, A23a displacement, 73 hourly records, terminal snapshot and buffer vertex count.
-3. `test_pathfinder_collision_avoidance`: default Cape Town/Bharati route with a 1.0-degree grid, basic metrics, and waypoint distance from predicted hazard centers.
-
-The last test permits waypoint distances as low as 92% of the hazard radius. It does not test the line segments between waypoints. Its printed “100% collision-free” and “100% verification” messages therefore exceed what its assertions establish. The API uses a different 0.85-degree grid.
-
-## Run the backend checks
-
-After installing requirements as described in `DEVELOPMENT.md`, from the application root:
+From frontend:
 
 ```powershell
-.\.venv\Scripts\python.exe -B backend\test_backend.py
+npm.cmd test
+npm.cmd run build
 ```
 
-On this reviewed checkout, the already-present environment also works: `.\backend\venv\Scripts\python.exe -B backend\test_backend.py`. Use a freshly created environment when the copied environment is unavailable or not portable.
+Component mocks isolate network/Leaflet; PDF report generation was verified via client-side jsPDF data formatting unit assertions.
 
-There is no pytest dependency in requirements, no configured lint/typecheck script, and no first-party CI workflow found. The current frontend does have `npm.cmd test` (Vitest), added with NAV-01.
+## Controlled backend reproduction
 
-## Recommended coverage for future changes
+Run from .antigravity with backend requirements installed. This is the review harness, not a new source file or deployed mode. Import-time DB initialization is suppressed; provider substitution precedes dependent module imports.
 
-| Area | Cases and expected evidence |
+```powershell
+@'
+import sys, unittest
+from unittest.mock import patch
+sys.path.insert(0, 'backend')
+import database
+with patch.object(database, 'init_sqlite_db'):
+    import data_engine
+with patch.object(data_engine.MetoceanEngine, 'get_wind_vector', side_effect=data_engine.MetoceanEngine.get_wind_vector_mock), patch.object(data_engine.MetoceanEngine, 'get_ocean_current', side_effect=data_engine.MetoceanEngine.get_ocean_current_mock), patch.object(data_engine, 'get_initial_icebergs', side_effect=data_engine.get_initial_icebergs_mock), patch.object(data_engine.requests, 'get', side_effect=AssertionError('Unexpected network call')):
+    import main, test_backend, test_no_route, test_route_correctness
+    with patch.object(main, 'fetch_environmental_layer', return_value={'is_offline': False, 'data_source': 'Review synthetic fixtures', 'last_synced_timestamp': None}):
+        suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(m) for m in (test_no_route, test_route_correctness)])
+        result = unittest.TextTestRunner(verbosity=1).run(suite)
+        if not result.wasSuccessful():
+            raise SystemExit(1)
+        test_backend.test_metocean_engine()
+        test_backend.test_drift_physics_engine()
+        test_backend.test_pathfinder_collision_avoidance()
+'@ | .\backend\venv\Scripts\python.exe -B -
+```
+
+## Diagnostic conditions
+
+Missing-cache probes mocked requests.get to raise ConnectionError and database.get_latest_ocean_snapshot to return None. ASGI paths: default short route from test_no_route.request_route, /api/v1/icebergs?forecast_hours=0, and one-point metocean at (-34,18). The latter two raised ValueError, corresponding to unhandled server errors under normal serving.
+
+Persistence probing cleared _ICEBERG_CACHE and spied on save_iceberg_snapshot. The current demo path makes 12 serialization/write attempts. Spatial fallback used a separate temporary SQLite DB with explicit db_path arguments; the application DB was not created/edited.
+
+The malformed-200 probe returned {}, substituted a synthetic current and spied on save_ocean_snapshot. Preflight returned is_offline=false and Live ECMWF / USNIC Feed with default wind and a save call. This tests missing-field handling, not a real provider schema.
+
+## Coverage and remaining verification
+
+Existing backend cases cover input/workload bounds, thin known land barriers, connectors, hazards between nodes, trajectory envelopes, directed weights versus Dijkstra, baseline geometry, open-water ice rejection, speed/fuel and coverage gaps. Frontend cases cover request ownership, clock behavior, result/XAI clearing, retries, comparisons, visible controls, independent map layers, and PDF report export.
+
+Needed next:
+
+- Deterministic provider contract fixtures for malformed/partial responses, units, timestamps, rate limits and failures.
+- SQLite expiry/spatial limits, persistence errors, source retention and iceberg round-trip/readback.
+- Historical-date propagation, time-indexed fields and bounded provider call counts.
+- Consistent endpoint errors, partial downstream outages, offline banner reset and nested payload validation.
+- Browser smoke tests, clean installs, split hosting/API configuration, persistent storage and representative performance.
+- Sourced coastlines, vessel constraints and measured drift/fuel/risk validation.
+
+## Historical results
+
+| Checkpoint | Recorded result |
 | --- | --- |
-| API contract | Every endpoint; defaults; 0/24/72/168-hour forecasts; invalid query types and limits |
-| No-route behavior | Isolated endpoints must yield explicit failure, not an optimal/safe fallback |
-| Geometry | Segment intersections, coastlines, narrow obstacles, endpoints inside hazards, dateline behavior and unsupported latitudes |
-| Model integrity | Zero-horizon displacement, consistent units, wind sign conventions and observed-vs-predicted trajectory error |
-| Search | A* cost agrees with Dijkstra for directional-current fixtures |
-| Metrics | Negative fuel savings remain negative; risk can rise; zero collision count remains zero |
-| React requests | Stable request count after rerenders, cancellation/stale-response handling, parameter-driven refresh |
-| UI truthfulness | Simulation/offline/stale states; actual horizon and endpoint labels; empty analytics |
-| Production styles | Layer toggle colors generated in bundled CSS |
-
-For a manual smoke test, run both services locally, inspect the browser Network panel, change each preset/port/class/slider, toggle layers, open Analytics, and test a backend outage. Record observed behavior and failures against `KNOWN_ISSUES.md`; this procedure has not been executed during the documentation pass.
-
-## NAV-01 regression checks — 2026-09-14
-
-`npm.cmd test` in frontend: **6 passed** using Vitest 4.1.11 and React Test Renderer 18.3.1. Tests exercise actual App hooks with mocked child views and fetch: unrelated rerenders, every route parameter, equivalent coordinate objects, manual refresh, stale results, loading ownership, network failure and unmount/remount. This supersedes the original absence of a frontend test script. These are component tests, not browser/live HTTP tests; React DOM StrictMode replay was not directly tested.
-
-`npm.cmd run build`: **passed**, 1,558 modules transformed. Node 24.14.1 was used; bundled Node 20.18.0 was not validated with the new test tools. Existing Vite 5 / React plugin configuration emits deprecation warnings in the newer test runner. npm audit after installation reports two remaining advisories in the existing Vite/esbuild build tooling; a build-toolchain upgrade is outside NAV-01. `git diff --check` passed.
-
-## NAV-06 regression checks — 2026-09-14
-
-`npm.cmd test`: **11 tests passed**. App tests now use the actual TelemetrySidebar and RouteComparisonModal (map, navbar and controls remain isolated). Five added cases cover initial failure and successful Retry, clearing prior results before a failed recalculation, invalid JSON, missing response fields, and suppressed stale errors. Existing six lifecycle tests continue to pass with usable response fixtures.
-
-`npm.cmd run build`: **passed**, 1,558 modules transformed. `git diff --check`: passed. Existing test-runner deprecation warnings remain. No live service or browser visual verification was performed for this change.
-
-## NAV-02 no-route regression checks — 2026-09-14
-
-- `backend/venv/Scripts/python.exe -B backend/test_no_route.py`: **5 tests passed**. Tests exercise disconnected graphs, missing endpoints, actual graph construction with all grid cells blocked, real FastAPI ASGI HTTP 409 serialization without route/metrics, and successful HTTP 200 routing. The ASGI tests use synthetic data and no external HTTP client dependency.
-- `backend/venv/Scripts/python.exe -B backend/test_backend.py`: **all 3 existing tests passed**. Their limitations noted above remain.
-- `npm.cmd test` in frontend: **14 tests passed**. Three added cases cover specific no-route messaging with recovery, suppression of a superseded no-route response, and unrelated HTTP 409 errors retaining generic handling.
-- `npm.cmd run build`: **passed**, 1,558 modules transformed. Existing test-runner deprecation warnings remain.
-- `git diff --check`: passed. No hosted deployment or browser visual test performed.
-
-ASGI tests exercise the actual application's HTTP handling in process; they do not test a listening Uvicorn service or deployed networking.
+| September 14 work, later 6097e6c | 3 pipeline + 5 no-route + 14 frontend passed |
+| dccfa3b review, recorded 3684d67 | Pipeline/build passed; no-route import failed; npm test missing |
+| 6d1f221 restoration | 3 pipeline + 5 no-route + 20 frontend passed; build passed |
+| dedbb48 geometry/UI work | 24 unittest + 3 pipeline + 36 frontend passes |
+| Current 2cc8271 + PDF Feature | 24 unittest + 3 pipeline + 36/36 frontend passes |

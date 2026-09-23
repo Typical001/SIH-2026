@@ -1,55 +1,70 @@
 # Contribution and change-tracking workflow
 
-## Required record for each change
+Updated **2026-09-19**, baseline **2cc8271** (with Frontend Login System and PDF Export features). The team collaborates directly on main; develop/feature branches are not required.
 
-For every addition, modification, removal or rename of application code/configuration, update `CHANGELOG.md` in the same change set. Record the exact application-root-relative paths, reason, behavioral impact, validation and any migration/rollback steps. Documentation paths use the `Brain/` prefix. Update architecture/API/setup documentation when the corresponding behavior changes. Keep unresolved work in `KNOWN_ISSUES.md` until implementation and validation are complete.
+## Change workflow
 
-Markdown does not watch the filesystem. This is a contributor workflow; Git remains the authoritative source of actual diffs. No automatic hook or recurring monitor was installed.
-
-Copy this template into the changelog:
-
-```markdown
-## YYYY-MM-DD — Short description
-
-- Reference: issue/PR/commit, or “uncommitted”.
-- Reason and behavior: what triggered the work and what users now experience.
-
-### Added
-- `path`: purpose. (Use “None” if empty.)
-
-### Modified
-- `path`: old behavior → new behavior and why.
-
-### Removed
-- `path`: why removed; replacement or migration if applicable.
-
-### Renamed
-- `old/path` → `new/path`: reason, if applicable.
-
-### Validation and impact
-- Commands/results, tests not run and reasons.
-- Compatibility/configuration changes and rollback instructions.
-- Documentation updated and known issues resolved or remaining.
-```
-
-## Before finishing a change
-
-1. Inspect `git status --short` before work and distinguish pre-existing files from your edits.
-2. Read affected source and keep coordinate order, units, simulated-data status and query defaults consistent.
-3. Run the relevant checks in `TESTING.md`; never claim a passing build proves route safety.
-4. Update the change record and any affected reference documents.
-5. Inspect unstaged and staged changes, including newly created files. Avoid sweeping in caches, extensions, credentials or unrelated user work.
-
-From the application root, useful review commands are:
+1. Inspect Git status and preserve unrelated existing work.
+2. Read affected modules/callers; maintain coordinate order, units, bounds, auth context, and live/cached/simulated provenance.
+3. Run relevant checks in [TESTING.md](TESTING.md), recording substitutions and failures. Current frontend result is **40/40 passed** (100%); controlled backend result is **24/24 passed**.
+4. Update CHANGELOG for code/config additions, modifications, removals and renames: exact paths, reason, behavior, verification and migration/rollback.
+5. Update affected Brain reference sections in place, rather than appending notes beneath stale descriptions.
+6. Review the full staged diff; stage intended paths explicitly.
 
 ```powershell
 git status --short
 git diff --name-status
 git diff --stat
 git diff --cached --name-status
+git diff --cached
 git ls-files --others --exclude-standard
 ```
 
-Use Git `A`, `M`, `D` and `R` statuses for additions, modifications, removals and renames. Untracked files do not appear in `git diff`. When publishing a release, add a release identifier/date to its changelog entries; do not invent older changes whose timing cannot be recovered from Git.
+No CI, automatic Markdown hook or recurring monitor is installed. Git is authoritative; Markdown does not watch the filesystem.
 
-Refresh `FILE_INVENTORY.md` when project structure changes, including its main file-role table; do not rely only on appended update notes. Separate historical test results from current results and distinguish the committed baseline from uncommitted fixes. `GIT_CHANGE_HISTORY.md` is a dated historical snapshot and should be regenerated or extended deliberately, not treated as a live log. Do not edit vendor changelogs to record application work.
+## Main-only collaboration
+
+Start clean or preserve unfinished changes before pulling. After editing, stage specific reviewed files. Integrate teammate commits before pushing and rerun relevant checks.
+
+```powershell
+git switch main
+git pull --ff-only origin main
+# Edit, review, and git add specific intended paths.
+git diff --cached --name-status
+git diff --cached
+git commit -m "Describe the actual change"
+# With a clean working tree, integrate new remote work.
+git pull --rebase origin main
+git push origin main
+```
+
+Resolve rebase conflicts, stage those files and run git rebase --continue, then verify. For missing upstream, use git push --set-upstream origin main. Do not force-push shared main.
+
+## AI-assisted changes and deletions
+
+Review all staged D entries. Replacing UI components does not justify deleting Brain/tests. Restore accidental deletions from a known good commit using only needed paths, inspect the diff and commit the restoration; avoid whole-repository resets.
+
+Restored files must match dependencies and behavior. New PDF export features should use `PolarNav Engine` branding and maintain actual route data bindings. Provider changes can likewise invalidate fixed-model test assumptions. Separate engine fixtures from provider integration tests; retain meaningful assertions.
+
+New data work needs schema/units validation, observation timestamps, source propagation, spatial/time cache bounds, bounded network work and explicit outage contracts. Configured URLs and health strings are not verified feed results.
+
+## Change record template
+
+```markdown
+## YYYY-MM-DD — Concrete change
+
+- Reference: commit/issue or uncommitted.
+- Reason and behavior: trigger and resulting behavior.
+
+### Added / modified / removed / renamed
+
+- exact/path: purpose, reason and replacement if applicable.
+
+### Validation and impact
+
+- Commands/results, substitutions, failures and checks not run.
+- API/configuration compatibility, migration and scoped rollback.
+- Documentation updated and issues resolved or remaining.
+```
+
+Paths are application-relative unless marked Git-root-relative; docs use Brain/. Refresh FILE_INVENTORY when structure changes, GIT_CHANGE_HISTORY from actual commits, and KNOWN_ISSUES when verified status changes. Keep prior evidence under dated historical headings. Do not edit vendor changelogs for application work.

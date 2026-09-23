@@ -10,14 +10,14 @@ from main import app
 from pathfinder import LandMask, NoRouteFoundError, PolarPathfinder
 
 
-async def request_route():
+async def request_route(query=b"start_lat=-34&start_lon=18&end_lat=-35&end_lon=19&forecast_hours=0", path="/api/v1/polar-route"):
     """Exercise FastAPI's actual ASGI response without extra HTTP test packages."""
     messages = []
     scope = {
         "type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1",
-        "method": "GET", "scheme": "http", "path": "/api/v1/polar-route",
-        "raw_path": b"/api/v1/polar-route", "root_path": "",
-        "query_string": b"start_lat=-34&start_lon=18&end_lat=-35&end_lon=19&forecast_hours=0",
+        "method": "GET", "scheme": "http", "path": path,
+        "raw_path": path.encode(), "root_path": "",
+        "query_string": query,
         "headers": [], "client": ("127.0.0.1", 1), "server": ("test", 80),
     }
 
@@ -64,7 +64,7 @@ class NoRouteTests(unittest.TestCase):
         self.assertEqual(status, 409)
         self.assertEqual(body["detail"]["code"], "NO_ROUTE_FOUND")
         self.assertEqual(set(body), {"detail"})
-        for field in ("waypoints", "direct_baseline_waypoints", "route_metrics"):
+        for field in ("waypoints", "direct_baseline_waypoints", "route_metrics", "xai_explanation"):
             self.assertNotIn(field, body)
 
     def test_http_success_still_returns_route_and_metrics(self):
@@ -73,6 +73,8 @@ class NoRouteTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertGreaterEqual(len(body["waypoints"]), 2)
         self.assertGreater(body["route_metrics"]["distance_nautical_miles"], 0)
+        self.assertIn("primary_routing_driver", body["xai_explanation"])
+        self.assertGreater(len(body["xai_explanation"]["waypoint_explanations"]), 0)
         self.assertNotIn("detail", body)
 
 
