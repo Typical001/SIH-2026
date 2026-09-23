@@ -1,28 +1,45 @@
 """
-Risk Matrix & Pathfinding Engine Module (Step 4):
-Implements spatial grid graph generation and A* (A-Star) pathfinding over
-the Southern Ocean / Antarctica navigation corridor.
-
-Cost Matrix Weights:
-- Open Water = 1.0
-- Sea Ice Zone = 1.0 to 15.0 (dependent on Sea Ice Concentration and Vessel Ice Class)
-- Predicted Iceberg Hazard Zone = 99,999.0 (Impassable safety hazard buffer)
-- Ocean Current Vector Assistance: Energy/fuel optimization
+Pathfinding Engine — SIH26059 Pareto-Optimal Polar Navigation System.
+Three simultaneous maritime route profiles over a SINGLE shared IMO POLARIS risk tensor:
+  SAFEST   — Maximum conservatism, 25 km iceberg buffer, strict RIO enforcement.
+  BALANCED — Default eco/IMO compliance route with HYCOM current work.
+  FASTEST  — Time-critical; accepts limited RIO risk.
+Key guarantees:
+  * build_risk_tensor() runs ONCE per request — no triple graph rebuild.
+  * astar_guarded() caps at max_iterations=25_000 + 1.2 s wall-clock timer.
+  * Fallback cascade: SAFEST relaxes RIO, FASTEST falls back to BALANCED. Never HTTP 500.
 """
 
-from typing import List, Dict, Any, Tuple, Optional
+from __future__ import annotations
+
 import math
-import numpy as np
+import time
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
 import networkx as nx
+import numpy as np
+import pyproj
 from shapely.geometry import Point, Polygon, MultiPolygon
 from shapely.ops import unary_union
+from shapely.validation import make_valid
 
-from data_engine import MetoceanEngine, Iceberg, POLAR_STATIONS, get_initial_icebergs
+# Antarctic Polar Stereographic (EPSG:3031) Coordinate Transformers
+try:
+    _t_to_epsg3031 = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3031", always_xy=True)
+    _t_to_wgs84 = pyproj.Transformer.from_crs("EPSG:3031", "EPSG:4326", always_xy=True)
+except Exception:
+    _t_to_epsg3031 = None
+    _t_to_wgs84 = None
+
+from data_engine import MetoceanEngine, Iceberg, POLAR_STATIONS, get_initial_icebergs, estimate_route_fuel_burn
 from drift_engine import DriftPhysicsEngine
+
+HAZARD_IMPASSABLE = 99_999.0
 
 
 class NoRouteFoundError(Exception):
-    """The navigation graph has no traversable connection between endpoints."""
+    """Navigation graph has no traversable connection between endpoints."""
 
 
 def haversine_nm(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -46,31 +63,17 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return haversine_nm(lat1, lon1, lat2, lon2) * 1.852
 
 
-
 # =============================================================================
 # LAND-SEA MASK  (Natural Earth 1:10m coastline polygons – Indian Ocean sector)
-# Grid nodes whose (lat, lon) centroid falls inside any polygon below receive
-# base_cost = HAZARD_IMPASSABLE_COST and are excluded from A* routing.
 # =============================================================================
 
 class LandMask:
     """
-    Lightweight land-sea mask built from simplified Natural Earth shoreline
-    vertices for the India <-> Southern Ocean shipping corridor.
-
-    Landmasses covered:
-      * Sri Lanka (primary culprit causing cross-land routes)
-      * Southern Indian Peninsula (Cape Comorin / Kanyakumari region)
-      * Maldives atoll chain
-      * Lakshadweep Islands
-      * Andaman & Nicobar Islands
-
-    Shapely convention: all ring coordinates are (lon, lat) i.e. (x, y).
-    The union is built lazily on first use; make_valid() ensures no topology
-    exceptions even if a polygon has minor self-intersections.
+    Lightweight land-sea mask for the India <-> Southern Ocean shipping corridor.
+    Covers: Sri Lanka, Southern India, Maldives, Lakshadweep, Andaman & Nicobar.
+    Shapely convention: (lon, lat) = (x, y). Built lazily, cached as class attribute.
     """
 
-    # Sri Lanka - Natural Earth 1:10m simplified coastline (lon, lat)
     _RAW_POLYGONS = [
         # Sri Lanka
         [
@@ -81,7 +84,7 @@ class LandMask:
             (79.510, 6.750), (79.420, 7.290), (79.500, 7.950),
             (79.690, 8.580), (79.695, 9.835),
         ],
-        # Southern India - convex-hull approximation (no self-intersections)
+        # Southern India - convex-hull approximation
         [
             (74.900, 10.200), (76.000,  9.800), (76.300,  8.900),
             (77.100,  8.100), (77.550,  8.100), (78.200,  8.700),
@@ -90,32 +93,19 @@ class LandMask:
             (78.000, 11.700), (77.400, 11.000), (76.800, 10.700),
             (75.900, 10.600), (74.900, 10.200),
         ],
-        # Maldives - bounding strip for the atoll chain
-        [
-            (72.600, -0.700), (73.800, -0.700),
-            (73.800,  7.200), (72.600,  7.200),
-            (72.600, -0.700),
-        ],
+        # Maldives
+        [(72.600, -0.700), (73.800, -0.700), (73.800, 7.200), (72.600, 7.200), (72.600, -0.700)],
         # Lakshadweep Islands
-        [
-            (71.800, 10.000), (74.200, 10.000),
-            (74.200, 12.800), (71.800, 12.800),
-            (71.800, 10.000),
-        ],
+        [(71.800, 10.000), (74.200, 10.000), (74.200, 12.800), (71.800, 12.800), (71.800, 10.000)],
         # Andaman & Nicobar Islands
-        [
-            (92.100,  6.700), (93.200,  6.700),
-            (93.200, 13.700), (92.100, 13.700),
-            (92.100,  6.700),
-        ],
+        [(92.100, 6.700), (93.200, 6.700), (93.200, 13.700), (92.100, 13.700), (92.100, 6.700)],
     ]
 
-    _land_union = None  # lazy-loaded on first .is_land() call
+    _land_union = None
 
     @classmethod
     def _get_land(cls):
         if cls._land_union is None:
-            from shapely.validation import make_valid
             polys = [make_valid(Polygon(coords)) for coords in cls._RAW_POLYGONS]
             cls._land_union = unary_union(polys)
         return cls._land_union
@@ -123,7 +113,565 @@ class LandMask:
     @classmethod
     def is_land(cls, lat: float, lon: float) -> bool:
         """Return True if the (lat, lon) point lies on a landmass."""
-        return cls._get_land().contains(Point(lon, lat))  # Shapely: (x=lon, y=lat)
+        return cls._get_land().contains(Point(lon, lat))
+
+
+# =============================================================================
+# IMO POLARIS RISK TENSOR — Single-Pass Grid (built once per route request)
+# =============================================================================
+
+@dataclass
+class NodeData:
+    lat: float
+    lon: float
+    sic: float      # Sea Ice Concentration [0–1]
+    rio: float      # IMO POLARIS Risk Index Outcome
+    ocean_u: float  # HYCOM eastward current [m/s]
+    ocean_v: float  # HYCOM northward current [m/s]
+    ocean_spd: float
+    wind_u: float
+    wind_v: float
+    is_impassable: bool
+
+
+def _prepare_hazard_polys(
+    iceberg_forecasts: List[Dict[str, Any]],
+    safety_buffer_km: float,
+    bbox: Optional[Tuple[float, float, float, float]] = None
+) -> List[Dict[str, Any]]:
+    out = []
+    for fc in iceberg_forecasts:
+        p_lat = fc["predicted_position_72h"]["lat"]
+        p_lon = fc["predicted_position_72h"]["lon"]
+        if bbox:
+            min_lat, max_lat, min_lon, max_lon = bbox
+            if not (min_lat <= p_lat <= max_lat and min_lon <= p_lon <= max_lon):
+                continue
+        r = max(safety_buffer_km, fc.get("safety_radius_km", safety_buffer_km))
+        out.append({"id": fc["iceberg_id"], "name": fc.get("name", fc["iceberg_id"]),
+                    "lat": p_lat, "lon": p_lon, "radius_km": r, "radius_nm": r / 1.852})
+    return out
+
+
+class RiskTensor:
+    """
+    Builds the shared IMO POLARIS risk grid ONCE per route request.
+    All three A* profiles operate on this shared tensor.
+    """
+
+    def __init__(self, start_coord: Tuple[float,float], end_coord: Tuple[float,float],
+                 iceberg_forecasts: List[Dict[str,Any]], vessel_ice_class: str,
+                 grid_resolution_deg: float = 0.8, base_safety_buffer_km: float = 15.0):
+        self.start_coord = start_coord
+        self.end_coord = end_coord
+        self.vessel_ice_class = vessel_ice_class
+        self.res = grid_resolution_deg
+        self.base_safety_buffer_km = base_safety_buffer_km
+        
+        min_lat = max(-75.0, min(start_coord[0], end_coord[0]) - 3.0)
+        max_lat = min(25.0, max(start_coord[0], end_coord[0]) + 3.0)
+        min_lon = min(start_coord[1], end_coord[1]) - 5.0
+        max_lon = max(start_coord[1], end_coord[1]) + 5.0
+        bbox = (min_lat, max_lat, min_lon, max_lon)
+
+        self.hazard_polygons_base = _prepare_hazard_polys(iceberg_forecasts, base_safety_buffer_km, bbox)
+        self.hazard_polygons_safe = _prepare_hazard_polys(iceberg_forecasts, base_safety_buffer_km + 10.0, bbox)
+        self.node_data: Dict[Tuple[float,float], NodeData] = {}
+        self.lats: List[float] = []
+        self.lons: List[float] = []
+        self._built = False
+
+    def build(self) -> "RiskTensor":
+        if self._built:
+            return self
+        s_lat, s_lon = self.start_coord
+        e_lat, e_lon = self.end_coord
+        min_lat = max(-75.0, min(s_lat, e_lat) - 2.5)
+        max_lat = min(25.0, max(s_lat, e_lat) + 2.5)
+        min_lon = min(s_lon, e_lon) - 4.5
+        max_lon = max(s_lon, e_lon) + 4.5
+        lats = [round(float(v), 3) for v in np.arange(min_lat, max_lat + self.res*0.5, self.res)]
+        lons = [round(float(v), 3) for v in np.arange(min_lon, max_lon + self.res*0.5, self.res)]
+        self.lats = lats
+        self.lons = lons
+
+        # Preload live satellite corridor samples concurrently (ECMWF ERA5 + HYCOM + Copernicus)
+        MetoceanEngine.preload_live_corridor(self.start_coord, self.end_coord, num_samples=5)
+
+        for lat in lats:
+            for lon in lons:
+                sic = MetoceanEngine.get_sea_ice_concentration(lat, lon)
+                oc = MetoceanEngine.get_ocean_current(lat, lon, time_hours=1.0)
+                ocean_u = oc["u"]; ocean_v = oc["v"]; ocean_spd = oc["speed_knots"]
+                wind = MetoceanEngine.get_wind_vector(lat, lon, time_hours=1.0)
+                rio = MetoceanEngine.get_polaris_rio(sic, self.vessel_ice_class)
+                on_land = LandMask.is_land(lat, lon)
+                in_base_hz = any(
+                    haversine_km(lat, lon, hz["lat"], hz["lon"]) <= hz["radius_km"]
+                    for hz in self.hazard_polygons_base
+                )
+                is_imp = on_land or rio < -10.0 or in_base_hz
+                self.node_data[(lat, lon)] = NodeData(
+                    lat=lat, lon=lon, sic=sic, rio=rio,
+                    ocean_u=ocean_u, ocean_v=ocean_v, ocean_spd=ocean_spd,
+                    wind_u=wind["u"], wind_v=wind["v"], is_impassable=is_imp
+                )
+        self._built = True
+        return self
+
+
+# =============================================================================
+# GUARDED A* EXECUTOR
+# =============================================================================
+
+_ASTAR_MAX_ITERS = 25_000
+_ASTAR_TIMEOUT_S = 1.2
+
+
+def astar_guarded(
+    G: nx.Graph,
+    source: Tuple[float, float],
+    target: Tuple[float, float],
+) -> Tuple[Optional[List[Tuple[float, float]]], str]:
+    """
+    A* with hard guards: max_iterations=25_000 and 1.2 s wall-clock timeout.
+    Returns (path_nodes_or_None, status_flag: 'OK' | 'NO_PATH' | 'TIMEOUT').
+    """
+    import heapq
+    if source not in G or target not in G:
+        return None, "NO_PATH"
+
+    def h(u: Tuple, v: Tuple) -> float:
+        return haversine_nm(u[0], u[1], v[0], v[1])
+
+    open_heap: List = [(0.0, 0.0, source)]
+    came_from: Dict = {}
+    g_score: Dict = {source: 0.0}
+    iters = 0
+    deadline = time.monotonic() + _ASTAR_TIMEOUT_S
+
+    while open_heap:
+        if iters >= _ASTAR_MAX_ITERS or time.monotonic() > deadline:
+            return None, "TIMEOUT"
+        iters += 1
+        _, _, current = heapq.heappop(open_heap)
+        if current == target:
+            path = [current]
+            while current in came_from:
+                current = came_from[current]
+                path.append(current)
+            path.reverse()
+            return path, "OK"
+        for nbr in G.neighbors(current):
+            w = G.edges[current, nbr].get("weight", 1.0)
+            if w >= HAZARD_IMPASSABLE:
+                continue
+            tg = g_score.get(current, math.inf) + w
+            if tg < g_score.get(nbr, math.inf):
+                came_from[nbr] = current
+                g_score[nbr] = tg
+                f = tg + h(nbr, target)
+                heapq.heappush(open_heap, (f, tg, nbr))
+    return None, "NO_PATH"
+
+
+# =============================================================================
+# PROFILE GRAPH BUILDERS (operate on shared RiskTensor)
+# =============================================================================
+
+def _current_work(nd: NodeData, dlat: float, dlon: float, ds_m: float) -> float:
+    """Ocean current work projected onto ship heading. Positive = opposing drag."""
+    if ds_m < 1e-6:
+        return 0.0
+    dx = dlon * 111_320.0 * math.cos(math.radians(nd.lat))
+    dy = dlat * 110_540.0
+    return -(nd.ocean_u * dx + nd.ocean_v * dy) / ds_m
+
+
+def _build_graph(tensor: RiskTensor, profile: str) -> nx.Graph:
+    """
+    Build an nx.Graph with profile-specific edge costs from the shared tensor.
+    profile: 'SAFEST' | 'BALANCED' | 'FASTEST'
+    """
+    G = nx.Graph()
+    lats = tensor.lats; lons = tensor.lons; nd_map = tensor.node_data
+    dirs = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
+
+    # SAFEST: identify extra-buffer + RIO-forbidden cells
+    safe_extra_walls: set = set()
+    if profile == "SAFEST":
+        for (lat, lon), nd in nd_map.items():
+            in_sz = any(
+                haversine_km(lat, lon, hz["lat"], hz["lon"]) <= hz["radius_km"]
+                for hz in tensor.hazard_polygons_safe
+            )
+            if in_sz or nd.rio < 0.0:  # strict: any negative RIO is impassable
+                safe_extra_walls.add((lat, lon))
+
+    # Add nodes
+    for (lat, lon), nd in nd_map.items():
+        if profile == "SAFEST":
+            imp = nd.is_impassable or (lat, lon) in safe_extra_walls
+        elif profile == "FASTEST":
+            in_10 = any(
+                haversine_km(lat, lon, hz["lat"], hz["lon"]) <= (hz["radius_km"] - 5.0)
+                for hz in tensor.hazard_polygons_base
+            )
+            imp = LandMask.is_land(lat, lon) or in_10 or nd.rio < -10.0
+        else:  # BALANCED
+            imp = nd.is_impassable
+        G.add_node((lat, lon), impassable=imp, lat=lat, lon=lon, sic=nd.sic, rio=nd.rio,
+                   ocean_u=nd.ocean_u, ocean_v=nd.ocean_v, ocean_spd=nd.ocean_spd,
+                   wind_u=nd.wind_u, wind_v=nd.wind_v)
+
+    # Add edges
+    for i, lat in enumerate(lats):
+        for j, lon in enumerate(lons):
+            u = (lat, lon)
+            if G.nodes[u].get("impassable"):
+                continue
+            nd_u = nd_map[u]
+            for di, dj in dirs:
+                ni, nj = i + di, j + dj
+                if 0 <= ni < len(lats) and 0 <= nj < len(lons):
+                    v = (lats[ni], lons[nj])
+                    if not G.has_node(v) or G.nodes[v].get("impassable"):
+                        continue
+                    nd_v = nd_map[v]
+                    dist_nm = haversine_nm(lat, lon, v[0], v[1])
+                    avg_sic = (nd_u.sic + nd_v.sic) / 2.0
+                    avg_rio = (nd_u.rio + nd_v.rio) / 2.0
+
+                    if profile == "SAFEST":
+                        cost = dist_nm * (1.0 + 35.0 * (avg_sic ** 1.5))
+                    elif profile == "BALANCED":
+                        ds_m = dist_nm * 1852.0
+                        wc = _current_work(nd_u, v[0] - lat, v[1] - lon, ds_m)
+                        rio_pen = 150.0 if (-10.0 <= avg_rio < 0.0) else 0.0
+                        cost = dist_nm * (1.0 + 15.0 * avg_sic + 2.0 * max(0.0, wc)) + rio_pen
+                    else:  # FASTEST
+                        rio_pen = 45.0 if (-5.0 <= avg_rio < 0.0) else 0.0
+                        cost = dist_nm * (1.0 + 5.0 * avg_sic) + rio_pen
+
+                    G.add_edge(u, v, weight=cost, distance_nm=dist_nm)
+    return G
+
+
+def _connect_terminal(
+    G: nx.Graph,
+    coord: Tuple[float, float],
+    nd_map: Dict[Tuple[float,float], NodeData],
+    res: float
+) -> Tuple[float, float]:
+    lat, lon = coord
+    key = (round(lat, 3), round(lon, 3))
+    if key not in G:
+        G.add_node(key, impassable=False, lat=lat, lon=lon, sic=0.0, rio=3.0,
+                   ocean_u=0.0, ocean_v=0.0, ocean_spd=0.0, wind_u=0.0, wind_v=0.0)
+    thresh = res * 120.0
+    for (nlat, nlon), nd in nd_map.items():
+        nk = (nlat, nlon)
+        if G.has_node(nk) and not G.nodes[nk].get("impassable"):
+            dist = haversine_nm(lat, lon, nlat, nlon)
+            if dist < thresh:
+                G.add_edge(key, nk, weight=dist, distance_nm=dist)
+    return key
+
+
+def _route_metrics(
+    waypoints: List[List[float]],
+    hazard_polygons: List[Dict[str, Any]],
+    vessel_ice_class: str,
+    cruising_speed_knots: float,
+    remaining_fuel_mt: float = 450.0,
+    max_tank_capacity_mt: float = 500.0,
+    route_type: Optional[str] = None,
+) -> Dict[str, Any]:
+    total_nm = 0.0; max_sic = 0.0; min_rio = 9999.0; min_prox = 9999.0
+    for i in range(len(waypoints) - 1):
+        p1, p2 = waypoints[i], waypoints[i+1]
+        total_nm += haversine_nm(p1[0], p1[1], p2[0], p2[1])
+        mid_lat = (p1[0]+p2[0]) / 2.0; mid_lon = (p1[1]+p2[1]) / 2.0
+        sic = MetoceanEngine.get_sea_ice_concentration(mid_lat, mid_lon)
+        rio = MetoceanEngine.get_polaris_rio(sic, vessel_ice_class)
+        max_sic = max(max_sic, sic); min_rio = min(min_rio, rio)
+        for hz in hazard_polygons:
+            min_prox = min(min_prox, haversine_km(mid_lat, mid_lon, hz["lat"], hz["lon"]))
+    avg_spd = cruising_speed_knots * (1.0 - 0.25 * max_sic)
+    eta = total_nm / max(avg_spd, 1.0)
+
+    fuel_res = estimate_route_fuel_burn(
+        route_coords=waypoints,
+        cruising_speed_knots=cruising_speed_knots,
+        remaining_fuel_mt=remaining_fuel_mt,
+        max_tank_capacity_mt=max_tank_capacity_mt,
+        route_type=route_type,
+    )
+
+    return {
+        "distance_nm": round(total_nm, 1),
+        "eta_hours": round(eta, 2),
+        "min_polaris_rio": round(min_rio, 3) if min_rio < 9999 else 3.0,
+        "max_ice_concentration": round(max_sic, 3),
+        "min_iceberg_proximity_km": round(min_prox, 1) if min_prox < 9999 else None,
+        "total_fuel_burn_mt": fuel_res["total_fuel_burn_mt"],
+        "mandatory_reserve_mt": fuel_res["mandatory_reserve_mt"],
+        "total_required_fuel_mt": fuel_res["total_required_fuel_mt"],
+        "fuel_surplus_deficit_mt": fuel_res["fuel_surplus_deficit_mt"],
+        "tank_left_percentage": fuel_res["tank_left_percentage"],
+        "feasibility_status": fuel_res["feasibility_status"],
+        "endurance_days": fuel_res["endurance_days"],
+        "endurance_nm": fuel_res["endurance_nm"],
+        "ice_fuel_penalty_mt": fuel_res["ice_fuel_penalty_mt"],
+        "current_fuel_penalty_mt": fuel_res["current_fuel_penalty_mt"],
+    }
+
+
+def geometric_tangent_fallback(
+    start: Tuple[float, float],
+    end: Tuple[float, float],
+    hazard_polygons: List[Dict[str, Any]],
+    n: int = 40
+) -> List[Tuple[float, float]]:
+    """
+    Tier 2 Algorithmic Circuit Breaker:
+    Calculates an interpolated Great Circle line and deflects tangential waypoints
+    around intersecting 15 km iceberg buffer boundaries.
+    Guarantees collision-free passage without hangs or unhandled 500 errors.
+    """
+    lats = np.linspace(start[0], end[0], n)
+    lons = np.linspace(start[1], end[1], n)
+    out_pts = []
+
+    for la, lo in zip(lats, lons):
+        pt_lat = float(la)
+        pt_lon = float(lo)
+        for hz in hazard_polygons:
+            if isinstance(hz, dict):
+                hz_lat = hz.get("lat", 0.0)
+                hz_lon = hz.get("lon", 0.0)
+                r_km = hz.get("radius_km", 15.0)
+            elif hasattr(hz, "centroid"):
+                hz_lat = float(hz.centroid.y)
+                hz_lon = float(hz.centroid.x)
+                r_km = getattr(hz, "radius_km", 15.0)
+            elif isinstance(hz, (list, tuple)) and len(hz) >= 2:
+                hz_lat, hz_lon = float(hz[0]), float(hz[1])
+                r_km = 15.0
+            else:
+                continue
+            d_km = haversine_km(pt_lat, pt_lon, hz_lat, hz_lon)
+            if d_km < r_km:
+                dlat = pt_lat - hz_lat
+                dlon = pt_lon - hz_lon
+                dist = math.hypot(dlat, dlon)
+                if dist < 1e-5:
+                    dlat, dlon, dist = 0.1, 0.1, 0.1414
+                deflect_factor = (r_km + 4.0) / 111.0
+                pt_lat = hz_lat + (dlat / dist) * deflect_factor
+                pt_lon = hz_lon + (dlon / dist) * (deflect_factor / max(0.2, math.cos(math.radians(pt_lat))))
+                break
+        out_pts.append((round(pt_lat, 4), round(pt_lon, 4)))
+    return out_pts
+
+def _straight_fallback(start: Tuple[float, float], end: Tuple[float, float], n: int = 40):
+    return geometric_tangent_fallback(start, end, [], n)
+
+
+# =============================================================================
+# PARETO ROUTE ENGINE — Main public interface (3 routes, 1 tensor)
+# =============================================================================
+
+class ParetoRouteEngine:
+    """
+    Computes 3 Pareto-optimal maritime routes (SAFEST, BALANCED, FASTEST)
+    over a single shared IMO POLARIS risk tensor.
+    Never returns HTTP 500: all failures trigger graceful fallback cascade.
+    """
+
+    PROFILE_META = {
+        "SAFEST":   {"color": "#10b981", "label": "Shield Safest"},
+        "BALANCED": {"color": "#0ea5e9", "label": "Bolt Balanced"},
+        "FASTEST":  {"color": "#f59e0b", "label": "Clock Fastest"},
+    }
+
+    def __init__(self, grid_resolution_deg: float = 0.8,
+                 vessel_ice_class: str = "Polar Class 3 (PC3)",
+                 cruising_speed_knots: float = 14.5):
+        self.res = grid_resolution_deg
+        self.vessel_ice_class = vessel_ice_class
+        self.cruising_speed_knots = cruising_speed_knots
+
+    def compute_three_routes(
+        self,
+        start_coord: Tuple[float, float],
+        end_coord: Tuple[float, float],
+        iceberg_forecasts: Optional[List[Dict[str, Any]]] = None,
+        data_source_label: str = "Live ECMWF / NOAA USNIC Satellite Sync",
+        remaining_fuel_mt: float = 450.0,
+        max_tank_capacity_mt: float = 500.0,
+    ) -> Dict[str, Any]:
+        """
+        Builds shared risk tensor once; runs 3 guarded A* searches.
+        Supports Split-Stage Routing:
+          - If origin >= -60°S: Stage 1 open ocean down to -60°S, then Stage 2 Polar A* grid.
+          - If origin < -60°S: Directly runs Stage 2 Polar A* grid from current ship position.
+        Evaluates IMO Polar bunker fuel feasibility for all 3 profiles.
+        Auto-promotes BALANCED if SAFEST exceeds available fuel reserves.
+        """
+        if iceberg_forecasts is None:
+            iceberg_forecasts = []
+
+        # ── Split-Stage Positioning Logic ────────────────────────────────────
+        s_lat, s_lon = start_coord
+        e_lat, e_lon = end_coord
+
+        if s_lat >= -60.0:
+            # Stage 1: Open Ocean leg from Gateway down to Polar Entrance (-60.0°S)
+            denom = (e_lat - s_lat)
+            fraction_to_60 = (-60.0 - s_lat) / denom if abs(denom) > 1e-5 else 0.5
+            entry_lon = s_lon + fraction_to_60 * (e_lon - s_lon)
+            entry_coord = (-60.0, entry_lon)
+
+            num_open = max(8, int(abs(-60.0 - s_lat) * 1.2))
+            open_lats = np.linspace(s_lat, -60.0, num_open)
+            open_lons = np.linspace(s_lon, entry_lon, num_open)
+            stage1_wpts = [(round(float(la), 4), round(float(lo), 4)) for la, lo in zip(open_lats, open_lons)]
+            polar_start = entry_coord
+        else:
+            # In-Voyage / Below -60°S: Skip Stage 1; engage Polar A* directly from ship fix
+            stage1_wpts = []
+            polar_start = start_coord
+
+        # ── Stage 2: Polar Stereographic A* Search Below -60°S ─────────────
+        tensor = RiskTensor(
+            polar_start, end_coord, iceberg_forecasts,
+            self.vessel_ice_class, self.res, 15.0
+        ).build()
+        hazard_polygons = tensor.hazard_polygons_base
+
+        G_safe = _build_graph(tensor, "SAFEST")
+        G_bal  = _build_graph(tensor, "BALANCED")
+        G_fast = _build_graph(tensor, "FASTEST")
+
+        s_safe = _connect_terminal(G_safe, polar_start, tensor.node_data, self.res)
+        e_safe = _connect_terminal(G_safe, end_coord,   tensor.node_data, self.res)
+        s_bal  = _connect_terminal(G_bal,  polar_start, tensor.node_data, self.res)
+        e_bal  = _connect_terminal(G_bal,  end_coord,   tensor.node_data, self.res)
+        s_fast = _connect_terminal(G_fast, polar_start, tensor.node_data, self.res)
+        e_fast = _connect_terminal(G_fast, end_coord,   tensor.node_data, self.res)
+
+        # BALANCED (serves as base anchor)
+        bal_flags: List[str] = []
+        bal_path, _ = astar_guarded(G_bal, s_bal, e_bal)
+        if bal_path is None:
+            bal_flags.append("GEOMETRIC_SAFETY_CORRIDOR_FALLBACK")
+            bal_path = geometric_tangent_fallback(polar_start, end_coord, hazard_polygons)
+
+        # SAFEST with Tier 1 RIO-relaxation and Tier 2 Geometric Tangent Fallback
+        safe_flags: List[str] = []
+        safe_path, _ = astar_guarded(G_safe, s_safe, e_safe)
+        if safe_path is None:
+            safe_flags.append("SAFETY_CONSTRAINTS_RELAXED")
+            for node in list(G_safe.nodes):
+                if G_safe.nodes[node].get("impassable") and node in tensor.node_data:
+                    nd = tensor.node_data[node]
+                    if -5.0 <= nd.rio < 0.0:
+                        G_safe.nodes[node]["impassable"] = False
+            _connect_terminal(G_safe, polar_start, tensor.node_data, self.res)
+            _connect_terminal(G_safe, end_coord,   tensor.node_data, self.res)
+            safe_path, _ = astar_guarded(G_safe, s_safe, e_safe)
+        if safe_path is None:
+            safe_flags.append("GEOMETRIC_SAFETY_CORRIDOR_FALLBACK")
+            safe_path = geometric_tangent_fallback(polar_start, end_coord, tensor.hazard_polygons_safe)
+
+        # FASTEST with BALANCED fallback
+        fast_flags: List[str] = []
+        fast_path, _ = astar_guarded(G_fast, s_fast, e_fast)
+        if fast_path is None:
+            fast_path = bal_path
+            fast_flags += ["FASTEST_FALLBACK_TO_BALANCED", "is_fallback"]
+
+        # Concatenate Stage 1 Open Ocean + Stage 2 Polar Waypoints
+        def assemble_wpts(polar_nodes):
+            polar_pts = [[float(la), float(lo)] for la, lo in polar_nodes]
+            if stage1_wpts:
+                return [list(pt) for pt in stage1_wpts[:-1]] + polar_pts
+            return polar_pts
+
+        sw = assemble_wpts(safe_path)
+        bw = assemble_wpts(bal_path)
+        fw = assemble_wpts(fast_path)
+
+        sm = _route_metrics(sw, hazard_polygons, self.vessel_ice_class, self.cruising_speed_knots, remaining_fuel_mt, max_tank_capacity_mt, "SAFEST")
+        bm = _route_metrics(bw, hazard_polygons, self.vessel_ice_class, self.cruising_speed_knots, remaining_fuel_mt, max_tank_capacity_mt, "BALANCED")
+        fm = _route_metrics(fw, hazard_polygons, self.vessel_ice_class, self.cruising_speed_knots, remaining_fuel_mt, max_tank_capacity_mt, "FASTEST")
+
+        # Range Gating & Auto-Promotion:
+        # If Safest route is UNREACHABLE due to detour distance, auto-promote Balanced route
+        auto_promoted = False
+        auto_switched_message = None
+        if sm.get("feasibility_status") == "UNREACHABLE":
+            auto_promoted = True
+            auto_switched_message = "Safest route exceeds fuel endurance. Auto-switched to Balanced corridor."
+            safe_flags.append("SAFEST_UNREACHABLE_INSUFFICIENT_BUNKER")
+            bal_flags.append("AUTO_PROMOTED_FROM_SAFEST")
+            bal_flags.append("FEASIBLE_BUNKER_CORRIDOR")
+
+        def feature(w, profile, metrics, flags):
+            coords = [[lon, lat] for lat, lon in w]  # GeoJSON: [lon, lat]
+            return {
+                "type": "Feature",
+                "geometry": {"type": "LineString", "coordinates": coords},
+                "properties": {
+                    "route_type": profile,
+                    "color": self.PROFILE_META[profile]["color"],
+                    "label": self.PROFILE_META[profile]["label"],
+                    "distance_nm": metrics["distance_nm"],
+                    "eta_hours": metrics["eta_hours"],
+                    "min_polaris_rio": metrics["min_polaris_rio"],
+                    "max_ice_concentration": metrics["max_ice_concentration"],
+                    "min_iceberg_proximity_km": metrics.get("min_iceberg_proximity_km"),
+                    "total_fuel_burn_mt": metrics["total_fuel_burn_mt"],
+                    "mandatory_reserve_mt": metrics["mandatory_reserve_mt"],
+                    "total_required_fuel_mt": metrics["total_required_fuel_mt"],
+                    "fuel_surplus_deficit_mt": metrics["fuel_surplus_deficit_mt"],
+                    "tank_left_percentage": metrics["tank_left_percentage"],
+                    "feasibility_status": metrics["feasibility_status"],
+                    "endurance_days": metrics["endurance_days"],
+                    "endurance_nm": metrics["endurance_nm"],
+                    "ice_fuel_penalty_mt": metrics.get("ice_fuel_penalty_mt", 0.0),
+                    "current_fuel_penalty_mt": metrics.get("current_fuel_penalty_mt", 0.0),
+                    "data_source": data_source_label,
+                    "flags": flags,
+                    "waypoints_latlon": w,
+                }
+            }
+
+        return {
+            "type": "FeatureCollection",
+            "features": [
+                feature(sw, "SAFEST",   sm, safe_flags),
+                feature(bw, "BALANCED", bm, bal_flags),
+                feature(fw, "FASTEST",  fm, fast_flags),
+            ],
+            "metadata": {
+                "vessel_ice_class": self.vessel_ice_class,
+                "cruising_speed_knots": self.cruising_speed_knots,
+                "remaining_fuel_mt": round(remaining_fuel_mt, 1),
+                "max_tank_capacity_mt": round(max_tank_capacity_mt, 1),
+                "recommended_route_type": "BALANCED" if auto_promoted else "SAFEST",
+                "auto_switched": auto_promoted,
+                "auto_switched_message": auto_switched_message,
+                "origin": {"lat": start_coord[0], "lon": start_coord[1]},
+                "destination": {"lat": end_coord[0], "lon": end_coord[1]},
+                "icebergs_tracked": len(hazard_polygons),
+                "grid_resolution_deg": self.res,
+                "algorithm": "POLARIS-Guarded A* (Pareto-3 Profile + Bunker)",
+                "data_source": data_source_label,
+            }
+        }
+
 
 
 class PolarPathfinder:

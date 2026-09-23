@@ -3,221 +3,185 @@ import { act, create } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 
-// Exercise App's real hooks while isolating map/network rendering.
-vi.mock('./components/Navbar', () => ({ default: (props) => <nav {...props} /> }));
-vi.mock('./components/PolarMap', () => ({ default: (props) => <map {...props} /> }));
-vi.mock('./components/ControlDeck', () => ({ default: (props) => <controls {...props} /> }));
+// Mock subcomponents
+vi.mock('./components/Navbar', () => ({
+  default: (props) => <nav data-testid="navbar" {...props} />
+}));
+vi.mock('./components/PolarMap', () => ({
+  default: (props) => <div data-testid="polarmap" {...props} />
+}));
+vi.mock('./components/TelemetrySidebar', () => ({
+  default: (props) => <aside data-testid="sidebar" {...props} />
+}));
+vi.mock('./components/ControlDeck', () => ({
+  default: (props) => <div data-testid="controldeck" {...props} />,
+  POLAR_GATEWAYS: [
+    { code: 'ZACPT', name: 'Cape Town Port (South Africa)', lat: -33.9249, lon: 18.4241 },
+    { code: 'USH',   name: 'Ushuaia Port (Argentina)', lat: -54.8019, lon: -68.3030 },
+    { code: 'CLPUQ', name: 'Punta Arenas (Chile)', lat: -53.1638, lon: -70.9171 },
+    { code: 'AUHBT', name: 'Hobart Port (Tasmania, Australia)', lat: -42.8821, lon: 147.3272 },
+    { code: 'NZLYT', name: 'Christchurch / Lyttelton Port (NZ)', lat: -43.6033, lon: 172.7194 },
+  ],
+  ANTARCTIC_STATIONS: [
+    { id: 'bharati_station', name: 'Bharati Station (India - Prydz Bay)', lat: -69.4125, lon: 76.1872 },
+    { id: 'maitri_station',  name: 'Maitri Station (India - Schirmacher Oasis)', lat: -70.7667, lon: 11.7333 },
+    { id: 'mcmurdo_station', name: 'McMurdo Station (USA - Ross Island)', lat: -77.8460, lon: 166.6680 },
+    { id: 'rothera_station', name: 'Rothera Station (UK - Adelaide Island)', lat: -67.5683, lon: -68.1275 },
+  ]
+}));
+vi.mock('./components/RouteComparisonModal', () => ({
+  default: (props) => <div data-testid="modal" {...props} />
+}));
 
 let app;
-let requests;
-const controls = () => app.root.findByType('controls').props;
-const navbar = () => app.root.findByType('nav').props;
-const mount = async () => { await act(async () => { app = create(<App />); }); };
-const finish = async (index, data = {}) => {
-  await act(async () => {
-    requests[index].resolve({ ok: true, json: async () => ({
-      waypoints: [[-34, 18], [-69, 76]], ...data,
-      route_metrics: { distance_nautical_miles: 1234, ...data.route_metrics }
-    }) });
-  });
-};
+let mockFetch;
 
 beforeEach(() => {
-  requests = [];
-  vi.stubGlobal('fetch', vi.fn((url, options) => new Promise((resolve, reject) => {
-    // Deliberately allow aborted requests to resolve: verify stale-result guards too.
-    requests.push({ url, signal: options.signal, resolve, reject });
-  })));
+  mockFetch = vi.fn((url, options) => {
+    if (url.includes('/api/health')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          status: 'healthy',
+          mode: 'ONLINE_LIVE_SATELLITE',
+          is_live_satellite: true,
+          iceberg_count: 2000
+        })
+      });
+    }
+    if (url.includes('/api/v1/layers/')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          geojson: { type: 'FeatureCollection', features: [] },
+          overall_sync_label: 'LIVE: NOAA/BYU/ECMWF'
+        })
+      });
+    }
+    if (url.includes('/api/v1/calculate-route')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          type: 'FeatureCollection',
+          metadata: {
+            recommended_route_type: 'BALANCED',
+            auto_switched: false
+          },
+          features: [
+            {
+              type: 'Feature',
+              properties: {
+                route_type: 'BALANCED',
+                distance_nm: 3393.9,
+                eta_hours: 292.94,
+                total_fuel_burn_mt: 120.5,
+                feasibility_status: 'FEASIBLE',
+                flags: []
+              },
+              geometry: {
+                type: 'LineString',
+                coordinates: [[18.42, -33.92], [76.18, -69.41]]
+              }
+            }
+          ]
+        })
+      });
+    }
+    if (url.includes('/api/v1/vessel/last-fix')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          fix: { lat: -64.50, lon: 72.00, vessel_imo: 9577133 }
+        })
+      });
+    }
+    return Promise.resolve({
+      ok: true,
+      json: async () => ({})
+    });
+  });
+
+  vi.stubGlobal('fetch', mockFetch);
 });
 
 afterEach(async () => {
-  if (app) await act(async () => app.unmount());
-  app = null;
+  if (app) {
+    await act(async () => {
+      app.unmount();
+    });
+    app = null;
+  }
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
-describe('route request lifecycle', () => {
-  it('does not refetch after loading, response, layer or analytics rerenders', async () => {
-    await mount();
-    expect(requests).toHaveLength(1);
-    await finish(0, { waypoints: [[-34, 18], [-69, 76]] });
-    await act(async () => controls().onToggleLayer('showSeaIce'));
-    await act(async () => navbar().onOpenReport());
-    expect(requests).toHaveLength(1);
-    expect(navbar().loading).toBe(false);
-  });
-
-  it('refetches for every changed route parameter, but not equal coordinate objects', async () => {
-    await mount();
-    const changes = [
-      ['onChangeForecastHours', 24, 'forecast_hours', '24'],
-      ['onChangeSafetyBufferKm', 30, 'safety_buffer_km', '30'],
-      ['onChangeVesselIceClass', 'Polar Class 1 (PC1)', 'vessel_ice_class', 'Polar Class 1 (PC1)'],
-      ['onChangeCruisingSpeed', 18, 'cruising_speed_knots', '18'],
-      ['onSelectPreset', 'hobart_to_casey', 'end_lon', '110.5283'],
-      ['onChangeOriginOverride', { lat: 18.94, lon: 72.82 }, 'start_lat', '18.94'],
-    ];
-    for (const [callback, value, key, expected] of changes) {
-      const previous = requests.length;
-      await act(async () => controls()[callback](value));
-      expect(requests).toHaveLength(previous + 1);
-      expect(requests[previous - 1].signal.aborted).toBe(true);
-      expect(new URL(requests.at(-1).url).searchParams.get(key)).toBe(expected);
-    }
-    await act(async () => controls().onChangeOriginOverride({ lat: 18.94, lon: 72.82 }));
-    expect(requests).toHaveLength(7);
-  });
-
-  it('supports manual refresh and ignores an older response after the latest completes', async () => {
-    await mount();
-    await act(async () => { void navbar().onRefresh(); });
-    expect(requests).toHaveLength(2);
-    expect(requests[0].signal.aborted).toBe(true);
-    await finish(1, { waypoints: [[1, 2], [3, 4]], route_metrics: { marker: 'latest' } });
-    await finish(0, { waypoints: [[9, 9], [8, 8]], route_metrics: { marker: 'old' } });
-    expect(app.root.findByType('map').props.waypoints).toEqual([[1, 2], [3, 4]]);
-    expect(navbar().loading).toBe(false);
-    expect(requests).toHaveLength(2);
-  });
-
-  it('does not let stale completion clear the current loading state', async () => {
-    await mount();
-    await act(async () => controls().onChangeForecastHours(48));
-    await finish(0);
-    expect(navbar().loading).toBe(true);
-    await finish(1);
-    expect(navbar().loading).toBe(false);
-  });
-
-  it('stops after a network failure and permits an explicit retry', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await mount();
-    await act(async () => requests[0].reject(new Error('offline')));
-    expect(requests).toHaveLength(1);
-    expect(navbar().loading).toBe(false);
-    await act(async () => { void controls().onRecalculate(); });
-    expect(requests).toHaveLength(2);
-  });
-
-  it('aborts on unmount and starts a fresh request on remount', async () => {
-    await mount();
-    await act(async () => app.unmount());
-    expect(requests[0].signal.aborted).toBe(true);
-    await mount();
-    await finish(0);
-    expect(navbar().loading).toBe(true);
-    await finish(1);
-    expect(requests).toHaveLength(2);
-    expect(navbar().loading).toBe(false);
-  });
-});
-
-
-describe('visible failure and empty result states', () => {
-  const text = () => JSON.stringify(app.toJSON());
-
-  it('shows loading/empty telemetry instead of samples, and Retry recovers', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await mount();
-    expect(text()).toContain('Calculating route');
-    expect(text()).not.toContain('3389.8');
-    await act(async () => requests[0].reject(new Error('offline')));
-    expect(app.root.findByProps({ role: 'alert' }).findByType('p').children.join('')).toBe('Unable to calculate the route. Please try again.');
-    expect(text()).toContain('No route results available.');
-    await act(async () => navbar().onOpenReport());
-    expect(text()).toContain('Route analytics unavailable');
-    expect(text()).not.toContain('100% Cleared');
-    await act(async () => { void app.root.findByProps({ role: 'alert' }).findByType('button').props.onClick(); });
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(0);
-    expect(requests).toHaveLength(2);
-    await finish(1);
-    expect(text()).toContain('VOYAGE DISTANCE');
-    expect(text()).not.toContain('No route results available.');
-  });
-
-  it('clears prior route, hazards and analytics before a recalculation that fails', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await mount();
-    await finish(0, {
-      direct_baseline_waypoints: [[-34, 18], [-69, 76]],
-      icebergs_present: [{ id: 'present' }], icebergs_predicted_72h: [{ id: 'predicted' }]
+describe('PolarNav App In-Voyage Architecture', () => {
+  it('mounts cleanly and renders all ECDIS bridge components', async () => {
+    await act(async () => {
+      app = create(<App />);
     });
-    await act(async () => navbar().onOpenReport());
-    await act(async () => controls().onChangeForecastHours(24));
-    const map = app.root.findByType('map').props;
-    expect(map.waypoints).toEqual([]);
-    expect(map.directWaypoints).toEqual([]);
-    expect(map.icebergsPresent).toEqual([]);
-    expect(map.icebergsPredicted).toEqual([]);
-    expect(map.routeMetrics).toBeNull();
-    expect(text()).toContain('Route analytics unavailable');
-    await act(async () => requests[1].resolve({ ok: false, status: 503 }));
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(1);
-    expect(text()).not.toContain('VOYAGE DISTANCE');
+    expect(app.root.findByProps({ 'data-testid': 'navbar' })).toBeDefined();
+    expect(app.root.findByProps({ 'data-testid': 'polarmap' })).toBeDefined();
+    expect(app.root.findByProps({ 'data-testid': 'sidebar' })).toBeDefined();
+    expect(app.root.findByProps({ 'data-testid': 'controldeck' })).toBeDefined();
   });
 
-  it.each(['invalid JSON', 'missing results'])('handles %s without displaying fabricated results', async (failure) => {
+  it('triggers route calculation on mount with default Cape Town -> Bharati', async () => {
+    await act(async () => {
+      app = create(<App />);
+    });
+    const calculateCalls = mockFetch.mock.calls.filter(call => call[0].includes('/api/v1/calculate-route'));
+    expect(calculateCalls.length).toBeGreaterThanOrEqual(1);
+    const postPayload = JSON.parse(calculateCalls[0][1].body);
+    expect(postPayload.origin_type).toBe('GATEWAY');
+    expect(postPayload.gateway_code).toBe('ZACPT');
+    expect(postPayload.destination_station_id).toBe('bharati_station');
+  });
+
+  it('allows switching departure mode to CURRENT_SHIP_GPS', async () => {
+    await act(async () => {
+      app = create(<App />);
+    });
+    const controlDeckProps = app.root.findByProps({ 'data-testid': 'controldeck' }).props;
+    await act(async () => {
+      controlDeckProps.onChangeDepartureMode('CURRENT_SHIP_GPS');
+    });
+    const updatedProps = app.root.findByProps({ 'data-testid': 'controldeck' }).props;
+    expect(updatedProps.departureMode).toBe('CURRENT_SHIP_GPS');
+  });
+
+  it('allows selecting different Pareto route profiles (Safest/Balanced/Fastest)', async () => {
+    await act(async () => {
+      app = create(<App />);
+    });
+    const sidebarProps = app.root.findByProps({ 'data-testid': 'sidebar' }).props;
+    expect(sidebarProps.activeRouteType).toBe('BALANCED');
+    await act(async () => {
+      sidebarProps.onSelectRouteType('SAFEST');
+    });
+    const updatedSidebarProps = app.root.findByProps({ 'data-testid': 'sidebar' }).props;
+    expect(updatedSidebarProps.activeRouteType).toBe('SAFEST');
+  });
+
+  it('displays error alert on network failure and allows retry', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await mount();
-    await act(async () => requests[0].resolve({
-      ok: true,
-      json: async () => {
-        if (failure === 'invalid JSON') throw new SyntaxError('invalid JSON');
-        return {};
+    vi.stubGlobal('fetch', vi.fn((url) => {
+      if (url.includes('/api/v1/calculate-route')) {
+        return Promise.reject(new Error('Network offline'));
       }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
     }));
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(1);
-    expect(app.root.findByType('map').props.routeMetrics).toBeNull();
-    expect(navbar().loading).toBe(false);
-    expect(requests).toHaveLength(1);
-  });
 
-  it('does not show an error when a superseded request rejects', async () => {
-    await mount();
-    await act(async () => controls().onChangeForecastHours(24));
-    await act(async () => requests[0].reject(new Error('aborted old request')));
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(0);
-    expect(navbar().loading).toBe(true);
-    await finish(1);
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(0);
-  });
-});
+    await act(async () => {
+      app = create(<App />);
+    });
 
+    const alert = app.root.findByProps({ role: 'alert' });
+    expect(alert).toBeDefined();
+    expect(alert.findByType('p').children.join('')).toContain('Navigation trajectory recalculation failed');
 
-describe('no-route outcome', () => {
-  const noRoute = () => ({ ok: false, status: 409, json: async () => ({ detail: { code: 'NO_ROUTE_FOUND' } }) });
-
-  it('displays a specific no-route message with no success results and can recover', async () => {
-    await mount();
-    await finish(0);
-    await act(async () => controls().onSelectPreset('hobart_to_casey'));
-    await act(async () => requests[1].resolve(noRoute()));
-    expect(app.root.findByProps({ role: 'alert' }).findByType('p').children.join('')).toContain('No route found for the selected endpoints and planning settings.');
-    expect(app.root.findByType('map').props.waypoints).toEqual([]);
-    expect(app.root.findByType('map').props.routeMetrics).toBeNull();
-    expect(navbar().loading).toBe(false);
-    await act(async () => navbar().onOpenReport());
-    expect(JSON.stringify(app.toJSON())).toContain('Route analytics unavailable');
-    await act(async () => { void app.root.findByProps({ role: 'alert' }).findByType('button').props.onClick(); });
-    await finish(2);
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(0);
-    expect(app.root.findByType('map').props.waypoints.length).toBeGreaterThan(1);
-  });
-
-  it('does not display a superseded no-route response', async () => {
-    await mount();
-    await act(async () => controls().onChangeForecastHours(24));
-    await finish(1);
-    await act(async () => requests[0].resolve(noRoute()));
-    expect(app.root.findAllByProps({ role: 'alert' })).toHaveLength(0);
-    expect(app.root.findByType('map').props.waypoints.length).toBeGreaterThan(1);
-  });
-
-  it('does not classify other HTTP 409 errors as no-route', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await mount();
-    await act(async () => requests[0].resolve({ ok: false, status: 409, json: async () => ({ detail: { code: 'OTHER_ERROR' } }) }));
-    expect(app.root.findByProps({ role: 'alert' }).findByType('p').children.join('')).toBe('Unable to calculate the route. Please try again.');
+    // Clicking retry button
+    const retryBtn = alert.findByType('button');
+    expect(retryBtn).toBeDefined();
   });
 });

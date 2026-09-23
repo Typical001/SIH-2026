@@ -1,0 +1,117 @@
+<USER_REQUEST>
+Act as a Principal Geospatial Systems & Maritime Safety Engineer on SIH Problem Statement SIH26059 (Antarctic Maritime Decision Support System - MoES / NCPOR).
+
+OBJECTIVE:
+Refactor and finalize the full routing, telemetry, and safety pipeline across `backend/main.py`, `backend/data_engine.py`, and `frontend/src/` into a robust, edge-resilient maritime platform. Implement:
+1. Purged Gateway Catalog & In-Voyage Re-planning (5 Official Polar Gateways + Real-Time Ship GPS + Map Click Fixes).
+2. Live Satellite Telemetry Ingestion (NOAA/USNIC ArcGIS FeatureServer, ECMWF ERA5, HYCOM) with SQLite Edge Resilience.
+3. Crash-Proof Single-Pass 3-Route A* Engine (Safest, Balanced, Fastest) with circuit breakers and physical vector drag.
+4. ECDIS Leaflet Bridge Interface with 3-way departure toggles, dynamic fuel endurance gating, and multi-route rendering.
+
+Deliver clean, production-grade implementations across all three files without stubs or placeholder comments.
+
+================================================================================
+1. DATA PERSISTENCE & GATEWAY REGISTRY (`backend/data_engine.py`)
+================================================================================
+A. SQLite Edge DB Initialization (`init_edge_db` in `polar_nav_offline.db`):
+   - Purge all domestic/commercial Indian ports (INBOM, INMRM, INMAA).
+   - Seed strictly the 5 Official Polar Gateway Hubs:
+     * Cape Town (ZACPT) [-33.9249, 18.4241] (Primary MoES/NCPOR Expedition Hub)
+     * Ushuaia (USH) [-54.8019, -68.3030] (Drake Passage Gateway)
+     * Punta Arenas (CLPUQ) [-53.1638, -70.9171] (Magellan Gateway)
+     * Hobart (AUHBT) [-42.8821, 147.3272] (East Antarctica Gateway)
+     * Christchurch / Lyttelton (NZLYT) [-43.6033, 172.7194] (Ross Sea Gateway)
+   - Seed Antarctic Destination Stations:
+     * Bharati Station (India - Prydz Bay) [-69.4125, 76.1872]
+     * Maitri Station (India - Schirmacher Oasis) [-70.7667, 11.7333]
+     * McMurdo Station (USA - Ross Island) [-77.8460, 166.6680]
+     * Rothera Station (UK - Adelaide Island) [-67.5683, -68.1275]
+   - Tables: `polar_gateways`, `antarctic_stations`, `iceberg_cache`, `ocean_env_cache`, and `vessel_last_fix` (default fallback fix: IMO 9577133 at [-64.50, 72.00]).
+
+B. Live Telemetry Fetching with Strict Offline Failover:
+   - USNIC Icebergs: Query NOAA GeoPlatform ArcGIS FeatureServer (`https://services2.arcgis.com/C8EMgrsFcRFL6M5H/arcgis/rest/services/Antarctic_Iceberg_Locations/FeatureServer/0/query?where=1=1&outFields=*&f=geojson&returnGeometry=true`) with 3.5s timeout.
+   - Metocean Vectors: Query Open-Meteo ECMWF IFS 10m wind and Marine HYCOM current/sea-ice cover.
+   - On network error/timeout: Gracefully read the latest cached snapshot from `polar_nav_offline.db` and flag metadata `is_offline = True`. Never inject synthetic dummy coordinates.
+
+================================================================================
+2. CRASH-PROOF 3-ROUTE A* ENGINE (`backend/data_engine.py`)
+================================================================================
+A. Polar Stereographic Spatial Tensor (EPSG:3031):
+   - Reproject bounding box between origin and destination from WGS84 to EPSG:3031 using `pyproj`.
+   - Build a 5 km x 5 km metric grid EXACTLY ONCE per request.
+   - Compute the IMO POLARIS RIO field per cell based on ice concentration and vessel Ice Class (default PC5).
+   - Rasterize 15 km dynamic USNIC iceberg safety perimeters (and 25 km for Safest profile) directly onto hazard masks.
+
+B. 3-Profile Cost Functions (Evaluated on a Shared Graph):
+   1. SAFEST: Evaluates 25 km iceberg clearance; restricts passage strictly to RIO >= 0; imposes heavy ice-drag penalties: Cost = dS * (1.0 + 35.0 * Ice^1.5).
+   2. BALANCED (Default): 15 km iceberg clearance; standard IMO POLARIS curve (-10 <= RIO < 0 penalized at 150.0; RIO < -10 impassable); integrates HYCOM current resistance.
+   3. FASTEST: 10 km baseline clearance; allows navigation through -5 <= RIO < 0 at moderate speed penalty (Cost = 45.0); optimizes for shortest track.
+
+C. Two-Tier Algorithmic Circuit Breakers:
+   - Cap A* searches at `max_iterations = 25000` and an internal 1.2s timeout.
+   - Tier 1 Fallback: If `SAFEST` is blocked by dense ice choke points, relax constraints to RIO >= -5 and re-run.
+   - Tier 2 Fallback: If grid pathfinding fails completely, calculate a geometric Great Circle line and deflect tangential waypoints around intersecting 15 km iceberg buffer boundaries. Flag route with advisory: "GEOMETRIC_SAFETY_CORRIDOR_FALLBACK". Never return an unhandled 500 error.
+
+================================================================================
+3. API DISPATCH & IN-VOYAGE REPLANNING (`backend/main.py`)
+================================================================================
+A. Metadata Endpoints:
+   - `GET /api/v1/destinations/gateways`: List 5 Gateways.
+   - `GET /api/v1/destinations/stations`: List Antarctic Stations.
+   - `GET /api/v1/vessel/last-fix?vessel_imo={imo}`: Return last recorded AIS/GPS fix.
+
+B. In-Voyage Routing Controller (`POST /api/v1/calculate-route`):
+   - Request schema:
+     {
+       "origin_type": "GATEWAY" | "CURRENT_SHIP_GPS" | "MID_OCEAN_COORDINATES",
+       "origin_coords": Optional[List[float]], // [lat, lon]
+       "gateway_code": Optional[str],
+       "destination_station_id": str,
+       "vessel_imo": int,
+       "remaining_fuel_mt": float
+     }
+   - Positioning Logic:
+     * If `origin_type == "CURRENT_SHIP_GPS"` or `"MID_OCEAN_COORDINATES"`, resolve `origin_coords`. If null, fall back to `vessel_last_fix`.
+     * If origin latitude >= -60.0°S: Route Stage 1 open ocean down to -60.0°, then transition to Stage 2 Polar A* grid.
+     * If origin latitude < -60.0°S: Skip Stage 1 entirely; engage Stage 2 Polar A* immediately from the ship's coordinates.
+   - Dynamic Fuel Feasibility Gating:
+     * Compute fuel burn across each route: Fuel_Burn = Distance_NM * 0.065 MT/NM * Ice_Drag_Multiplier.
+     * Enforce 15% mandatory safety reserve. Tag each route as "FEASIBLE", "RANGE_CRITICAL", or "UNREACHABLE".
+   - Return a valid GeoJSON FeatureCollection containing all 3 routes (tagged with colors #0ea5e9, #10b981, #f59e0b) and system operational metadata.
+
+================================================================================
+4. FRONTEND ECDIS BRIDGE INTERFACE (`frontend/src/App.jsx`)
+================================================================================
+A. 3-Way Departure Mode Controls:
+   - Provide toggle tabs: `[ ⚓ Polar Gateway ] | [ 🎯 Current Ship GPS ] | [ 🗺️ Ocean Map Click ]`.
+   - "Polar Gateway": Select from the 5 Gateway Hubs (Default: Cape Town).
+   - "Current Ship GPS": Invokes `navigator.geolocation.getCurrentPosition()`, drops a Gold Ship Icon on the map, and sets `origin_coords`. Falls back to `/api/v1/vessel/last-fix` if denied.
+   - "Ocean Map Click": Activates Leaflet `useMapEvents` to let the Captain click anywhere in the Southern Ocean to set a starting fix.
+
+B. Multi-Route Selector & Visualization:
+   - Display segmented pill switcher above map: `[ 🛡️ Safest ] | [ ⚡ Balanced (Active) ] | [ ⏱️ Fastest ]`.
+   - Render the selected active route with a bold line (weight: 5, opacity: 1.0) and inactive routes dimmed (weight: 2, opacity: 0.3, dashed).
+   - Render destination marker, start position marker, and 15 km dynamic USNIC iceberg safety buffer circles.
+
+C. Operational Telemetry & Banners:
+   - Header Banner:
+     * `🟢 ONLINE: USNIC Satellite & ECMWF Live Sync` (when live data succeeds).
+     * `🟠 OFFLINE RESILIENCE ACTIVE: Local Shipboard Cache Running` (when offline fallback triggers).
+   - Side Panel Telemetry: Displays selected route metrics (Distance in NM, ETA in Hours, Fuel Burn in MT, Ice Risk status, and Fuel Feasibility badge).
+   - Shows circuit breaker advisory toast if fallback routing was engaged.                                      please analyze this complete prompt and then implement it
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-22T23:20:12+05:30.
+
+The user's current state is as follows:
+Active Document: c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\frontend\src\App.test.jsx (LANGUAGE_JAVASCRIPT)
+Cursor is on line: 1
+Other open documents:
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\frontend\src\App.test.jsx (LANGUAGE_JAVASCRIPT)
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\frontend\src\App.jsx (LANGUAGE_JAVASCRIPT)
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\backend\data_engine.py (LANGUAGE_PYTHON)
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\backend\main.py (LANGUAGE_PYTHON)
+Browser State:
+  Page E32AB5D1B0D78C97125C7655F19D2A0B (PolarNav AI // SIH-26059: Dynamic Route Optimization & Iceberg Forecasting) - http://localhost:3000/ [ACTIVE]
+    Viewport: 1280x665, Page Height: 665
+</ADDITIONAL_METADATA>

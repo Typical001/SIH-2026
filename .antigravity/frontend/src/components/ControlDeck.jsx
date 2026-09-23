@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MapPin, 
   Ship, 
@@ -6,117 +6,38 @@ import {
   Clock, 
   RefreshCw,
   Anchor,
-  Search,
-  Navigation
+  Navigation,
+  Crosshair,
+  Compass
 } from 'lucide-react';
 
-// ── Indian Major Ports ──────────────────────────────────────────────────────
-const INDIAN_PORTS = [
-  { id: 'mormugao',   name: 'Mormugao (Goa)',                          lat: 15.41, lon: 73.80 },
-  { id: 'mumbai',     name: 'Mumbai Port',                             lat: 18.94, lon: 72.82 },
-  { id: 'jnpt',       name: 'JNPT / Nhava Sheva (Maharashtra)',        lat: 18.94, lon: 72.94 },
-  { id: 'kandla',     name: 'Deendayal / Kandla (Gujarat)',            lat: 23.01, lon: 70.21 },
-  { id: 'mundra',     name: 'Mundra (Gujarat)',                        lat: 22.74, lon: 69.70 },
-  { id: 'cochin',     name: 'Cochin / Kochi (Kerala)',                 lat:  9.96, lon: 76.23 },
-  { id: 'mangalore',  name: 'New Mangalore (Karnataka)',               lat: 12.91, lon: 74.80 },
-  { id: 'chennai',    name: 'Chennai Port (Tamil Nadu)',               lat: 13.10, lon: 80.30 },
-  { id: 'tuticorin',  name: 'V.O. Chidambaranar / Tuticorin',         lat:  8.75, lon: 78.21 },
-  { id: 'vizag',      name: 'Visakhapatnam (Andhra Pradesh)',          lat: 17.68, lon: 83.30 },
-  { id: 'paradip',    name: 'Paradip (Odisha)',                        lat: 20.26, lon: 86.66 },
-  { id: 'kolkata',    name: 'Syama Prasad Mookerjee / Kolkata',       lat: 22.54, lon: 88.30 },
-  { id: 'port_blair', name: 'Port Blair (Andaman & Nicobar)',         lat: 11.66, lon: 92.73 },
+// ── 5 Official Polar Gateway Hubs ───────────────────────────────────────────
+export const POLAR_GATEWAYS = [
+  { code: 'ZACPT', name: 'Cape Town Port (South Africa)',        country: 'South Africa', lat: -33.9249, lon: 18.4241, desc: 'Primary MoES/NCPOR Expedition Hub' },
+  { code: 'USH',   name: 'Ushuaia Port (Argentina)',             country: 'Argentina',    lat: -54.8019, lon: -68.3030, desc: 'Drake Passage Gateway' },
+  { code: 'CLPUQ', name: 'Punta Arenas (Chile)',                 country: 'Chile',        lat: -53.1638, lon: -70.9171, desc: 'Magellan Gateway' },
+  { code: 'AUHBT', name: 'Hobart Port (Tasmania, Australia)',    country: 'Australia',    lat: -42.8821, lon: 147.3272, desc: 'East Antarctica Gateway' },
+  { code: 'NZLYT', name: 'Christchurch / Lyttelton Port (NZ)',   country: 'New Zealand',  lat: -43.6033, lon: 172.7194, desc: 'Ross Sea Gateway' },
 ];
 
-// ── Searchable Port Dropdown ────────────────────────────────────────────────
-function PortSearchDropdown({ value, onChange }) {
-  const [query, setQuery] = useState('');
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef(null);
+// ── Official Antarctic Destination Stations ─────────────────────────────────
+export const ANTARCTIC_STATIONS = [
+  { id: 'bharati_station', name: 'Bharati Station (India - Prydz Bay)',        lat: -69.4125, lon: 76.1872, sector: 'Larsemann Hills, East Antarctica' },
+  { id: 'maitri_station',  name: 'Maitri Station (India - Schirmacher Oasis)', lat: -70.7667, lon: 11.7333, sector: 'Dronning Maud Land' },
+  { id: 'mcmurdo_station', name: 'McMurdo Station (USA - Ross Island)',        lat: -77.8460, lon: 166.6680, sector: 'Ross Ice Shelf' },
+  { id: 'rothera_station', name: 'Rothera Station (UK - Adelaide Island)',     lat: -67.5683, lon: -68.1275, sector: 'Antarctic Peninsula' },
+];
 
-  const selectedPort = INDIAN_PORTS.find(p => p.id === value);
-  const filtered = query.trim() === ''
-    ? INDIAN_PORTS
-    : INDIAN_PORTS.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false);
-        setQuery('');
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const handleSelect = (port) => {
-    onChange(port);
-    setOpen(false);
-    setQuery('');
-  };
-
-  const handleClear = (e) => {
-    e.stopPropagation();
-    onChange(null);
-    setQuery('');
-    setOpen(false);
-  };
-
-  return (
-    <div ref={containerRef} className="relative flex-1">
-      <div
-        className="flex items-center gap-1 bg-slate-900/90 border border-slate-700 hover:border-cyan-500/50 focus-within:border-cyan-400 rounded-lg px-2 py-1 cursor-text transition"
-        onClick={() => setOpen(true)}
-      >
-        <Search className="w-3 h-3 text-slate-500 shrink-0" />
-        <input
-          type="text"
-          value={open ? query : (selectedPort ? selectedPort.name : '')}
-          onChange={e => { setQuery(e.target.value); setOpen(true); }}
-          onFocus={() => setOpen(true)}
-          placeholder="Search Indian port…"
-          className="flex-1 bg-transparent text-cyan-300 text-xs font-mono placeholder:text-slate-600 outline-none min-w-0"
-        />
-        {selectedPort && !open && (
-          <button
-            onMouseDown={handleClear}
-            className="text-slate-500 hover:text-red-400 transition text-[10px] px-0.5"
-            title="Clear — revert to preset origin"
-          >✕</button>
-        )}
-      </div>
-
-      {open && (
-        <ul className="absolute bottom-full mb-1 left-0 w-full max-h-48 overflow-y-auto bg-slate-900 border border-cyan-500/30 rounded-lg shadow-xl z-50 text-xs font-mono">
-          {filtered.length === 0 && (
-            <li className="px-3 py-2 text-slate-500 italic">No ports found</li>
-          )}
-          {filtered.map(port => (
-            <li
-              key={port.id}
-              onMouseDown={() => handleSelect(port)}
-              className={`px-3 py-1.5 cursor-pointer flex justify-between items-center gap-2 transition
-                ${value === port.id
-                  ? 'bg-cyan-950/80 text-cyan-300 border-l-2 border-cyan-400'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-            >
-              <span className="truncate">{port.name}</span>
-              <span className="text-slate-500 shrink-0 text-[9px]">{port.lat}°N, {port.lon}°E</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-// ── Main ControlDeck ────────────────────────────────────────────────────────
 export default function ControlDeck({
-  selectedPreset,
-  onSelectPreset,
-  originOverride,
-  onChangeOriginOverride,
+  departureMode = 'GATEWAY',
+  onChangeDepartureMode,
+  selectedGateway = 'ZACPT',
+  onChangeGateway,
+  selectedStation = 'bharati_station',
+  onChangeStation,
+  shipCoords = [-64.50, 72.00],
+  onAcquireShipGps,
+  onManualCoordsChange,
   forecastHours,
   onChangeForecastHours,
   vesselIceClass,
@@ -125,120 +46,193 @@ export default function ControlDeck({
   onChangeSafetyBufferKm,
   cruisingSpeed,
   onChangeCruisingSpeed,
-  layers,
-  onToggleLayer,
   onRecalculate,
   loading
 }) {
-  const presets = [
-    { id: 'cape_town_to_bharati', name: 'Cape Town ➔ Bharati Station (Larsemann Hills)' },
-    { id: 'cape_town_to_maitri',  name: 'Cape Town ➔ Maitri Station (Schirmacher Oasis)' },
-    { id: 'hobart_to_casey',      name: 'Hobart ➔ Casey Station (Wilkes Land)' }
-  ];
+  const [manualLat, setManualLat] = useState(String(shipCoords[0] || -64.50));
+  const [manualLon, setManualLon] = useState(String(shipCoords[1] || 72.00));
+
+  useEffect(() => {
+    if (shipCoords && shipCoords.length === 2) {
+      setManualLat(String(shipCoords[0]));
+      setManualLon(String(shipCoords[1]));
+    }
+  }, [shipCoords]);
+
+  const handleManualSubmit = () => {
+    const la = parseFloat(manualLat);
+    const lo = parseFloat(manualLon);
+    if (!isNaN(la) && !isNaN(lo) && onManualCoordsChange) {
+      onManualCoordsChange([la, lo]);
+    }
+  };
 
   const iceClasses = [
     { id: 'Polar Class 1 (PC1)', name: 'PC1: Year-Round Heavy Polar Icebreaker' },
-    { id: 'Polar Class 3 (PC3)', name: 'PC3: Year-Round Multi-Year Ice (Bharati Exp.)' },
+    { id: 'Polar Class 3 (PC3)', name: 'PC3: Year-Round Multi-Year Ice (India Expeditions)' },
+    { id: 'Polar Class 5 (PC5)', name: 'PC5: Medium First-Year Ice (Standard Polar Code)' },
     { id: 'Polar Class 7 (PC7)', name: 'PC7: Thin First-Year Ice Strengthened' },
     { id: 'Open Water Vessel',   name: 'Open Water: Non-Ice Strengthened Commercial' }
   ];
-
-  // Derive which port id (if any) matches the current originOverride
-  const selectedPortId = originOverride
-    ? (INDIAN_PORTS.find(p => p.lat === originOverride.lat && p.lon === originOverride.lon)?.id ?? null)
-    : null;
-
-  // Local manual input state
-  const [manualLat, setManualLat] = useState('');
-  const [manualLon, setManualLon] = useState('');
-
-  // Keep manual fields in sync when port is chosen
-  useEffect(() => {
-    if (originOverride) {
-      setManualLat(String(originOverride.lat));
-      setManualLon(String(originOverride.lon));
-    } else {
-      setManualLat('');
-      setManualLon('');
-    }
-  }, [originOverride]);
-
-  const handlePortSelect = (port) => {
-    onChangeOriginOverride(port ? { lat: port.lat, lon: port.lon } : null);
-  };
-
-  const handleManualLat = (val) => {
-    setManualLat(val);
-    const lat = parseFloat(val);
-    const lon = parseFloat(manualLon);
-    if (!isNaN(lat) && !isNaN(lon)) onChangeOriginOverride({ lat, lon });
-  };
-
-  const handleManualLon = (val) => {
-    setManualLon(val);
-    const lat = parseFloat(manualLat);
-    const lon = parseFloat(val);
-    if (!isNaN(lat) && !isNaN(lon)) onChangeOriginOverride({ lat, lon });
-  };
 
   return (
     <div className="glass-panel border-t border-cyan-500/20 px-5 py-3.5 z-20 shrink-0 select-none">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
 
-        {/* ── Section 1: Origin + Destination + Vessel (Cols 4) ── */}
-        <div className="md:col-span-4 space-y-2">
-
-          {/* Indian Port Origin */}
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5">
-              <Anchor className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span className="text-[11px] font-mono text-slate-400 uppercase">Departure Port (India):</span>
-              {originOverride && (
-                <span className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-400">
-                  OVERRIDE
-                </span>
-              )}
-            </div>
-
-            <PortSearchDropdown value={selectedPortId} onChange={handlePortSelect} />
-
-            {/* Manual lat / lon */}
-            <div className="flex items-center gap-1.5">
-              <Navigation className="w-3 h-3 text-slate-500 shrink-0" />
-              <input
-                type="number"
-                step="0.0001"
-                value={manualLat}
-                onChange={e => handleManualLat(e.target.value)}
-                placeholder="Lat (e.g. 18.94)"
-                className="w-0 flex-1 bg-slate-900/70 border border-slate-700 focus:border-cyan-500/60 text-slate-300 rounded px-2 py-1 text-[11px] font-mono outline-none placeholder:text-slate-600 transition"
-              />
-              <input
-                type="number"
-                step="0.0001"
-                value={manualLon}
-                onChange={e => handleManualLon(e.target.value)}
-                placeholder="Lon (e.g. 72.82)"
-                className="w-0 flex-1 bg-slate-900/70 border border-slate-700 focus:border-cyan-500/60 text-slate-300 rounded px-2 py-1 text-[11px] font-mono outline-none placeholder:text-slate-600 transition"
-              />
-            </div>
+        {/* ── Section 1: In-Voyage Departure Mode & Gateway (Cols 5) ── */}
+        <div className="md:col-span-5 space-y-2">
+          {/* Departure Mode Selector Tabs */}
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <Compass className="w-3.5 h-3.5 text-cyan-400" />
+              Departure Positioning:
+            </span>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
+              {departureMode === 'GATEWAY' ? 'OFFICIAL GATEWAY' : departureMode === 'CURRENT_SHIP_GPS' ? 'IN-VOYAGE AIS FIX' : 'MAP CLICK FIX'}
+            </span>
           </div>
 
-          {/* Expedition Corridor / Destination Preset */}
-          <div className="flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="text-[11px] font-mono text-slate-400 uppercase shrink-0">Destination:</span>
-            <select
-              value={selectedPreset}
-              onChange={(e) => onSelectPreset(e.target.value)}
-              className="flex-1 bg-slate-900/90 border border-slate-700 text-cyan-300 rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-cyan-400"
+          <div className="grid grid-cols-3 gap-1 bg-slate-950/70 p-1 rounded-lg border border-slate-800">
+            <button
+              type="button"
+              id="dep-tab-gateway"
+              onClick={() => onChangeDepartureMode('GATEWAY')}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded text-xs font-mono font-semibold transition ${
+                departureMode === 'GATEWAY'
+                  ? 'bg-cyan-600 text-white shadow-neon-cyan'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
             >
-              {presets.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+              <Anchor className="w-3.5 h-3.5" />
+              <span>Polar Gateway</span>
+            </button>
+
+            <button
+              type="button"
+              id="dep-tab-ship-gps"
+              onClick={() => {
+                onChangeDepartureMode('CURRENT_SHIP_GPS');
+                if (onAcquireShipGps) onAcquireShipGps();
+              }}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded text-xs font-mono font-semibold transition ${
+                departureMode === 'CURRENT_SHIP_GPS'
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <Crosshair className="w-3.5 h-3.5" />
+              <span>Ship GPS</span>
+            </button>
+
+            <button
+              type="button"
+              id="dep-tab-map-click"
+              onClick={() => onChangeDepartureMode('MID_OCEAN_COORDINATES')}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded text-xs font-mono font-semibold transition ${
+                departureMode === 'MID_OCEAN_COORDINATES'
+                  ? 'bg-indigo-600 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Map Click</span>
+            </button>
+          </div>
+
+          {/* Conditional Sub-View Based on Departure Mode */}
+          {departureMode === 'GATEWAY' && (
+            <div className="flex items-center gap-2">
+              <Anchor className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <select
+                id="select-polar-gateway"
+                value={selectedGateway}
+                onChange={(e) => onChangeGateway(e.target.value)}
+                className="flex-1 bg-slate-900/90 border border-slate-700 text-cyan-300 rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-cyan-400"
+              >
+                {POLAR_GATEWAYS.map((g) => (
+                  <option key={g.code} value={g.code}>
+                    {g.name} [{g.lat}°, {g.lon}°]
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {departureMode === 'CURRENT_SHIP_GPS' && (
+            <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-amber-500/30 text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span className="text-slate-300">
+                  Fix: <strong className="text-amber-300">{Number(shipCoords[0]).toFixed(3)}°S, {Number(shipCoords[1]).toFixed(3)}°E</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onAcquireShipGps}
+                className="px-2 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-200 text-[10px] hover:bg-amber-900 transition"
+              >
+                Re-Acquire AIS Fix
+              </button>
+            </div>
+          )}
+
+          {departureMode === 'MID_OCEAN_COORDINATES' && (
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono text-cyan-300 bg-cyan-950/40 p-1 rounded border border-cyan-500/30">
+                <Navigation className="w-3 h-3 text-cyan-400 shrink-0 animate-pulse" />
+                <span>Click anywhere on Southern Ocean map or enter fix below:</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  step="0.0001"
+                  value={manualLat}
+                  onChange={(e) => setManualLat(e.target.value)}
+                  onBlur={handleManualSubmit}
+                  placeholder="Lat (e.g. -64.50)"
+                  className="w-0 flex-1 bg-slate-900/70 border border-slate-700 focus:border-cyan-500/60 text-slate-300 rounded px-2 py-1 text-[11px] font-mono outline-none"
+                />
+                <input
+                  type="number"
+                  step="0.0001"
+                  value={manualLon}
+                  onChange={(e) => setManualLon(e.target.value)}
+                  onBlur={handleManualSubmit}
+                  placeholder="Lon (e.g. 72.00)"
+                  className="w-0 flex-1 bg-slate-900/70 border border-slate-700 focus:border-cyan-500/60 text-slate-300 rounded px-2 py-1 text-[11px] font-mono outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleManualSubmit}
+                  className="px-2 py-1 bg-cyan-700 hover:bg-cyan-600 text-white rounded text-[10px] font-mono"
+                >
+                  Set
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Destination Antarctic Research Base */}
+          <div className="flex items-center gap-2 pt-1">
+            <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="text-[11px] font-mono text-slate-400 uppercase shrink-0">Station:</span>
+            <select
+              id="select-antarctic-station"
+              value={selectedStation}
+              onChange={(e) => onChangeStation(e.target.value)}
+              className="flex-1 bg-slate-900/90 border border-slate-700 text-emerald-300 rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-emerald-400"
+            >
+              {ANTARCTIC_STATIONS.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
             </select>
           </div>
+        </div>
 
+        {/* ── Section 2: Vessel Class & Speeds (Cols 4) ── */}
+        <div className="md:col-span-4 space-y-2">
           {/* Vessel Polar Class */}
           <div className="flex items-center gap-2">
             <Ship className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
@@ -253,83 +247,83 @@ export default function ControlDeck({
               ))}
             </select>
           </div>
-        </div>
 
-        {/* ── Section 2: Sliders (Cols 4) ── */}
-        <div className="md:col-span-4 space-y-2 border-l md:border-r border-slate-800 md:px-4">
-          {/* Forecast Slider */}
+          {/* Cruising Speed Slider */}
           <div className="space-y-1">
-            <div className="flex justify-between items-center text-xs font-mono">
-              <span className="flex items-center gap-1.5 text-slate-300">
-                <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Drift Forecast Horizon:</span>
+            <div className="flex justify-between text-[11px] font-mono text-slate-400">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3 text-cyan-400" />
+                Cruising Speed:
               </span>
-              <span className="text-cyan-400 font-bold px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-[11px]">
-                +{forecastHours} Hours
-              </span>
+              <span className="text-cyan-300 font-bold">{cruisingSpeed} kts</span>
             </div>
             <input
-              type="range" min="0" max="72" step="6" value={forecastHours}
-              onChange={(e) => onChangeForecastHours(Number(e.target.value))}
-              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+              type="range"
+              min="8.0"
+              max="22.0"
+              step="0.5"
+              value={cruisingSpeed}
+              onChange={(e) => onChangeCruisingSpeed(parseFloat(e.target.value))}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
             />
-            <div className="flex justify-between text-[9px] font-mono text-slate-400">
-              <span>0h (Now)</span><span>+24h</span><span>+48h</span>
-              <span className="text-cyan-400 font-bold">+72h (Max)</span>
-            </div>
           </div>
 
-          {/* Safety Buffer Slider */}
+          {/* Drift Horizon Slider */}
           <div className="space-y-1">
-            <div className="flex justify-between items-center text-xs font-mono">
-              <span className="flex items-center gap-1.5 text-slate-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Iceberg Safety Hazard Buffer:</span>
+            <div className="flex justify-between text-[11px] font-mono text-slate-400">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3 text-amber-400" />
+                Forecast Horizon:
               </span>
-              <span className="text-emerald-400 font-bold text-[11px]">
-                {safetyBufferKm} km ({Math.round(safetyBufferKm / 1.852)} NM)
-              </span>
+              <span className="text-amber-300 font-bold">+{forecastHours}h (3 Days)</span>
             </div>
             <input
-              type="range" min="10" max="50" step="5" value={safetyBufferKm}
-              onChange={(e) => onChangeSafetyBufferKm(Number(e.target.value))}
-              className="w-full accent-emerald-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+              type="range"
+              min="24"
+              max="168"
+              step="12"
+              value={forecastHours}
+              onChange={(e) => onChangeForecastHours(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-400"
             />
           </div>
         </div>
 
-        {/* ── Section 3: Layer Toggles + Recalculate (Cols 4) ── */}
-        <div className="md:col-span-4 space-y-2">
-          <div className="flex flex-wrap gap-1.5 text-[10px] font-mono">
-            {[
-              { key: 'showAStarRoute',     label: 'A* Route',       color: 'emerald' },
-              { key: 'showDirectRoute',    label: 'Direct Baseline', color: 'amber' },
-              { key: 'showPredictedBergs', label: '72h Icebergs',   color: 'red' },
-              { key: 'showHazardBuffers',  label: 'Hazard Buffers', color: 'red' },
-              { key: 'showSeaIce',         label: 'Sea Ice (SIC)',  color: 'sky' },
-              { key: 'showDriftVectors',   label: 'Drift Trails',   color: 'purple' },
-            ].map(({ key, label, color }) => (
-              <button
-                key={key}
-                onClick={() => onToggleLayer(key)}
-                className={`px-2 py-1 rounded-md border transition ${
-                  layers[key]
-                    ? `bg-${color}-950/80 border-${color}-500/50 text-${color}-300 font-bold`
-                    : 'bg-slate-900 border-slate-800 text-slate-400'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+        {/* ── Section 3: Safety Hazard Buffer & Recalculate Trigger (Cols 3) ── */}
+        <div className="md:col-span-3 space-y-2 flex flex-col justify-between h-full">
+          {/* Safety Hazard Buffer */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-[11px] font-mono text-slate-400">
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-red-400" />
+                Hazard Buffer:
+              </span>
+              <span className="text-red-400 font-bold">{safetyBufferKm} km ({Math.round(safetyBufferKm / 1.852)} NM)</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="50"
+              step="5"
+              value={safetyBufferKm}
+              onChange={(e) => onChangeSafetyBufferKm(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500"
+            />
           </div>
 
+          {/* Primary Recalculate CTA */}
           <button
+            type="button"
+            id="recalculate-route-btn"
             onClick={onRecalculate}
             disabled={loading}
-            className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold text-xs tracking-wider transition flex items-center justify-center gap-2 shadow-neon-green disabled:opacity-50 cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl font-mono text-xs font-bold tracking-wider uppercase
+              bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600
+              text-white shadow-neon-cyan transition-all duration-200 flex items-center justify-center gap-2
+              disabled:opacity-50 disabled:cursor-not-allowed border border-cyan-400/40"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>{loading ? 'RECOMPUTING MULTI-FACTOR GRAPH...' : 'RECALCULATE A* SAFE ROUTE'}</span>
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>{loading ? 'Optimizing Corridor…' : 'Compute 3 Pareto Routes'}</span>
           </button>
         </div>
 
@@ -337,4 +331,3 @@ export default function ControlDeck({
     </div>
   );
 }
-

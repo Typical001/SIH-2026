@@ -17,7 +17,8 @@ export default function Navbar({
   onRefresh, 
   onOpenReport, 
   vesselIceClass, 
-  forecastHours 
+  forecastHours,
+  systemHealth
 }) {
   const [timeUtc, setTimeUtc] = useState('');
 
@@ -31,14 +32,18 @@ export default function Navbar({
     return () => clearInterval(interval);
   }, []);
 
+  const isLive = systemHealth?.is_live_satellite ?? true;
+  const statusText = systemHealth?.header_status_text || (isLive ? "ONLINE: USNIC Satellite & ECMWF Live Sync" : "OFFLINE RESILIENCE ACTIVE: Local Shipboard Cache Running");
+  const icebergCount = systemHealth?.iceberg_count;
+
   return (
     <header className="h-16 px-5 glass-panel border-b border-cyan-500/20 flex items-center justify-between z-30 shrink-0 select-none">
       {/* Brand & Mission Identification */}
       <div className="flex items-center gap-3.5">
         <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-950/80 border border-cyan-400/40 text-cyan-400 shadow-neon-cyan">
           <Compass className="w-5 h-5 animate-spin-slow text-cyan-300" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400" />
+          <span className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full ${isLive ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+          <span className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full ${isLive ? 'bg-emerald-400' : 'bg-amber-400'}`} />
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -48,9 +53,13 @@ export default function Navbar({
                 SIH-26059
               </span>
             </h1>
-            <span className="text-xs text-emerald-400 font-mono flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/50 border border-emerald-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              PHYSICS ENGINE ACTIVE
+            <span className={`text-xs font-mono flex items-center gap-1 px-2.5 py-0.5 rounded-full ${
+              isLive 
+                ? 'text-emerald-400 bg-emerald-950/70 border border-emerald-500/40 shadow-neon-green' 
+                : 'text-amber-300 bg-amber-950/70 border border-amber-500/40'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              {statusText} {icebergCount ? `(${icebergCount} Bergs)` : ''}
             </span>
           </div>
           <p className="text-[11px] text-slate-400 tracking-wide">
@@ -63,20 +72,22 @@ export default function Navbar({
       <div className="hidden xl:flex items-center gap-4 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
         <div className="flex items-center gap-1.5 text-slate-300">
           <Satellite className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-400">USNIC:</span>
-          <span className="text-emerald-400 font-mono font-medium">SYNCED</span>
+          <span className="text-slate-400">USNIC / NOAA:</span>
+          <span className={`font-mono font-medium ${isLive ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {isLive ? 'LIVE GIS SYNC' : 'OFFLINE CACHE'}
+          </span>
         </div>
         <div className="h-3 w-px bg-slate-700" />
         <div className="flex items-center gap-1.5 text-slate-300">
           <Wind className="w-3.5 h-3.5 text-sky-400" />
           <span className="text-slate-400">ERA5 Winds:</span>
-          <span className="text-emerald-400 font-mono font-medium">LIVE</span>
+          <span className="text-emerald-400 font-mono font-medium">OPEN-METEO LIVE</span>
         </div>
         <div className="h-3 w-px bg-slate-700" />
         <div className="flex items-center gap-1.5 text-slate-300">
           <Waves className="w-3.5 h-3.5 text-blue-400" />
           <span className="text-slate-400">HYCOM Currents:</span>
-          <span className="text-emerald-400 font-mono font-medium">LIVE</span>
+          <span className="text-emerald-400 font-mono font-medium">OPEN-METEO LIVE</span>
         </div>
         <div className="h-3 w-px bg-slate-700" />
         <div className="flex items-center gap-1.5 text-slate-300">
@@ -85,6 +96,7 @@ export default function Navbar({
           <span className="text-emerald-400 font-mono font-medium">FEED 100%</span>
         </div>
       </div>
+
 
       {/* Right: Mission UTC Time & Action Trigger */}
       <div className="flex items-center gap-3">

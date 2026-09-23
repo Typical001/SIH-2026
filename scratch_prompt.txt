@@ -1,0 +1,58 @@
+<USER_REQUEST>
+Act as a Principal Geospatial Systems & Maritime Safety Engineer on SIH Problem Statement SIH26059 (Antarctic Maritime Decision Support System - MoES / NCPOR).
+
+OBJECTIVE:
+Refactor and finalize the full routing, telemetry, and safety pipeline across `backend/main.py`, `backend/data_engine.py`, and `frontend/src/` into a robust, edge-resilient maritime platform. Implement:
+1. Purged Gateway Catalog & In-Voyage Re-planning (5 Official Polar Gateways + Real-Time Ship GPS + Map Click Fixes).
+2. Live Satellite Telemetry Ingestion (NOAA/USNIC ArcGIS FeatureServer, ECMWF ERA5, HYCOM) with SQLite Edge Resilience.
+3. Crash-Proof Single-Pass 3-Route A* Engine (Safest, Balanced, Fastest) with circuit breakers and physical vector drag.
+4. ECDIS Leaflet Bridge Interface with 3-way departure toggles, dynamic fuel endurance gating, and multi-route rendering.
+
+Deliver clean, production-grade implementations across all three files without stubs or placeholder comments.
+
+================================================================================
+1. DATA PERSISTENCE & GATEWAY REGISTRY (`backend/data_engine.py`)
+================================================================================
+A. SQLite Edge DB Initialization (`init_edge_db` in `polar_nav_offline.db`):
+   - Purge all domestic/commercial Indian ports (INBOM, INMRM, INMAA).
+   - Seed strictly the 5 Official Polar Gateway Hubs:
+     * Cape Town (ZACPT) [-33.9249, 18.4241] (Primary MoES/NCPOR Expedition Hub)
+     * Ushuaia (USH) [-54.8019, -68.3030] (Drake Passage Gateway)
+     * Punta Arenas (CLPUQ) [-53.1638, -70.9171] (Magellan Gateway)
+     * Hobart (AUHBT) [-42.8821, 147.3272] (East Antarctica Gateway)
+     * Christchurch / Lyttelton (NZLYT) [-43.6033, 172.7194] (Ross Sea Gateway)
+   - Seed Antarctic Destination Stations:
+     * Bharati Station (India - Prydz Bay) [-69.4125, 76.1872]
+     * Maitri Station (India - Schirmacher Oasis) [-70.7667, 11.7333]
+     * McMurdo Station (USA - Ross Island) [-77.8460, 166.6680]
+     *
+<truncated 4916 bytes>
+Ocean Map Click": Activates Leaflet `useMapEvents` to let the Captain click anywhere in the Southern Ocean to set a starting fix.
+
+B. Multi-Route Selector & Visualization:
+   - Display segmented pill switcher above map: `[ 🛡️ Safest ] | [ ⚡ Balanced (Active) ] | [ ⏱️ Fastest ]`.
+   - Render the selected active route with a bold line (weight: 5, opacity: 1.0) and inactive routes dimmed (weight: 2, opacity: 0.3, dashed).
+   - Render destination marker, start position marker, and 15 km dynamic USNIC iceberg safety buffer circles.
+
+C. Operational Telemetry & Banners:
+   - Header Banner:
+     * `🟢 ONLINE: USNIC Satellite & ECMWF Live Sync` (when live data succeeds).
+     * `🟠 OFFLINE RESILIENCE ACTIVE: Local Shipboard Cache Running` (when offline fallback triggers).
+   - Side Panel Telemetry: Displays selected route metrics (Distance in NM, ETA in Hours, Fuel Burn in MT, Ice Risk status, and Fuel Feasibility badge).
+   - Shows circuit breaker advisory toast if fallback routing was engaged.                                      please analyze this complete prompt and then implement it
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-22T23:20:12+05:30.
+
+The user's current state is as follows:
+Active Document: c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\frontend\src\App.test.jsx (LANGUAGE_JAVASCRIPT)
+Cursor is on line: 1
+Other open documents:
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\frontend\src\App.test.jsx (LANGUAGE_JAVASCRIPT)
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\frontend\src\App.jsx (LANGUAGE_JAVASCRIPT)
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\backend\data_engine.py (LANGUAGE_PYTHON)
+- c:\Users\_7ansh_\.antigravity-ide\SIH-2026\.antigravity\backend\main.py (LANGUAGE_PYTHON)
+Browser State:
+  Page E32AB5D1B0D78C97125C7655F19D2A0B (PolarNav AI // SIH-26059: Dynamic Route Optimization & Iceberg Forecasting) - http://localhost:3000/ [ACTIVE]
+    Viewport: 1280x665, Page Height: 665
+</ADDITIONAL_METADATA>

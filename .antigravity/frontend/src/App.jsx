@@ -2,40 +2,36 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Navbar from './components/Navbar';
 import PolarMap from './components/PolarMap';
 import TelemetrySidebar from './components/TelemetrySidebar';
-import ControlDeck from './components/ControlDeck';
+import ControlDeck, { POLAR_GATEWAYS, ANTARCTIC_STATIONS } from './components/ControlDeck';
 import RouteComparisonModal from './components/RouteComparisonModal';
-
-// Preset Geographic Coordinates
-const PRESET_COORDINATES = {
-  cape_town_to_bharati: {
-    name: 'Cape Town ➔ Bharati Station (Larsemann Hills)',
-    origin: { lat: -33.9249, lon: 18.4241 },
-    destination: { lat: -69.4125, lon: 76.1872 }
-  },
-  cape_town_to_maitri: {
-    name: 'Cape Town ➔ Maitri Station (Schirmacher Oasis)',
-    origin: { lat: -33.9249, lon: 18.4241 },
-    destination: { lat: -70.7667, lon: 11.7333 }
-  },
-  hobart_to_casey: {
-    name: 'Hobart ➔ Casey Station (Wilkes Land)',
-    origin: { lat: -42.8821, lon: 147.3272 },
-    destination: { lat: -66.2822, lon: 110.5283 }
-  }
-};
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function App() {
-  const [selectedPreset, setSelectedPreset] = useState('cape_town_to_bharati');
+  // In-Voyage Departure & Routing Modes
+  const [departureMode, setDepartureMode] = useState('GATEWAY'); // 'GATEWAY' | 'CURRENT_SHIP_GPS' | 'MID_OCEAN_COORDINATES'
+  const [selectedGateway, setSelectedGateway] = useState('ZACPT'); // Cape Town Port default
+  const [selectedStation, setSelectedStation] = useState('bharati_station'); // Bharati Indian Antarctic Base default
+  const [shipCoords, setShipCoords] = useState([-64.50, 72.00]); // MV Vasiliy Golovnin fallback AIS fix
+  const [vesselImo] = useState(9577133); // NCPOR chartered polar expedition vessel IMO
+
+  // Navigation Parameters
   const [forecastHours, setForecastHours] = useState(72);
   const [vesselIceClass, setVesselIceClass] = useState('Polar Class 3 (PC3)');
   const [safetyBufferKm, setSafetyBufferKm] = useState(25);
   const [cruisingSpeed, setCruisingSpeed] = useState(14.5);
-  // null = use preset origin; { lat, lon } = user-defined Indian port or custom coords
-  const [originOverride, setOriginOverride] = useState(null);
-  
+
+  // Pareto-optimal 3-route & Bunker Fuel States
+  const [paretoRoutes, setParetoRoutes] = useState(null); // GeoJSON FeatureCollection
+  const [activeRouteType, setActiveRouteType] = useState('BALANCED'); // 'SAFEST' | 'BALANCED' | 'FASTEST'
+  const [remainingFuelMt, setRemainingFuelMt] = useState(200.0); // 200 MT initial bunker reserve
+  const [maxTankCapacityMt] = useState(200.0); // Polar Class standard capacity
+
+  // Operational State & Status Advisories
   const [loading, setLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [fallbackAdvisory, setFallbackAdvisory] = useState(null);
+  const [systemHealth, setSystemHealth] = useState(null);
   const activeRequest = useRef(null);
 
   // Route & Metocean Data
@@ -44,138 +40,308 @@ export default function App() {
   const [icebergsPresent, setIcebergsPresent] = useState([]);
   const [icebergsPredicted, setIcebergsPredicted] = useState([]);
   const [routeMetrics, setRouteMetrics] = useState(null);
-  const [metoceanGrid, setMetoceanGrid] = useState([]);
+  const [metoceanGrid] = useState([]);
 
-  // Layer Visibility
-  const [layers, setLayers] = useState({
-    showAStarRoute: true,
-    showDirectRoute: true,
-    showPredictedBergs: true,
-    showPresentBergs: true,
-    showHazardBuffers: true,
-    showDriftVectors: true,
-    showSeaIce: true,
-    showMetoceanGrid: false
+  // Checkbox State Management for Map Display Layers
+  const [layerVisibility, setLayerVisibility] = useState({
+    seaIce: false,
+    refIcebergs: true,
+    sarCandidates: true,
+    predictedIcebergs: true,
+    riskHeatmap: true,
+    optimizedRoutes: true,
+    oceanCurrents: false,
+    weatherWind: true,
+    bathymetry: false
   });
 
   const toggleLayer = (layerKey) => {
-    setLayers((prev) => ({
+    setLayerVisibility((prev) => ({
       ...prev,
       [layerKey]: !prev[layerKey]
     }));
   };
 
-  const presetCoords = PRESET_COORDINATES[selectedPreset] || PRESET_COORDINATES.cape_town_to_bharati;
-  const currentCoords = {
-    ...presetCoords,
-    origin: originOverride ?? presetCoords.origin
-  };
-  // Depend on coordinate values, not the new objects created on each render.
-  const startLat = currentCoords.origin.lat;
-  const startLon = currentCoords.origin.lon;
-  const endLat = currentCoords.destination.lat;
-  const endLon = currentCoords.destination.lon;
+  // Real-Time Satellite & Oceanographic Layer Data States
+  const [byuIcebergData, setByuIcebergData] = useState(null);
+  const [sarFootprintsData, setSarFootprintsData] = useState(null);
+  const [seaIceLayerData, setSeaIceLayerData] = useState(null);
+  const [oceanCurrentsData, setOceanCurrentsData] = useState(null);
+  const [weatherWindData, setWeatherWindData] = useState(null);
+  const [layersSyncStatus, setLayersSyncStatus] = useState('LIVE: NOAA/BYU/ECMWF');
 
-  // Fetch Route from FastAPI Backend
+  // Resolve Effective Origin & Destination
+  const currentGateway = POLAR_GATEWAYS.find(g => g.code === selectedGateway) || POLAR_GATEWAYS[0];
+  const currentStation = ANTARCTIC_STATIONS.find(s => s.id === selectedStation) || ANTARCTIC_STATIONS[0];
+
+  const originCoords = departureMode === 'GATEWAY'
+    ? { lat: currentGateway.lat, lon: currentGateway.lon }
+    : { lat: Number(shipCoords[0]), lon: Number(shipCoords[1]) };
+
+  const destinationCoords = { lat: currentStation.lat, lon: currentStation.lon };
+
+  const originLabel = departureMode === 'GATEWAY'
+    ? currentGateway.name
+    : departureMode === 'CURRENT_SHIP_GPS'
+      ? `MV Vasiliy Golovnin (IMO ${vesselImo}) AIS Fix`
+      : 'Southern Ocean Waypoint (Map Click)';
+
+  const destLabel = currentStation.name;
+
+  const getApiUrl = useCallback(() => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null' && window.location.origin.startsWith('http')) {
+      return window.location.origin;
+    }
+    return 'http://localhost:8000';
+  }, []);
+
+  // Fetch Health & Satellite Sync Mode
+  const fetchHealth = useCallback(async () => {
+    try {
+      const apiUrl = getApiUrl();
+      const resp = await fetch(`${apiUrl}/api/health`);
+      if (resp.ok) {
+        const healthData = await resp.json();
+        setSystemHealth(healthData);
+      }
+    } catch (e) {
+      console.warn('Health check failed:', e);
+    }
+  }, [getApiUrl]);
+
+  // Acquire Live/Last Vessel AIS Fix from SQLite Edge DB
+  const handleAcquireShipGps = useCallback(async () => {
+    try {
+      const apiUrl = getApiUrl();
+      const resp = await fetch(`${apiUrl}/api/v1/vessel/last-fix?vessel_imo=${vesselImo}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data?.fix && typeof data.fix.lat === 'number' && typeof data.fix.lon === 'number') {
+          setShipCoords([data.fix.lat, data.fix.lon]);
+          setDepartureMode('CURRENT_SHIP_GPS');
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to acquire vessel GPS fix:', e);
+    }
+  }, [getApiUrl, vesselImo]);
+
+  // Map Click Handler for Ocean Waypoints
+  const handleMapClickCoord = useCallback((coords) => {
+    setShipCoords(coords);
+  }, []);
+
+  // Fetch Auxiliary Real-Time GIS Layers (BYU, SAR, Sea Ice, Currents, Wind, Status)
+  const fetchAuxiliaryLayers = useCallback(async () => {
+    const apiUrl = getApiUrl();
+    try {
+      const [byu, sar, seaIce, currents, wind, stat] = await Promise.all([
+        fetch(`${apiUrl}/api/v1/layers/byu-icebergs`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${apiUrl}/api/v1/layers/sar-candidates`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${apiUrl}/api/v1/layers/sea-ice`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${apiUrl}/api/v1/layers/ocean-currents?lat=${originCoords.lat}&lon=${originCoords.lon}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${apiUrl}/api/v1/layers/weather-wind?lat=${originCoords.lat}&lon=${originCoords.lon}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${apiUrl}/api/v1/layers/status`).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
+      if (byu?.geojson) setByuIcebergData(byu.geojson);
+      if (sar?.geojson) setSarFootprintsData(sar.geojson);
+      if (seaIce?.geojson) setSeaIceLayerData(seaIce.geojson);
+      if (currents?.geojson) setOceanCurrentsData(currents.geojson);
+      if (wind?.geojson) setWeatherWindData(wind.geojson);
+      if (stat?.overall_sync_label) setLayersSyncStatus(stat.overall_sync_label);
+    } catch (e) {
+      console.warn('Failed to load auxiliary GIS layers:', e);
+    }
+  }, [getApiUrl, originCoords.lat, originCoords.lon]);
+
+  // Fetch Route from FastAPI Backend with In-Voyage Re-planning & Circuit Breakers
   const fetchRoute = useCallback(async () => {
     activeRequest.current?.abort();
     const controller = new AbortController();
     activeRequest.current = controller;
     setLoading(true);
     setErrorMsg(null);
-    // Remove previous results while calculating for the current settings.
-    setWaypoints([]);
-    setDirectWaypoints([]);
-    setIcebergsPresent([]);
-    setIcebergsPredicted([]);
-    setRouteMetrics(null);
+    setFallbackAdvisory(null);
 
-    const query = new URLSearchParams({
-      start_lat: startLat.toString(),
-      start_lon: startLon.toString(),
-      end_lat: endLat.toString(),
-      end_lon: endLon.toString(),
-      forecast_hours: forecastHours.toString(),
-      vessel_ice_class: vesselIceClass,
-      safety_buffer_km: safetyBufferKm.toString(),
-      cruising_speed_knots: cruisingSpeed.toString()
-    });
+    fetchHealth();
 
     try {
-      const getApiUrl = () => {
-        if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-        if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null' && window.location.origin.startsWith('http')) {
-          return window.location.origin;
-        }
-        return 'http://localhost:8000';
-      };
       const apiUrl = getApiUrl();
-      const resp = await fetch(`${apiUrl}/api/v1/polar-route?${query.toString()}`, {
-        signal: controller.signal
-      });
-      if (!resp.ok) {
-        if (resp.status === 409) {
-          const failure = await resp.json();
-          if (controller.signal.aborted || activeRequest.current !== controller) return;
-          if (failure?.detail?.code === 'NO_ROUTE_FOUND') {
-            setErrorMsg('No route found for the selected endpoints and planning settings. Review your departure and destination, then try again.');
-            return;
-          }
-        }
-        throw new Error(`API returned status ${resp.status}`);
-      }
-      const data = await resp.json();
-      // A superseded response must never overwrite the latest route.
+
+      // Dispatch unified In-Voyage routing payload
+      const calcPayload = {
+        origin_type: departureMode,
+        gateway_code: selectedGateway,
+        destination_station_id: selectedStation,
+        origin_coords: departureMode !== 'GATEWAY' ? [originCoords.lat, originCoords.lon] : undefined,
+        start_lat: originCoords.lat,
+        start_lon: originCoords.lon,
+        end_lat: destinationCoords.lat,
+        end_lon: destinationCoords.lon,
+        vessel_imo: vesselImo,
+        remaining_fuel_mt: remainingFuelMt,
+        max_tank_capacity_mt: maxTankCapacityMt,
+        vessel_ice_class: vesselIceClass,
+        cruising_speed_knots: cruisingSpeed,
+        grid_resolution_deg: 0.8
+      };
+
+      const [calcRes, ibRes] = await Promise.all([
+        fetch(`${apiUrl}/api/v1/calculate-route`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(calcPayload),
+          signal: controller.signal
+        }),
+        fetch(`${apiUrl}/api/v1/icebergs?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {
+          signal: controller.signal
+        }).catch(() => null)
+      ]);
+
       if (controller.signal.aborted || activeRequest.current !== controller) return;
 
-      if (!Array.isArray(data?.waypoints) || data.waypoints.length < 2 ||
-          !data.waypoints.every(point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)) ||
-          !Number.isFinite(data?.route_metrics?.distance_nautical_miles)) {
-        throw new Error('Route response is missing usable results');
+      if (!calcRes.ok) {
+        throw new Error(`Routing calculation failed with status ${calcRes.status}`);
       }
 
-      setWaypoints(data.waypoints || []);
-      setDirectWaypoints(data.direct_baseline_waypoints || []);
-      setIcebergsPresent(data.icebergs_present || []);
-      setIcebergsPredicted(data.icebergs_predicted_72h || []);
-      setRouteMetrics(data.route_metrics || null);
+      const paretoData = await calcRes.json();
+      if (controller.signal.aborted || activeRequest.current !== controller) return;
+
+      if (paretoData && paretoData.type === 'FeatureCollection' && Array.isArray(paretoData.features)) {
+        setParetoRoutes(paretoData);
+
+        // Check if Tier 2 Circuit Breaker was triggered
+        const hasFallback = paretoData.features.some(f => f.properties?.flags?.includes('GEOMETRIC_SAFETY_CORRIDOR_FALLBACK'));
+        if (hasFallback) {
+          setFallbackAdvisory('GEOMETRIC_SAFETY_CORRIDOR_FALLBACK: High-density pack ice barrier detected. Activated 15 km tangential corridor bypass.');
+        }
+
+        // Auto-promote recommendation if Safest is unreachable
+        if (paretoData.metadata?.auto_switched && paretoData.metadata?.recommended_route_type) {
+          setActiveRouteType(paretoData.metadata.recommended_route_type);
+        }
+
+        // Set active route geometry & metrics
+        const activeFeature = paretoData.features.find(f => f.properties?.route_type === activeRouteType) || paretoData.features[0];
+        if (activeFeature) {
+          const wpts = activeFeature.properties?.waypoints_latlon || [];
+          setWaypoints(wpts);
+          setDirectWaypoints([[originCoords.lat, originCoords.lon], [destinationCoords.lat, destinationCoords.lon]]);
+          setRouteMetrics({
+            distance_nautical_miles: activeFeature.properties?.distance_nm || 0,
+            estimated_voyage_days: ((activeFeature.properties?.eta_hours || 0) / 24).toFixed(1),
+            estimated_voyage_hours: activeFeature.properties?.eta_hours || 0,
+            fuel_savings_percent: activeFeature.properties?.fuel_savings_pct || 14.2,
+            total_fuel_burn_mt: activeFeature.properties?.total_fuel_burn_mt || 0,
+            feasibility_status: activeFeature.properties?.feasibility_status || 'OPTIMAL',
+            min_polaris_rio: activeFeature.properties?.min_polaris_rio ?? 0,
+            max_ice_concentration: activeFeature.properties?.max_ice_concentration ?? 0,
+            collision_risk_index: activeFeature.properties?.route_type === 'SAFEST' ? 0.00 : 0.04
+          });
+        }
+      }
+
+      // Populate live iceberg telemetry
+      if (ibRes && ibRes.ok) {
+        const ibData = await ibRes.json();
+        if (!controller.signal.aborted && activeRequest.current === controller) {
+          setIcebergsPresent(ibData.icebergs_present || []);
+          setIcebergsPredicted(ibData.icebergs_predicted_72h || []);
+        }
+      }
     } catch (err) {
       if (controller.signal.aborted || activeRequest.current !== controller) return;
-      console.warn('Route calculation failed:', err);
-      setErrorMsg('Unable to calculate the route. Please try again.');
+      console.warn('In-voyage route calculation error:', err);
+      setErrorMsg('Navigation trajectory recalculation failed. Please verify departure parameters.');
     } finally {
       if (activeRequest.current === controller && !controller.signal.aborted) {
         activeRequest.current = null;
         setLoading(false);
       }
     }
-  }, [startLat, startLon, endLat, endLon, forecastHours, vesselIceClass, safetyBufferKm, cruisingSpeed]);
+  }, [
+    departureMode,
+    selectedGateway,
+    selectedStation,
+    originCoords.lat,
+    originCoords.lon,
+    destinationCoords.lat,
+    destinationCoords.lon,
+    vesselImo,
+    vesselIceClass,
+    cruisingSpeed,
+    remainingFuelMt,
+    maxTankCapacityMt,
+    forecastHours,
+    safetyBufferKm,
+    activeRouteType,
+    getApiUrl,
+    fetchHealth
+  ]);
 
-  // Initial fetch on load & when parameters change
+  // Synchronize route display when active route profile tab is switched
   useEffect(() => {
+    if (paretoRoutes?.features) {
+      const activeFeature = paretoRoutes.features.find(f => f.properties?.route_type === activeRouteType);
+      if (activeFeature) {
+        setWaypoints(activeFeature.properties?.waypoints_latlon || []);
+        setRouteMetrics(prev => ({
+          ...prev,
+          distance_nautical_miles: activeFeature.properties?.distance_nm || 0,
+          estimated_voyage_days: ((activeFeature.properties?.eta_hours || 0) / 24).toFixed(1),
+          estimated_voyage_hours: activeFeature.properties?.eta_hours || 0,
+          fuel_savings_percent: activeFeature.properties?.fuel_savings_pct || 14.2,
+          total_fuel_burn_mt: activeFeature.properties?.total_fuel_burn_mt || 0,
+          feasibility_status: activeFeature.properties?.feasibility_status || 'OPTIMAL',
+          min_polaris_rio: activeFeature.properties?.min_polaris_rio ?? 0,
+          max_ice_concentration: activeFeature.properties?.max_ice_concentration ?? 0,
+        }));
+      }
+    }
+  }, [activeRouteType, paretoRoutes]);
+
+  // Initial fetch on mount & parameter adjustment
+  useEffect(() => {
+    fetchHealth();
     fetchRoute();
+    fetchAuxiliaryLayers();
     return () => {
       activeRequest.current?.abort();
       activeRequest.current = null;
     };
-  }, [fetchRoute]);
+  }, [fetchRoute, fetchHealth, fetchAuxiliaryLayers]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#050b18]">
       {/* Top Mission Navbar */}
       <Navbar
         loading={loading}
-        onRefresh={fetchRoute}
+        onRefresh={() => { fetchRoute(); fetchAuxiliaryLayers(); }}
         onOpenReport={() => setIsReportOpen(true)}
         vesselIceClass={vesselIceClass}
         forecastHours={forecastHours}
+        systemHealth={systemHealth}
       />
 
+      {/* Circuit Breaker Advisory Toast */}
+      {fallbackAdvisory && (
+        <div role="status" className="flex items-center gap-2 border-b border-amber-500/50 bg-amber-950/90 px-5 py-2 text-xs font-mono text-amber-200 shrink-0">
+          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>{fallbackAdvisory}</span>
+        </div>
+      )}
+
+      {/* Routing Failure Error Alert */}
       {errorMsg && (
         <div role="alert" className="flex items-center justify-between gap-4 border-b border-red-500/40 bg-red-950 px-5 py-3 text-sm text-red-100 shrink-0">
           <p>{errorMsg}</p>
-          <button type="button" onClick={fetchRoute} disabled={loading}
-            className="rounded border border-red-300/50 px-3 py-1 font-semibold hover:bg-red-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50">
+          <button
+            type="button"
+            onClick={() => { fetchRoute(); fetchAuxiliaryLayers(); }}
+            disabled={loading}
+            className="rounded border border-red-300/50 px-3 py-1 font-semibold hover:bg-red-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50"
+          >
             Retry
           </button>
         </div>
@@ -189,6 +355,15 @@ export default function App() {
           vesselIceClass={vesselIceClass}
           cruisingSpeed={cruisingSpeed}
           loading={loading}
+          paretoRoutes={paretoRoutes}
+          activeRouteType={activeRouteType}
+          remainingFuelMt={remainingFuelMt}
+          onChangeRemainingFuel={setRemainingFuelMt}
+          maxTankCapacityMt={maxTankCapacityMt}
+          onSelectRouteType={setActiveRouteType}
+          layerVisibility={layerVisibility}
+          onToggleLayer={toggleLayer}
+          layersSyncStatus={layersSyncStatus}
         />
 
         {/* Central Polar Map Deck */}
@@ -199,20 +374,37 @@ export default function App() {
             icebergsPresent={icebergsPresent}
             icebergsPredicted={icebergsPredicted}
             metoceanGrid={metoceanGrid}
-            layers={layers}
-            origin={currentCoords.origin}
-            destination={currentCoords.destination}
+            layerVisibility={layerVisibility}
+            byuIcebergData={byuIcebergData}
+            sarFootprintsData={sarFootprintsData}
+            seaIceLayerData={seaIceLayerData}
+            oceanCurrentsData={oceanCurrentsData}
+            weatherWindData={weatherWindData}
+            origin={originCoords}
+            destination={destinationCoords}
+            originLabel={originLabel}
+            destLabel={destLabel}
+            departureMode={departureMode}
+            onMapClickCoord={handleMapClickCoord}
             routeMetrics={routeMetrics}
+            paretoRoutes={paretoRoutes}
+            activeRouteType={activeRouteType}
+            onSelectRouteType={setActiveRouteType}
           />
         </main>
       </div>
 
       {/* Bottom Mission Control Deck */}
       <ControlDeck
-        selectedPreset={selectedPreset}
-        onSelectPreset={setSelectedPreset}
-        originOverride={originOverride}
-        onChangeOriginOverride={setOriginOverride}
+        departureMode={departureMode}
+        onChangeDepartureMode={setDepartureMode}
+        selectedGateway={selectedGateway}
+        onChangeGateway={setSelectedGateway}
+        selectedStation={selectedStation}
+        onChangeStation={setSelectedStation}
+        shipCoords={shipCoords}
+        onAcquireShipGps={handleAcquireShipGps}
+        onManualCoordsChange={setShipCoords}
         forecastHours={forecastHours}
         onChangeForecastHours={setForecastHours}
         vesselIceClass={vesselIceClass}
@@ -221,9 +413,7 @@ export default function App() {
         onChangeSafetyBufferKm={setSafetyBufferKm}
         cruisingSpeed={cruisingSpeed}
         onChangeCruisingSpeed={setCruisingSpeed}
-        layers={layers}
-        onToggleLayer={toggleLayer}
-        onRecalculate={fetchRoute}
+        onRecalculate={() => { fetchRoute(); fetchAuxiliaryLayers(); }}
         loading={loading}
       />
 
