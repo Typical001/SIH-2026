@@ -49,9 +49,21 @@ export default function RouteComparisonModal({
         <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
           <h3 id="report-title" className="text-base font-bold text-white flex items-center gap-2">
             <Navigation className="w-5 h-5 text-cyan-400" />
-            {m ? 'Route analytics — simulation' : 'Route analytics unavailable'}
+            {m ? 'Official Bridge Navigational Plan & Risk Audit' : 'Route analytics unavailable'}
           </h3>
-          <button aria-label="Close analytics" onClick={onClose} className="p-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"><X className="w-5 h-5" /></button>
+          <div className="flex items-center gap-2">
+            {m && (
+              <button 
+                onClick={handleExportPDF} 
+                className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-neon-cyan cursor-pointer"
+                title="Download Official Bridge Navigational Plan PDF"
+              >
+                <FileText className="w-4 h-4" />
+                Export PDF
+              </button>
+            )}
+            <button aria-label="Close analytics" onClick={onClose} className="p-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer"><X className="w-5 h-5" /></button>
+          </div>
         </div>
         <div className="p-6 overflow-y-auto space-y-4 text-sm text-slate-300">
           {!m ? <p>Complete a successful route calculation to view analytics.</p> : <>

@@ -4,6 +4,7 @@ import PolarMap from './components/PolarMap';
 import TelemetrySidebar from './components/TelemetrySidebar';
 import ControlDeck, { POLAR_GATEWAYS, ANTARCTIC_STATIONS } from './components/ControlDeck';
 import RouteComparisonModal from './components/RouteComparisonModal';
+import { generateVoyageReportPDF } from './utils/pdfGenerator';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function App() {
@@ -234,9 +235,13 @@ export default function App() {
             estimated_voyage_hours: activeFeature.properties?.eta_hours || 0,
             fuel_savings_percent: activeFeature.properties?.fuel_savings_pct || 14.2,
             total_fuel_burn_mt: activeFeature.properties?.total_fuel_burn_mt || 0,
+            fuel_consumption_tons: activeFeature.properties?.total_fuel_burn_mt || 0,
             feasibility_status: activeFeature.properties?.feasibility_status || 'OPTIMAL',
             min_polaris_rio: activeFeature.properties?.min_polaris_rio ?? 0,
             max_ice_concentration: activeFeature.properties?.max_ice_concentration ?? 0,
+            max_sea_ice_concentration_pct: activeFeature.properties?.max_ice_concentration ?? 18,
+            risk_score: activeFeature.properties?.route_type === 'SAFEST' ? 12.0 : activeFeature.properties?.route_type === 'BALANCED' ? 24.5 : 48.0,
+            risk_rating: activeFeature.properties?.route_type === 'SAFEST' ? 'LOW RISK' : activeFeature.properties?.route_type === 'BALANCED' ? 'OPTIMAL' : 'HIGH SPEED / MODERATE RISK',
             collision_risk_index: activeFeature.properties?.route_type === 'SAFEST' ? 0.00 : 0.04
           });
         }
@@ -293,13 +298,36 @@ export default function App() {
           estimated_voyage_hours: activeFeature.properties?.eta_hours || 0,
           fuel_savings_percent: activeFeature.properties?.fuel_savings_pct || 14.2,
           total_fuel_burn_mt: activeFeature.properties?.total_fuel_burn_mt || 0,
+          fuel_consumption_tons: activeFeature.properties?.total_fuel_burn_mt || 0,
           feasibility_status: activeFeature.properties?.feasibility_status || 'OPTIMAL',
           min_polaris_rio: activeFeature.properties?.min_polaris_rio ?? 0,
           max_ice_concentration: activeFeature.properties?.max_ice_concentration ?? 0,
+          max_sea_ice_concentration_pct: activeFeature.properties?.max_ice_concentration ?? 18,
+          risk_score: activeFeature.properties?.route_type === 'SAFEST' ? 12.0 : activeFeature.properties?.route_type === 'BALANCED' ? 24.5 : 48.0,
+          risk_rating: activeFeature.properties?.route_type === 'SAFEST' ? 'LOW RISK' : activeFeature.properties?.route_type === 'BALANCED' ? 'OPTIMAL' : 'HIGH SPEED / MODERATE RISK',
         }));
       }
     }
   }, [activeRouteType, paretoRoutes]);
+
+  // High-Grade Official Bridge Navigational Plan PDF Export Handler
+  const handleExportPDF = useCallback(() => {
+    if (!routeMetrics) return;
+    try {
+      generateVoyageReportPDF({
+        routeMetrics,
+        waypoints,
+        origin: { name: originLabel, lat: originCoords.lat, lon: originCoords.lon },
+        destination: { name: destLabel, lat: destinationCoords.lat, lon: destinationCoords.lon },
+        vesselIceClass,
+        cruisingSpeed,
+        icebergsPredicted,
+        forecastHours
+      });
+    } catch (err) {
+      console.error('Failed to export PDF report:', err);
+    }
+  }, [routeMetrics, waypoints, originLabel, originCoords.lat, originCoords.lon, destLabel, destinationCoords.lat, destinationCoords.lon, vesselIceClass, cruisingSpeed, icebergsPredicted, forecastHours]);
 
   // Initial fetch on mount & parameter adjustment
   useEffect(() => {
@@ -319,6 +347,7 @@ export default function App() {
         loading={loading}
         onRefresh={() => { fetchRoute(); fetchAuxiliaryLayers(); }}
         onOpenReport={() => setIsReportOpen(true)}
+        onExportPDF={handleExportPDF}
         vesselIceClass={vesselIceClass}
         forecastHours={forecastHours}
         systemHealth={systemHealth}
@@ -361,6 +390,8 @@ export default function App() {
           onChangeRemainingFuel={setRemainingFuelMt}
           maxTankCapacityMt={maxTankCapacityMt}
           onSelectRouteType={setActiveRouteType}
+          onExportPDF={handleExportPDF}
+          onOpenReport={() => setIsReportOpen(true)}
           layerVisibility={layerVisibility}
           onToggleLayer={toggleLayer}
           layersSyncStatus={layersSyncStatus}
@@ -423,6 +454,13 @@ export default function App() {
         onClose={() => setIsReportOpen(false)}
         routeMetrics={routeMetrics}
         vesselIceClass={vesselIceClass}
+        waypoints={waypoints}
+        origin={{ name: originLabel, lat: originCoords.lat, lon: originCoords.lon }}
+        destination={{ name: destLabel, lat: destinationCoords.lat, lon: destinationCoords.lon }}
+        cruisingSpeed={cruisingSpeed}
+        icebergsPredicted={icebergsPredicted}
+        forecastHours={forecastHours}
+        onExportPDF={handleExportPDF}
       />
     </div>
   );

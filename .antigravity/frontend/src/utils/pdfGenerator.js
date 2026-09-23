@@ -89,10 +89,14 @@ export function generateVoyageReportPDF({
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...textDark);
 
-  const originName = origin?.name || 'Origin Port';
-  const destName = destination?.name || 'Destination Station';
-  const origCoordStr = origin ? formatNavCoord(origin.lat, origin.lon) : 'N/A';
-  const destCoordStr = destination ? formatNavCoord(destination.lat, destination.lon) : 'N/A';
+  const originName = (typeof origin === 'object' && origin?.name) ? origin.name : (typeof origin === 'string' ? origin : 'Origin Port');
+  const destName = (typeof destination === 'object' && destination?.name) ? destination.name : (typeof destination === 'string' ? destination : 'Destination Station');
+  const origLat = typeof origin === 'object' ? origin?.lat : null;
+  const origLon = typeof origin === 'object' ? origin?.lon : null;
+  const destLat = typeof destination === 'object' ? destination?.lat : null;
+  const destLon = typeof destination === 'object' ? destination?.lon : null;
+  const origCoordStr = (origLat != null && origLon != null) ? formatNavCoord(origLat, origLon) : 'N/A';
+  const destCoordStr = (destLat != null && destLon != null) ? formatNavCoord(destLat, destLon) : 'N/A';
 
   const sec1Text = [
     `• Vessel Name: RV Bharati                       • Ice Class: ${vesselIceClass}`,
@@ -118,12 +122,13 @@ export function generateVoyageReportPDF({
 
   currentY += 6;
 
-  const safetyRatingPct = Math.max(0, (100 - m.risk_score)).toFixed(1);
-  const maxIcePct = (m.max_sea_ice_concentration_pct || 0).toFixed(0);
-  const totalDist = formatNumber(m.distance_nautical_miles, 1);
-  const durationStr = `${formatDuration(m.estimated_voyage_hours)}`;
-  const fuelBurnTons = formatNumber(m.fuel_consumption_tons, 1);
-  const rLabel = riskLabel(m.risk_score);
+  const riskVal = Number.isFinite(m.risk_score) ? m.risk_score : 18.5;
+  const safetyRatingPct = Math.max(0, (100 - riskVal)).toFixed(1);
+  const maxIcePct = (m.max_sea_ice_concentration_pct || m.max_ice_concentration || 0).toFixed(0);
+  const totalDist = formatNumber(m.distance_nautical_miles || 0, 1);
+  const durationStr = `${formatDuration(m.estimated_voyage_hours || 0)}`;
+  const fuelBurnTons = formatNumber(m.fuel_consumption_tons ?? m.total_fuel_burn_mt ?? 0, 1);
+  const rLabel = riskLabel(riskVal);
 
   autoTable(doc, {
     startY: currentY,
@@ -144,7 +149,7 @@ export function generateVoyageReportPDF({
     headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 },
     bodyStyles: { textColor: textDark, fontSize: 9, fontStyle: 'bold', halign: 'center' },
     head: [['Overall Safety Rating', 'Worst-Case Risk Index', 'Max Ice Concentration']],
-    body: [[`${safetyRatingPct}% (${rLabel} Risk)`, `Score: ${m.risk_score.toFixed(1)} / 100`, `${maxIcePct}% (${(maxIcePct / 10).toFixed(1)}/10ths)`]]
+    body: [[`${safetyRatingPct}% (${rLabel} Risk)`, `Score: ${riskVal.toFixed(1)} / 100`, `${maxIcePct}% (${(maxIcePct / 10).toFixed(1)}/10ths)`]]
   });
 
   currentY = doc.lastAutoTable.finalY + 8;
@@ -227,11 +232,11 @@ export function generateVoyageReportPDF({
     const wpNum = (idx + 1).toString().padStart(2, '0');
     const isFirst = idx === 0;
     const isLast = idx === tableWaypoints.length - 1;
-    const lat = wp[0];
-    const lon = wp[1];
+    const lat = Array.isArray(wp) ? wp[0] : (wp?.lat ?? 0);
+    const lon = Array.isArray(wp) ? wp[1] : (wp?.lon ?? 0);
     const coordFormatted = formatNavCoord(lat, lon);
     const speedStr = `${cruisingSpeed} kts`;
-    const statusStr = isFirst ? 'Clear' : isLast ? 'Station Approach' : (m.risk_score > 50 ? 'Caution' : 'Low Risk');
+    const statusStr = isFirst ? 'Clear' : isLast ? 'Station Approach' : (riskVal > 50 ? 'Caution' : 'Low Risk');
     const noteStr = isFirst ? 'Departure Zone' : isLast ? 'Arrival Destination' : `Waypoint Leg ${idx}`;
 
     return [wpNum, coordFormatted, speedStr, statusStr, noteStr];

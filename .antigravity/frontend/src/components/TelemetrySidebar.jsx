@@ -15,7 +15,9 @@ import {
   Sliders, 
   AlertOctagon,
   Layers,
-  Check
+  Check,
+  FileText,
+  BarChart3
 } from 'lucide-react';
 
 export default function TelemetrySidebar({ 
@@ -29,6 +31,8 @@ export default function TelemetrySidebar({
   onChangeRemainingFuel = () => {},
   maxTankCapacityMt = 200.0,
   onSelectRouteType = () => {},
+  onExportPDF = () => {},
+  onOpenReport = null,
   layerVisibility = {
     seaIce: false,
     refIcebergs: true,
@@ -97,6 +101,28 @@ export default function TelemetrySidebar({
       </div>
 
       <div className="p-3.5 space-y-3.5 flex-1">
+
+        {/* ── EXPORT OFFICIAL NAV PLAN & REPORT ── */}
+        <div className="flex gap-2 font-mono">
+          <button
+            onClick={onExportPDF}
+            className="flex-1 py-2 px-2.5 rounded-xl bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-500/40 hover:to-blue-500/40 border border-cyan-400/50 text-cyan-200 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer hover:border-cyan-300"
+            title="Download Official Bridge Navigational Plan PDF"
+          >
+            <FileText className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <span>EXPORT PDF REPORT</span>
+          </button>
+          {onOpenReport && (
+            <button
+              onClick={onOpenReport}
+              className="py-2 px-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/40 text-slate-300 text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer"
+              title="Open Full Voyage Analytics Modal"
+            >
+              <BarChart3 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span>AUDIT</span>
+            </button>
+          )}
+        </div>
 
         {/* ── BRIDGE BUNKER FUEL METER (INTERACTIVE WIDGET) ── */}
         <div className="p-3.5 rounded-xl bg-gradient-to-br from-slate-900 via-slate-900 to-[#07162c] border border-cyan-500/40 shadow-neon-cyan space-y-3 font-mono">

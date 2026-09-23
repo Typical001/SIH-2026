@@ -9,13 +9,16 @@ import {
   RefreshCw, 
   Radio, 
   Cpu, 
-  Layers
+  Layers,
+  FileText,
+  BarChart3
 } from 'lucide-react';
 
 export default function Navbar({ 
   loading, 
   onRefresh, 
   onOpenReport, 
+  onExportPDF,
   vesselIceClass, 
   forecastHours,
   systemHealth
@@ -110,13 +113,24 @@ export default function Navbar({
           </span>
         </div>
 
+        {/* Export Official PDF Nav Plan */}
+        <button
+          onClick={onExportPDF}
+          className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 text-xs text-cyan-300 font-semibold transition flex items-center gap-1.5 shadow-sm hover:border-cyan-400 cursor-pointer"
+          title="Download Official PolarNav Voyage Execution Plan (PDF)"
+        >
+          <FileText className="w-3.5 h-3.5 text-cyan-400" />
+          <span>EXPORT PDF</span>
+        </button>
+
+        {/* Full Modal Voyage Report */}
         <button
           onClick={onOpenReport}
-          className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 font-medium transition flex items-center gap-1.5 hover:border-cyan-500/40"
-          title="Open Comprehensive Risk & Fuel Analytics"
+          className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 font-medium transition flex items-center gap-1.5 hover:border-cyan-500/40 cursor-pointer"
+          title="Open Comprehensive Risk & Fuel Analytics Modal"
         >
-          <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Analytics</span>
+          <BarChart3 className="w-3.5 h-3.5 text-cyan-400" />
+          <span>VOYAGE REPORT</span>
         </button>
 
         <button
