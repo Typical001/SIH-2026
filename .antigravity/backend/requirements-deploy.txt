@@ -1,0 +1,8 @@
+# Only the active observation-backed API; no legacy scientific/provider stack.
+fastapi==0.141.1
+uvicorn==0.52.4
+networkx==3.6.1
+shapely==2.1.2
+pydantic==2.13.5
+pyproj==3.8.0
+pyshp==3.1.6

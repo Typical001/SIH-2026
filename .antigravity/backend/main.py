@@ -1,6 +1,7 @@
 """Local observation-backed planning API. No outbound providers or seeded AIS."""
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Literal
 from threading import Lock
@@ -22,7 +23,10 @@ async def lifespan(app):
 
 app=FastAPI(title='PolarNav observation-backed planning demo',version='2.0.0',lifespan=lifespan)
 app.add_middleware(GZipMiddleware,minimum_size=1000)
-app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:3000','http://127.0.0.1:3000'],allow_methods=['GET','POST'],allow_headers=['*'])
+ALLOWED_ORIGINS=[origin.strip().rstrip('/') for origin in os.getenv('ALLOWED_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if origin.strip()]
+PUBLIC_DEMO=os.getenv('PUBLIC_DEMO','false').lower()=='true'
+ROUTE_LOCK=Lock()
+app.add_middleware(CORSMiddleware,allow_origins=ALLOWED_ORIGINS,allow_methods=['GET','POST'],allow_headers=['*'])
 
 class CalculateRouteRequest(BaseModel):
     model_config=ConfigDict(allow_inf_nan=False,extra='forbid')
@@ -105,13 +109,15 @@ class VesselFix(BaseModel):
 @app.get('/api/v1/vessel/last-fix')
 def vessel_fix(vessel_imo:int=9577133):
     with FIX_LOCK:
-        fixes=json.loads(FIX_PATH.read_text()) if FIX_PATH.exists() else {}
+        fixes=json.loads(FIX_PATH.read_text()) if not PUBLIC_DEMO and FIX_PATH.exists() else {}
     fix=fixes.get(str(vessel_imo))
     if fix is None: fix=dict(lat=-64.5,lon=72,source='Assumed planning waypoint; no AIS feed',is_observed=False)
     return dict(status='success',fix=dict(vessel_imo=vessel_imo,**fix))
 
 @app.post('/api/v1/vessel/update-fix')
 def update_fix(fix:VesselFix):
+    if PUBLIC_DEMO:
+        raise HTTPException(403,detail='Public demo waypoints are saved in your browser, not shared on the server.')
     with FIX_LOCK:
         fixes=json.loads(FIX_PATH.read_text()) if FIX_PATH.exists() else {}
         fixes[str(fix.vessel_imo)]=dict(lat=fix.lat,lon=fix.lon,source='User-entered waypoint',is_observed=False)
@@ -128,8 +134,9 @@ def post_calculate_route(request:CalculateRouteRequest):
     end=(request.end_lat,request.end_lon) if request.end_lat is not None else tuple(APPROACH_CHAINS[request.destination_station_id][0])
     fuel=request.remaining_fuel_mt if request.fuel_tank_percentage is None else request.fuel_tank_percentage*request.max_tank_capacity_mt/100
     try:
-        response=calculate(start,end,request.vessel_ice_class,request.cruising_speed_knots,fuel,request.max_tank_capacity_mt,
-                           request.forecast_hours,request.safety_buffer_km,request.reference_burn_mt_day,request.reserve_percent)
+        with ROUTE_LOCK:
+            response=calculate(start,end,request.vessel_ice_class,request.cruising_speed_knots,fuel,request.max_tank_capacity_mt,
+                               request.forecast_hours,request.safety_buffer_km,request.reference_burn_mt_day,request.reserve_percent)
     except NoRouteFoundError as exc:
         raise HTTPException(409,detail=dict(code='NO_ROUTE_FOUND',message='No safe route available. '+str(exc))) from exc
     except (OSError,ValueError) as exc:

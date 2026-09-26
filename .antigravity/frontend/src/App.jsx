@@ -6,6 +6,8 @@ import ControlDeck, { POLAR_GATEWAYS, ANTARCTIC_STATIONS } from './components/Co
 import RouteComparisonModal from './components/RouteComparisonModal';
 import { generateVoyageReportPDF } from './utils/pdfGenerator';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
+const PUBLIC_DEMO = import.meta.env.VITE_PUBLIC_DEMO === 'true';
+const ROUTE_TIMEOUT_MS = PUBLIC_DEMO ? 180000 : 30000;
 
 
 export function metricsFromFeature(feature) {
@@ -134,6 +136,7 @@ export default function App() {
 
   // Acquire Live/Last Vessel AIS Fix from SQLite Edge DB
   const handleAcquireShipGps = useCallback(async () => {
+    if (PUBLIC_DEMO) { setDepartureMode('CURRENT_SHIP_GPS'); return; }
     try {
       const apiUrl = getApiUrl();
       const resp = await fetch(`${apiUrl}/api/v1/vessel/last-fix?vessel_imo=${vesselImo}`);
@@ -183,7 +186,7 @@ export default function App() {
     const controller = new AbortController();
     activeRequest.current = controller;
     let timedOut = false;
-    const deadline = setTimeout(() => { timedOut = true; controller.abort(); }, 30000);
+    const deadline = setTimeout(() => { timedOut = true; controller.abort(); }, ROUTE_TIMEOUT_MS);
     setLoading(true);
     setErrorMsg(null);
     setFallbackAdvisory(null);
@@ -277,7 +280,7 @@ export default function App() {
       setWaypoints([]);
       setDirectWaypoints([]);
       setRouteMetrics(null);
-      setErrorMsg(timedOut ? 'Route calculation timed out after 30 seconds. Please retry or choose a shorter demo passage.' : `Navigation trajectory recalculation failed. ${err.message}`);
+      setErrorMsg(timedOut ? `Route calculation timed out after ${ROUTE_TIMEOUT_MS/1000} seconds. Please retry; the free server may be starting or busy.` : `Navigation trajectory recalculation failed. ${err.message}`);
     } finally {
       clearTimeout(deadline);
       if (activeRequest.current === controller) setLoading(false);
@@ -372,6 +375,7 @@ export default function App() {
       {/* Circuit Breaker Advisory Toast */}
       <div className="bg-sky-950 text-sky-100 text-xs px-4 py-1 border-b border-sky-800">
         Observation-backed demo · USNIC 24 Sep 2026 · Forecasts, environment and vessel metrics are calculated estimates. Offshore approach legs only.
+        {PUBLIC_DEMO && <span> Free demo server: the first calculation can take a few minutes after inactivity. Saved waypoints stay in this browser.</span>}
       </div>
       {fallbackAdvisory && (
         <div role="status" className="flex items-center gap-2 border-b border-amber-500/50 bg-amber-950/90 px-5 py-2 text-xs font-mono text-amber-200 shrink-0">
@@ -459,7 +463,7 @@ export default function App() {
         onChangeStation={setSelectedStation}
         shipCoords={shipCoords}
         onAcquireShipGps={handleAcquireShipGps}
-        onManualCoordsChange={coords => {setShipCoords(coords); fetch(getApiUrl()+'/api/v1/vessel/update-fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vessel_imo:vesselImo,lat:coords[0],lon:coords[1]})}).catch(()=>setErrorMsg('Could not save the waypoint to the backend; coordinates remain in this browser.'));}}
+        onManualCoordsChange={coords => {setShipCoords(coords); if (!PUBLIC_DEMO) fetch(getApiUrl()+'/api/v1/vessel/update-fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vessel_imo:vesselImo,lat:coords[0],lon:coords[1]})}).then(response=>{if(!response.ok)throw new Error('Save failed');}).catch(()=>setErrorMsg('Could not save the waypoint to the backend; coordinates remain in this browser.'));}}
         forecastHours={forecastHours}
         onChangeForecastHours={setForecastHours}
         vesselIceClass={vesselIceClass}

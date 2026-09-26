@@ -51,7 +51,7 @@ export default function PolarMap({waypoints=[],icebergsPresent=[],icebergsPredic
  const routeRenderer=useMemo(()=>L.svg({pane:'route-profiles',padding:0.5}),[]);
  // Leaflet owns renderer teardown with the map. Removing it in a React effect
  // cleanup can detach live paths during StrictMode/effect refreshes.
- useEffect(()=>{const c=new AbortController();let mounted=true;setBaseError('');const timeout=setTimeout(()=>c.abort(),15000);fetch(API+'/api/v1/map-base',{signal:c.signal}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{if(mounted&&!c.signal.aborted){setBase(data);setBaseError('');}}).catch(()=>{if(mounted)setBaseError('Coastline could not load. Check the backend and retry.');}).finally(()=>clearTimeout(timeout));return()=>{mounted=false;clearTimeout(timeout);c.abort();};},[attempt]);
+ useEffect(()=>{const c=new AbortController();let mounted=true;setBaseError('');const timeout=setTimeout(()=>c.abort(),import.meta.env.VITE_PUBLIC_DEMO === 'true' ? 180000 : 15000);fetch(API+'/api/v1/map-base',{signal:c.signal}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{if(mounted&&!c.signal.aborted){setBase(data);setBaseError('');}}).catch(()=>{if(mounted)setBaseError('Coastline could not load. Check the backend and retry.');}).finally(()=>clearTimeout(timeout));return()=>{mounted=false;clearTimeout(timeout);c.abort();};},[attempt]);
  const active=paretoRoutes?.features?.find(f=>f.properties.route_type===activeRouteType);
  const points=active?.properties?.waypoints_latlon||waypoints;
  const mapOrigin=paretoRoutes?.metadata?.origin||origin;

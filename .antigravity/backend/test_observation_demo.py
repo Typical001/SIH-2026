@@ -148,6 +148,19 @@ class ObservationDemoTests(unittest.TestCase):
             self.assertFalse(response.json()['is_live'])
         self.assertEqual(self.client.get('/api/v1/map-base').status_code,200)
 
+    def test_public_demo_does_not_read_or_write_shared_waypoints(self):
+        with patch.object(main,'PUBLIC_DEMO',True), tempfile.TemporaryDirectory() as folder, patch.object(main,'FIX_PATH',Path(folder)/'fixes.json'):
+            main.FIX_PATH.write_text(json.dumps({'9577133':{'lat':-50,'lon':10}}))
+            before=main.FIX_PATH.read_text()
+            self.assertEqual(self.client.get('/api/v1/vessel/last-fix').json()['fix']['lat'],-64.5)
+            self.assertEqual(self.client.post('/api/v1/vessel/update-fix',json={'lat':-55,'lon':20}).status_code,403)
+            self.assertEqual(main.FIX_PATH.read_text(),before)
+
+    def test_cors_accepts_only_configured_origins(self):
+        for origin,code in [('http://localhost:3000',200),('https://unconfigured.example',400)]:
+            response=self.client.options('/api/v1/calculate-route',headers={'Origin':origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type'})
+            self.assertEqual(response.status_code,code)
+
     def test_concurrent_graph_requests_build_once(self):
         from observed_routes import profile_graph
         before=profile_graph.cache_info().misses

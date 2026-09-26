@@ -1,4 +1,12 @@
 ﻿.antigravity/backend/venv/
 .antigravity/backend/__pycache__/
 *.pyc
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.netlify/
+.antigravity/.run/
+.antigravity/backend/data/user_vessel_fixes.json
 .antigravity/backend/polar_nav_offline.db

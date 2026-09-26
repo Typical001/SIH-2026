@@ -3,6 +3,7 @@ from functools import lru_cache, wraps
 from threading import RLock
 from itertools import combinations
 import math
+import os
 import networkx as nx
 from shapely.geometry import LineString, Point, box
 from shapely.affinity import translate
@@ -26,6 +27,7 @@ APPROACH_CHAINS = {
 PROFILES={'SAFEST':'#10b981','BALANCED':'#0ea5e9','FASTEST':'#f59e0b'}
 ROUTING_MODEL='shared-constraints-objectives-v2'
 _graph_lock=RLock()
+ROUTE_CACHE_SIZE=max(1,min(36,int(os.getenv('ROUTE_CACHE_SIZE','36'))))
 
 def single_build(function):
     @wraps(function)
@@ -106,7 +108,7 @@ def passage_graph():
     return graph
 
 @single_build
-@lru_cache(maxsize=36)
+@lru_cache(maxsize=ROUTE_CACHE_SIZE)
 def constraint_graph(hours,buffer,ice_class):
     hazards=HazardIndex(hours,buffer)
     graph=passage_graph().copy()
@@ -116,7 +118,7 @@ def constraint_graph(hours,buffer,ice_class):
     return graph,hazards
 
 @single_build
-@lru_cache(maxsize=36)
+@lru_cache(maxsize=ROUTE_CACHE_SIZE)
 def profile_graph(hours,buffer,profile,ice_class):
     # Compatibility entry point: safety constraints are identical for all profiles.
     return constraint_graph(hours,buffer,ice_class)
