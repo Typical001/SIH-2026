@@ -1,6 +1,29 @@
 > **Current-runtime update (26 September 2026):** See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for the observation-backed engine and estimation formulas, [RUNNING.md](RUNNING.md) for setup/start/stop, and [TESTING.md](TESTING.md) for current passing checks. Earlier runtime descriptions and test counts below are historical and superseded. No new Git commit is implied.
 
+## Centered map follow-up — 26 September 2026
+
+This checkpoint supersedes the earlier full-window default and low-zoom repetition notes. The app now opens with planning panels and a bordered rectangular map. Horizontal wrapping/worldCopyJump remain enabled, with no fixed longitude bounds. ResizeObserver sets minimum zoom to ceil(10 × log2(max(viewport width, height) / 256)) / 10, so the viewport never spans multiple complete worlds. World view respects this limit; on wide screens it is an overview, not a guarantee that both poles fit vertically. Fit route restores the selected passage.
+
+SVG route and endpoint copies at longitude offsets -360/0/+360 stay aligned across the date line. Reference/estimated polygon layers and iceberg positions also account for display wrapping; route-corridor filtering normalizes continuous backend longitudes. Renderer teardown belongs to Leaflet, preventing React effect refresh from detaching live SVG paths. The report stacking fix remains active.
+
+Validation: 31 frontend tests across 6 files; desktop default and Hobart–McMurdo route fitting, world-seam pan, all optional layers enabled with visible routes, report open/close, and no alert observed. Backend routing was unchanged. See TESTING.md for the current verification scope.
+
+
 # Project changelog
+
+## Header export cleanup
+
+Removed the standalone Export PDF button and unused export prop from Navbar. Voyage report remains in the header and retains its PDF export actions. Updated the existing navbar regression check.
+
+## Dark map and full iceberg catalog — 26 September 2026
+
+The active map uses a dark tile-only CSS palette with dark fallback land/water and readable controls; overlays retain their original bright colors. Official iceberg display now defaults to All 33, superseding near-route-only defaults below. Each reported position gets a static 24px white/cyan iceberg SVG icon with accessible title and tooltip. All catalog markers remain enabled independent of route/view; offscreen positions require panning or the locator, and close positions can overlap at overview zoom. Near route and Explore area remain optional filters. Forecast rings/connectors appear at zoom 4+ or for the selected iceberg; selected trajectory and hazard detail remain lazy-loaded. Coordinates are unchanged.
+
+Validation: 32 frontend tests passed, including all-catalog selection outside the viewport and existing route filtering. Browser verified 33 marker elements, readable route contrast, D15A selection/forecast popup and no alert.
+
+## 2026-09-26 — Cap forecasts at 72 hours
+
+Updated ControlDeck's slider and dynamic days label, migrated oversized saved horizons in App, and capped backend route/iceberg request validation at 72 hours. Existing 12-hour UI steps and 72-hour default remain. Updated API reference and current implementation. Validation: 31 frontend tests passed; targeted backend controls/forecast-limit test passed, including HTTP 422 checks on all forecast query routes.
 
 ## 2026-09-26 — Observation routing, map repairs and boundary revert
 

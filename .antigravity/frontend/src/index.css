@@ -111,8 +111,17 @@
 .iceberg-mode-button:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
 .map-space-toggle { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 1500; }
 .planner-workspace { isolation: isolate; z-index: 0; }
-.planner-workspace > main { min-width: 0; overflow: hidden; }
+.planner-workspace > main { min-width: 0; overflow: hidden; padding: 16px; }
+.planner-workspace > main .polar-map { border: 1px solid #31536b; border-radius: 12px; box-shadow: 0 8px 24px #0005; }
 .polar-map { isolation: isolate; overflow: hidden; }
+.polar-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(.65) brightness(1.15) contrast(.85); }
+.polar-map .leaflet-bar a { background: #102537; color: #e0f2fe; border-color: #42627a; }
+.polar-map .leaflet-bar a:hover { background: #24445b; }
+.polar-map .leaflet-control-attribution { background: #071725e8 !important; color: #cbd5e1; }
+.polar-map .leaflet-control-attribution a { color: #67e8f9; }
+.official-iceberg-icon { filter: drop-shadow(0 0 2px #22d3ee); }
+.official-iceberg-icon:focus-visible { outline: 2px solid #fcd34d; border-radius: 4px; }
+.iceberg-display-control > .flex { flex-wrap: wrap; }
 .report-overlay { z-index: 2000; }
 .planner-shell:not(.map-expanded) .map-space-toggle { top: auto; bottom: 8px; }
 .map-expanded .planner-workspace { position: fixed; inset: 0; z-index: 100; display: block; }

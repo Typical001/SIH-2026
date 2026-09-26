@@ -21,7 +21,7 @@ Base: http://127.0.0.1:8000 . Interactive schema: /docs .
 
 Main route request defaults: forecast_hours 72, safety_buffer_km 25, origin_type GATEWAY, gateway_code ZACPT, destination_station_id bharati_station, vessel_ice_class PC3, cruising_speed_knots 14.5, remaining_fuel_mt 450, max_tank_capacity_mt 500, reference_burn_mt_day 12, reserve_percent 15.
 
-Horizon range 0–168 h; buffer 5–100 km; fuel 0–5000 t and no greater than tank capacity. Non-finite and out-of-range coordinates are rejected. MID_OCEAN_COORDINATES and CURRENT_SHIP_GPS accept origin_coords [lat, lon]; optional start/end latitude+longitude pairs override endpoints. The GPS token is retained for compatibility and does not imply a live AIS service.
+Horizon range 0–72 h; buffer 5–100 km; fuel 0–5000 t and no greater than tank capacity. Forecast values above 72 return HTTP 422 on route and iceberg forecast/detail endpoints. The UI offers 24–72 hours in 12-hour steps, default 72. Non-finite and out-of-range coordinates are rejected. MID_OCEAN_COORDINATES and CURRENT_SHIP_GPS accept origin_coords [lat, lon]; optional start/end latitude+longitude pairs override endpoints. The GPS token is retained for compatibility and does not imply a live AIS service.
 
 grid_resolution_deg is retained as a compatibility parameter; the active finite passage network is fixed and there is no enabled UI grid-resolution control.
 

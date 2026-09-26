@@ -17,13 +17,13 @@ export function metricsFromFeature(feature) {
 }
 
 function usePlanningState(key, initial) {
- const [value,setValue]=useState(()=>{try {const saved=localStorage.getItem('polarnav-v2-'+key);return saved===null?initial:JSON.parse(saved);}catch{return initial;}});
+ const [value,setValue]=useState(()=>{try {const saved=localStorage.getItem('polarnav-v2-'+key);const parsed=saved===null?initial:JSON.parse(saved);return key==='forecastHours'?(Number.isFinite(parsed)?Math.min(72,Math.max(24,parsed)):72):parsed;}catch{return initial;}});
  useEffect(()=>{try{localStorage.setItem('polarnav-v2-'+key,JSON.stringify(value));}catch{}},[key,value]);
  return [value,setValue];
 }
 
 export default function App() {
-  const [expandedMap,setExpandedMap]=useState(true);
+  const [expandedMap,setExpandedMap]=useState(false);
   // In-Voyage Departure & Routing Modes
   const [departureMode, setDepartureMode] = usePlanningState('departureMode', 'GATEWAY'); // 'GATEWAY' | 'CURRENT_SHIP_GPS' | 'MID_OCEAN_COORDINATES'
   const [selectedGateway, setSelectedGateway] = usePlanningState('selectedGateway', 'ZACPT'); // Cape Town Port default
@@ -364,7 +364,6 @@ export default function App() {
         loading={loading}
         onRefresh={() => { fetchRoute(); fetchAuxiliaryLayers(); }}
         onOpenReport={() => setIsReportOpen(true)}
-        onExportPDF={handleExportPDF}
         vesselIceClass={vesselIceClass}
         forecastHours={forecastHours}
         systemHealth={systemHealth}

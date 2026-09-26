@@ -26,7 +26,7 @@ app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:3000','http:/
 
 class CalculateRouteRequest(BaseModel):
     model_config=ConfigDict(allow_inf_nan=False,extra='forbid')
-    forecast_hours:int=Field(72,ge=0,le=168)
+    forecast_hours:int=Field(72,ge=0,le=72)
     safety_buffer_km:float=Field(25,ge=5,le=100)
     origin_type:Literal['GATEWAY','CURRENT_SHIP_GPS','MID_OCEAN_COORDINATES']='GATEWAY'
     origin_coords:list[float]|None=Field(None,min_length=2,max_length=2)
@@ -61,11 +61,11 @@ def health_check():
                 iceberg_count=33,header_status_text='USNIC 24 Sep 2026 + estimates',version='2.0.0')
 
 @app.get('/api/v1/icebergs')
-def get_icebergs(forecast_hours:int=Query(72,ge=0,le=168),safety_buffer_km:float=Query(25,ge=5,le=100)):
+def get_icebergs(forecast_hours:int=Query(72,ge=0,le=72),safety_buffer_km:float=Query(25,ge=5,le=100)):
     return iceberg_response(forecast_hours,safety_buffer_km)
 
 @app.get('/api/v1/icebergs/{identifier}/trajectory')
-def trajectory(identifier:str,forecast_hours:int=Query(72,ge=0,le=168),safety_buffer_km:float=Query(25,ge=5,le=100)):
+def trajectory(identifier:str,forecast_hours:int=Query(72,ge=0,le=72),safety_buffer_km:float=Query(25,ge=5,le=100)):
     result=next((f for f in forecast(forecast_hours,safety_buffer_km) if f['id']==identifier),None)
     if not result: raise HTTPException(404,'Unknown iceberg')
     return dict(dataset_id=DATASET_ID,**result,hazard_geometry=mapping(hazard_geometry(result)))

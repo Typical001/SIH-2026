@@ -5,6 +5,11 @@ const world = { south: -90, north: 90, west: -180, east: 180 };
 const select = (records, options = {}) => selectIcebergs(records, { mode: 'route', zoom: 6, bounds: world, ...options });
 
 describe('iceberg display filtering', () => {
+  it('retains all 33 catalog markers in all mode, independent of route and viewport', () => {
+    const records=indexIcebergs(Array.from({length:33},(_,i)=>({id:String(i),lat:-65,lon:-160+i*10})),[],[]);
+    expect(select(records,{mode:'all',bounds:{south:-40,north:-30,west:10,east:20}}).items).toHaveLength(33);
+    expect(select(records,{mode:'route'}).items).toHaveLength(0);
+  });
   it('finds icebergs beside a segment, not only its endpoints', () => {
     const records = indexIcebergs([{ id: 'near', lat: 0.1, lon: 5 }, { id: 'far', lat: 5, lon: 5 }], [], [[0, 0], [0, 10]]);
     expect(select(records).items.map(i => i.id)).toEqual(['near']);

@@ -1,5 +1,14 @@
 # Current issue status — 26 September 2026
 
+## Centered map follow-up — 26 September 2026
+
+This checkpoint supersedes the earlier full-window default and low-zoom repetition notes. The app now opens with planning panels and a bordered rectangular map. Horizontal wrapping/worldCopyJump remain enabled, with no fixed longitude bounds. ResizeObserver sets minimum zoom to ceil(10 × log2(max(viewport width, height) / 256)) / 10, so the viewport never spans multiple complete worlds. World view respects this limit; on wide screens it is an overview, not a guarantee that both poles fit vertically. Fit route restores the selected passage.
+
+SVG route and endpoint copies at longitude offsets -360/0/+360 stay aligned across the date line. Reference/estimated polygon layers and iceberg positions also account for display wrapping; route-corridor filtering normalizes continuous backend longitudes. Renderer teardown belongs to Leaflet, preventing React effect refresh from detaching live SVG paths. The report stacking fix remains active.
+
+Validation: 31 frontend tests across 6 files; desktop default and Hobart–McMurdo route fitting, world-seam pan, all optional layers enabled with visible routes, report open/close, and no alert observed. Backend routing was unchanged. See TESTING.md for the current verification scope.
+
+
 The nine requested demo issues have been addressed in the active observation-backed runtime. The old NAV register is retained below as historical evidence, not current status. See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for implementation boundaries and assumptions.
 
 | Requested issue | Current resolution |

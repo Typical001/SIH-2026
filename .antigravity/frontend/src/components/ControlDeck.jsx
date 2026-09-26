@@ -275,12 +275,12 @@ export default function ControlDeck({
                 <Clock className="w-3 h-3 text-amber-400" />
                 Forecast Horizon:
               </span>
-              <span className="text-amber-300 font-bold">+{forecastHours}h (3 Days)</span>
+              <span className="text-amber-300 font-bold">+{forecastHours}h ({forecastHours / 24} days)</span>
             </div>
             <input
               type="range"
               min="24"
-              max="168"
+              max="72"
               step="12"
               value={forecastHours}
               onChange={(e) => onChangeForecastHours(parseInt(e.target.value))}

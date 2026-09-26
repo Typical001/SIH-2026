@@ -77,9 +77,12 @@ class ObservationDemoTests(unittest.TestCase):
         a=self.route(forecast_hours=0,safety_buffer_km=5).json()
         b=self.route(forecast_hours=72,safety_buffer_km=25).json()
         self.assertNotEqual(a['metadata']['request_id'],b['metadata']['request_id'])
-        self.assertGreater(forecast(168,50)[0]['safety_radius_km'],forecast(0,5)[0]['safety_radius_km'])
+        self.assertGreater(forecast(72,50)[0]['safety_radius_km'],forecast(0,5)[0]['safety_radius_km'])
         blocked=self.route(forecast_hours=168,safety_buffer_km=50)
-        self.assertEqual(blocked.status_code,409,blocked.text)
+        self.assertEqual(blocked.status_code,422,blocked.text)
+
+        for endpoint in ['/api/v1/icebergs','/api/v1/icebergs/D15A/trajectory','/api/v1/pareto-routes','/api/v1/polar-route']:
+            self.assertEqual(self.client.get(endpoint,params={'forecast_hours':73}).status_code,422)
         slow=self.route(cruising_speed_knots=10).json()['features'][0]['properties']
         fast=self.route(cruising_speed_knots=20).json()['features'][0]['properties']
         self.assertGreater(slow['eta_hours'],fast['eta_hours'])

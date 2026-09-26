@@ -11,6 +11,8 @@ const angle = (a, b) => Math.atan2(Math.hypot(...cross(a, b)), clamp(dot(a, b)))
 export const distanceKm = (a, b) => R * angle(vector(a), vector(b));
 
 export function prepareRoute(route) {
+  // Backend routes are continuous across the date line and can exceed +/-180.
+  route=route.map(p=>Array.isArray(p)?[p[0],((p[1]+180)%360+360)%360-180]:p);
   // Do not bridge across invalid waypoints.
   return route.slice(1).flatMap((b, i) => {
     const a = route[i];
@@ -70,7 +72,7 @@ export function selectIcebergs(records, { mode, bounds, zoom, corridorKm = 50, l
   const candidates = [];
   for (const record of records) {
     if (mode === 'route' && record.routeDistanceKm > corridorKm + record.hazardRadiusKm) continue;
-    const position = record.points.find(p => inViewport(p, bounds));
+    const position = mode === 'all' ? record.points[0] : record.points.find(p => inViewport(p, bounds));
     if (!position) continue;
     candidates.push({ ...record, position, rank: mode === 'route' ? record.routeDistanceKm - record.hazardRadiusKm : distanceKm(position, center) });
   }

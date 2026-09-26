@@ -1,5 +1,24 @@
 # Current implementation — 26 September 2026
 
+## Dark map and full iceberg catalog — 26 September 2026
+
+Follow-up: iceberg labels are hover/focus tooltips instead of zoom-dependent permanent tooltips, avoiding labels remaining open when returning from a close inspection to route overview.
+
+The active map uses a dark tile-only CSS palette with dark fallback land/water and readable controls; overlays retain their original bright colors. Official iceberg display now defaults to All 33, superseding near-route-only defaults below. Each reported position gets a static 24px white/cyan iceberg SVG icon with accessible title and tooltip. All catalog markers remain enabled independent of route/view; offscreen positions require panning or the locator, and close positions can overlap at overview zoom. Near route and Explore area remain optional filters. Forecast rings/connectors appear at zoom 4+ or for the selected iceberg; selected trajectory and hazard detail remain lazy-loaded. Coordinates are unchanged.
+
+Validation: 32 frontend tests passed, including all-catalog selection outside the viewport and existing route filtering. Browser verified 33 marker elements, readable route contrast, D15A selection/forecast popup and no alert.
+
+Forecast limit update: maximum horizon is 72 hours (3 days), enforced by route request validation and iceberg summary/trajectory query validation. UI range remains 24 hours minimum with 12-hour steps; default is 72. Saved browser horizons above the cap are clamped on initialization. The days label reflects the selected duration. Voyage coverage warnings remain; a longer voyage does not imply a forecast beyond 72 hours.
+
+## Centered map follow-up — 26 September 2026
+
+This checkpoint supersedes the earlier full-window default and low-zoom repetition notes. The app now opens with planning panels and a bordered rectangular map. Horizontal wrapping/worldCopyJump remain enabled, with no fixed longitude bounds. ResizeObserver sets minimum zoom to ceil(10 × log2(max(viewport width, height) / 256)) / 10, so the viewport never spans multiple complete worlds. World view respects this limit; on wide screens it is an overview, not a guarantee that both poles fit vertically. Fit route restores the selected passage.
+
+SVG route and endpoint copies at longitude offsets -360/0/+360 stay aligned across the date line. Reference/estimated polygon layers and iceberg positions also account for display wrapping; route-corridor filtering normalizes continuous backend longitudes. Renderer teardown belongs to Leaflet, preventing React effect refresh from detaching live SVG paths. The report stacking fix remains active.
+
+Validation: 31 frontend tests across 6 files; desktop default and Hobart–McMurdo route fitting, world-seam pan, all optional layers enabled with visible routes, report open/close, and no alert observed. Backend routing was unchanged. See TESTING.md for the current verification scope.
+
+
 This document supersedes the September 24 live-provider audit and September 25 simulated-fixture design. The user requested actual supplied/researched observations, then explicitly authorized calculated estimates for missing data while retaining the features.
 
 ## Active architecture
