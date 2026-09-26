@@ -16,7 +16,7 @@ Repository: Typical001/SIH-2026, branch main. Runtime Python, root directory `.a
 
 Blueprint configuration: `.antigravity/render.yaml` relative to repository root. Do not select paid compute or disks.
 Bundled inputs: backend/data/{observed_icebergs.json,locations.json,map_base.geojson,ne_10m_land.zip} and research/iceberg-data/{byu_snapshot.geojson,usnic_shelf_2022.zip}.
-The active API does not require the historical CSV archive, NumPy/SciPy legacy code, AIS database or Google key.
+The active API does not require the historical CSV archive, SciPy legacy code, AIS database or Google key. Shapely installs NumPy as a dependency.
 
 ## Netlify frontend
 
@@ -31,3 +31,14 @@ Free Render sleeps after inactivity; initial route and coastline requests allow 
 Windows single-route measurement: ~125 MiB peak working set; this is not a Linux or load-test guarantee. Check cloud memory/logs after publishing.
 Check health, all 33 iceberg records, CORS preflight, default three routes, PC5 McMurdo rejection, fuel feasibility, report export and browser console after deployment.
 Keep local `.env.local` files out of Git. A previously tracked key remains in Git history; removing it from the current tree does not revoke it. Restrict or rotate it at its provider if exposed.
+
+Local verification: 18 backend tests and 32 frontend tests passed; Vite production build passed. Cloud checks pending.
+
+## Created services
+
+- Frontend: https://polarnav-sih2026.netlify.app (public; Netlify GitHub deployment).
+- API: https://polarnav-backend.onrender.com (Render Free, Singapore).
+- Render service: srv-das14igjo6nc739q2bj0.
+- Source deployment commit: a4bdfe3.
+- Both services follow the existing main branch. Netlify previews remain private.
+- Netlify VITE_API_URL points to the API origin. Render ALLOWED_ORIGINS is set to the exact frontend origin.

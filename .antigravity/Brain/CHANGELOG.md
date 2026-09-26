@@ -1,3 +1,7 @@
+## Public hosting preparation - 27 September 2026
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for Netlify frontend / Render free backend configuration, browser-local waypoints, CORS and cold-start handling.
+
 > **Current-runtime update (26 September 2026):** See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for the observation-backed engine and estimation formulas, [RUNNING.md](RUNNING.md) for setup/start/stop, and [TESTING.md](TESTING.md) for current passing checks. Earlier runtime descriptions and test counts below are historical and superseded. No new Git commit is implied.
 
 ## Centered map follow-up — 26 September 2026

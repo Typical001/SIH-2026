@@ -1,6 +1,6 @@
-## Public hosting preparation — 27 September 2026
+## Public hosting preparation - 27 September 2026
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for Netlify frontend / Render free backend configuration, browser-local public waypoints, CORS, cold-start handling and verification status. Existing routing objectives and datasets remain unchanged.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for Netlify frontend / Render free backend configuration, browser-local waypoints, CORS and cold-start handling.
 
 # PolarNav project Brain
 

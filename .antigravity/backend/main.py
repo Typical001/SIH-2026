@@ -26,7 +26,9 @@ app.add_middleware(GZipMiddleware,minimum_size=1000)
 ALLOWED_ORIGINS=[origin.strip().rstrip('/') for origin in os.getenv('ALLOWED_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if origin.strip()]
 PUBLIC_DEMO=os.getenv('PUBLIC_DEMO','false').lower()=='true'
 ROUTE_LOCK=Lock()
-app.add_middleware(CORSMiddleware,allow_origins=ALLOWED_ORIGINS,allow_methods=['GET','POST'],allow_headers=['*'])
+# The public demo is intentionally readable from any public frontend. A
+# non-demo deployment remains restricted to the explicitly configured origins.
+app.add_middleware(CORSMiddleware,allow_origins=['*'] if PUBLIC_DEMO else ALLOWED_ORIGINS,allow_methods=['GET','POST'],allow_headers=['*'])
 
 class CalculateRouteRequest(BaseModel):
     model_config=ConfigDict(allow_inf_nan=False,extra='forbid')
