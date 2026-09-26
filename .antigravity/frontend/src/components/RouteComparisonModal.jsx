@@ -25,7 +25,7 @@ export default function RouteComparisonModal({
     ['Estimated voyage time', formatDuration(m.estimated_voyage_hours), formatDuration(m.direct_estimated_voyage_hours)],
     ['Modeled fuel consumption', `${formatNumber(m.fuel_consumption_tons, 1)} t`, Number.isFinite(m.direct_fuel_consumption_tons) ? `${formatNumber(m.direct_fuel_consumption_tons, 1)} t` : 'Unavailable'],
     ['Model risk score (0–100)', `${formatNumber(m.risk_score, 1)} (${riskLabel(m.risk_score)})`, 'Unavailable'],
-    ['Reported hazard intersections', 'Route clearance not verified', Array.isArray(m.direct_route_collision_hazards) ? String(m.direct_route_collision_hazards.length) : 'Unavailable']
+    ['Reported hazard intersections', m.geometry_validated ? 'Passed bundled obstacle checks' : 'Route clearance not verified', Array.isArray(m.direct_route_collision_hazards) ? String(m.direct_route_collision_hazards.length) : 'Unavailable']
   ] : [];
 
   const handleExportPDF = () => {
@@ -44,19 +44,19 @@ export default function RouteComparisonModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div className="report-overlay fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <div role="dialog" aria-modal="true" aria-labelledby="report-title" className="w-full max-w-3xl glass-panel-glow rounded-2xl border border-cyan-500/40 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
           <h3 id="report-title" className="text-base font-bold text-white flex items-center gap-2">
             <Navigation className="w-5 h-5 text-cyan-400" />
-            {m ? 'Official Bridge Navigational Plan & Risk Audit' : 'Route analytics unavailable'}
+            {m ? 'Observation-backed planning report' : 'Route analytics unavailable'}
           </h3>
           <div className="flex items-center gap-2">
             {m && (
               <button 
                 onClick={handleExportPDF} 
                 className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-neon-cyan cursor-pointer"
-                title="Download Official Bridge Navigational Plan PDF"
+                title="Download Planning report PDF"
               >
                 <FileText className="w-4 h-4" />
                 Export PDF
@@ -67,7 +67,7 @@ export default function RouteComparisonModal({
         </div>
         <div className="p-6 overflow-y-auto space-y-4 text-sm text-slate-300">
           {!m ? <p>Complete a successful route calculation to view analytics.</p> : <>
-            <p>Model estimates from synthetic environmental data. These results do not verify navigational safety. Unavailable baseline values have not been calculated.</p>
+            <p>USNIC iceberg observations dated 24 September 2026, Natural Earth land and USNIC 2022 shelves. Forecasts, environmental conditions and fuel are calculated estimates. These results do not verify navigational safety.</p>
             {m.forecast_covers_voyage === false && <p className="text-amber-300">The voyage exceeds the {m.forecast_hours}h forecast by {m.uncovered_voyage_hours}h; later iceberg positions are unknown.</p>}
             {m.baseline_is_navigable === false && <p className="text-amber-300">The direct baseline fails traversal checks. Its time and fuel are hypothetical comparisons, not a usable voyage plan.</p>}
             <div className="overflow-x-auto rounded border border-slate-800">

@@ -1,70 +1,58 @@
-# Contribution and change-tracking workflow
+> **Current-runtime update (26 September 2026):** See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for the observation-backed engine and estimation formulas, [RUNNING.md](RUNNING.md) for setup/start/stop, and [TESTING.md](TESTING.md) for current passing checks. Earlier runtime descriptions and test counts below are historical and superseded. No new Git commit is implied.
 
-Updated **2026-09-19**, baseline **2cc8271** (with Frontend Login System and PDF Export features). The team collaborates directly on main; develop/feature branches are not required.
+# Contribution and change tracking
 
-## Change workflow
+## Current map maintenance rules — 26 September 2026
 
-1. Inspect Git status and preserve unrelated existing work.
-2. Read affected modules/callers; maintain coordinate order, units, bounds, auth context, and live/cached/simulated provenance.
-3. Run relevant checks in [TESTING.md](TESTING.md), recording substitutions and failures. Current frontend result is **40/40 passed** (100%); controlled backend result is **24/24 passed**.
-4. Update CHANGELOG for code/config additions, modifications, removals and renames: exact paths, reason, behavior, verification and migration/rollback.
-5. Update affected Brain reference sections in place, rather than appending notes beneath stale descriptions.
-6. Review the full staged diff; stage intended paths explicitly.
+Keep route geometry sourced from backend waypoints and observation markers sourced from the shared dataset. Preserve the separate SVG route renderer and bounded canvas iceberg rendering, non-bubbling route clicks, isolated map stacking, and the report overlay above both map modes. Do not report visual verification solely from mocked component tests.
+
+When changing world wrapping, test dateline-crossing routes, pan/zoom, World view, Fit route, resize and report open/close. The fixed single-world boundary experiment was reverted at the user's request because routes appeared outside the map; horizontal repetition is a known remaining limitation. Record experimental and reverted behavior separately from current behavior. Use [TESTING.md](TESTING.md) for the latest evidence; this documentation pass does not imply new test runs or commits.
+
+
+Reviewed **2026-09-24**, code baseline **8bb44ea**. The existing team workflow uses main; this document does not require new branches.
+
+## Workflow
+
+1. Inspect git status and preserve unrelated work.
+2. Read active callers as well as the edited file. Retained panels/auth/geometry/database modules may not be connected to production.
+3. Maintain coordinate order, units, complete route checks, bounded workloads and observed/cached/modeled provenance.
+4. Run appropriate checks from [TESTING.md](TESTING.md). Record exact pass/fail counts, dependency workarounds, mocks and checks not run. Never copy old green counts.
+5. Update affected Brain sections in place, KNOWN_ISSUES status with evidence, and CHANGELOG with exact changed paths and behavior.
+6. Refresh FILE_INVENTORY when files change and GIT_CHANGE_HISTORY from real commit records.
+7. Review the complete diff and stage only intended paths. Commit/push only when authorized by the task.
 
 ```powershell
 git status --short
 git diff --name-status
 git diff --stat
-git diff --cached --name-status
+git diff --check
 git diff --cached
 git ls-files --others --exclude-standard
 ```
 
-No CI, automatic Markdown hook or recurring monitor is installed. Git is authoritative; Markdown does not watch the filesystem.
+No first-party CI workflow, automatic Brain synchronization hook or recurring monitor is installed. Brain is a reviewed snapshot, not a filesystem watcher.
 
-## Main-only collaboration
+## Integration and evidence
 
-Start clean or preserve unfinished changes before pulling. After editing, stage specific reviewed files. Integrate teammate commits before pushing and rerun relevant checks.
+When integrating teammates' work on main, use normal fast-forward/rebase workflows after preserving local changes. Do not force-push shared main or reset unrelated changes. Review deletions explicitly; UI replacement does not justify dropping safety tests or documentation.
 
-```powershell
-git switch main
-git pull --ff-only origin main
-# Edit, review, and git add specific intended paths.
-git diff --cached --name-status
-git diff --cached
-git commit -m "Describe the actual change"
-# With a clean working tree, integrate new remote work.
-git pull --rebase origin main
-git push origin main
-```
+Do not make tests green by removing failed safety assertions. Separate stale UI mocks/contracts from runtime regressions and add coverage to the active three-profile path. A successful fallback must satisfy the same geometric and provenance checks as a normal route.
 
-Resolve rebase conflicts, stage those files and run git rebase --continue, then verify. For missing upstream, use git push --set-upstream origin main. Do not force-push shared main.
+Provider changes require representative schemas, finite geographic values, units, observation/forecast times, spatial/time cache validity, bounded request work and explicit unavailable states. Test with a disposable DB configured before module imports. PDF statements must derive from verified data; branding is not certification.
 
-## AI-assisted changes and deletions
+Keep historical records under dated headings. If an earlier “fixed” claim no longer holds, mark the issue regressed and describe current evidence. Do not reuse NAV IDs for unrelated features.
 
-Review all staged D entries. Replacing UI components does not justify deleting Brain/tests. Restore accidental deletions from a known good commit using only needed paths, inspect the diff and commit the restoration; avoid whole-repository resets.
-
-Restored files must match dependencies and behavior. New PDF export features should use `PolarNav Engine` branding and maintain actual route data bindings. Provider changes can likewise invalidate fixed-model test assumptions. Separate engine fixtures from provider integration tests; retain meaningful assertions.
-
-New data work needs schema/units validation, observation timestamps, source propagation, spatial/time cache bounds, bounded network work and explicit outage contracts. Configured URLs and health strings are not verified feed results.
-
-## Change record template
+## Change record
 
 ```markdown
 ## YYYY-MM-DD — Concrete change
 
-- Reference: commit/issue or uncommitted.
-- Reason and behavior: trigger and resulting behavior.
-
-### Added / modified / removed / renamed
-
-- exact/path: purpose, reason and replacement if applicable.
-
-### Validation and impact
-
-- Commands/results, substitutions, failures and checks not run.
-- API/configuration compatibility, migration and scoped rollback.
-- Documentation updated and issues resolved or remaining.
+- Reference: commit or uncommitted baseline.
+- Problem and resulting behavior.
+- Exact files added/modified/removed/renamed.
+- Validation: commands, results, fixtures, failures, limitations.
+- API/data/config migration and scoped rollback.
+- Brain references and issue IDs updated.
 ```
 
-Paths are application-relative unless marked Git-root-relative; docs use Brain/. Refresh FILE_INVENTORY when structure changes, GIT_CHANGE_HISTORY from actual commits, and KNOWN_ISSUES when verified status changes. Keep prior evidence under dated historical headings. Do not edit vendor changelogs for application work.
+Current verification is intentionally not duplicated here; [TESTING.md](TESTING.md) is the authoritative snapshot.

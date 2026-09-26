@@ -1,0 +1,92 @@
+{
+  "POLAR_GATEWAYS": {
+    "ZACPT": {
+      "code": "ZACPT",
+      "id": "ZACPT",
+      "name": "Cape Town Port (South Africa)",
+      "country": "South Africa",
+      "lat": -33.9249,
+      "lon": 18.4241,
+      "type": "gateway",
+      "description": "Primary MoES/NCPOR Indian Antarctic Expedition Gateway & Logistics Hub"
+    },
+    "USH": {
+      "code": "USH",
+      "id": "USH",
+      "name": "Ushuaia Port (Argentina)",
+      "country": "Argentina",
+      "lat": -54.8019,
+      "lon": -68.303,
+      "type": "gateway",
+      "description": "Drake Passage & Antarctic Peninsula Gateway"
+    },
+    "CLPUQ": {
+      "code": "CLPUQ",
+      "id": "CLPUQ",
+      "name": "Punta Arenas (Chile)",
+      "country": "Chile",
+      "lat": -53.1638,
+      "lon": -70.9171,
+      "type": "gateway",
+      "description": "Strait of Magellan Polar Gateway"
+    },
+    "AUHBT": {
+      "code": "AUHBT",
+      "id": "AUHBT",
+      "name": "Hobart Port (Tasmania, Australia)",
+      "country": "Australia",
+      "lat": -42.8821,
+      "lon": 147.3272,
+      "type": "gateway",
+      "description": "East Antarctica & Southern Ocean Gateway"
+    },
+    "NZLYT": {
+      "code": "NZLYT",
+      "id": "NZLYT",
+      "name": "Christchurch / Lyttelton Port (New Zealand)",
+      "country": "New Zealand",
+      "lat": -43.6033,
+      "lon": 172.7194,
+      "type": "gateway",
+      "description": "Ross Sea Sector & McMurdo Sound Gateway"
+    }
+  },
+  "ANTARCTIC_STATIONS": {
+    "bharati_station": {
+      "id": "bharati_station",
+      "name": "Bharati Research Station (India)",
+      "country": "India",
+      "lat": -69.4125,
+      "lon": 76.1872,
+      "type": "antarctic_station",
+      "sector": "Larsemann Hills, Prydz Bay, East Antarctica"
+    },
+    "maitri_station": {
+      "id": "maitri_station",
+      "name": "Maitri Research Station (India)",
+      "country": "India",
+      "lat": -70.7667,
+      "lon": 11.7333,
+      "type": "antarctic_station",
+      "sector": "Schirmacher Oasis, Dronning Maud Land"
+    },
+    "mcmurdo_station": {
+      "id": "mcmurdo_station",
+      "name": "McMurdo Station (USA)",
+      "country": "USA",
+      "lat": -77.846,
+      "lon": 166.668,
+      "type": "antarctic_station",
+      "sector": "Ross Island, McMurdo Sound"
+    },
+    "rothera_station": {
+      "id": "rothera_station",
+      "name": "Rothera Research Station (UK)",
+      "country": "UK",
+      "lat": -67.5683,
+      "lon": -68.1275,
+      "type": "antarctic_station",
+      "sector": "Adelaide Island, Antarctic Peninsula"
+    }
+  }
+}

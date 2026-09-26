@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import Navbar from './components/Navbar';
 import PolarMap from './components/PolarMap';
 import TelemetrySidebar from './components/TelemetrySidebar';
@@ -7,30 +7,51 @@ import RouteComparisonModal from './components/RouteComparisonModal';
 import { generateVoyageReportPDF } from './utils/pdfGenerator';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
+
+export function metricsFromFeature(feature) {
+ const p=feature.properties;
+ return {...p,distance_nautical_miles:p.distance_nm,estimated_voyage_days:(p.eta_hours/24).toFixed(1),
+ estimated_voyage_hours:p.eta_hours,fuel_savings_percent:p.fuel_savings_pct,
+ fuel_consumption_tons:p.total_fuel_burn_mt,max_sea_ice_concentration_pct:p.max_ice_concentration,
+ risk_rating:'Estimated ice exposure',min_iceberg_distance_km:null};
+}
+
+function usePlanningState(key, initial) {
+ const [value,setValue]=useState(()=>{try {const saved=localStorage.getItem('polarnav-v2-'+key);return saved===null?initial:JSON.parse(saved);}catch{return initial;}});
+ useEffect(()=>{try{localStorage.setItem('polarnav-v2-'+key,JSON.stringify(value));}catch{}},[key,value]);
+ return [value,setValue];
+}
+
 export default function App() {
+  const [expandedMap,setExpandedMap]=useState(true);
   // In-Voyage Departure & Routing Modes
-  const [departureMode, setDepartureMode] = useState('GATEWAY'); // 'GATEWAY' | 'CURRENT_SHIP_GPS' | 'MID_OCEAN_COORDINATES'
-  const [selectedGateway, setSelectedGateway] = useState('ZACPT'); // Cape Town Port default
-  const [selectedStation, setSelectedStation] = useState('bharati_station'); // Bharati Indian Antarctic Base default
-  const [shipCoords, setShipCoords] = useState([-64.50, 72.00]); // MV Vasiliy Golovnin fallback AIS fix
+  const [departureMode, setDepartureMode] = usePlanningState('departureMode', 'GATEWAY'); // 'GATEWAY' | 'CURRENT_SHIP_GPS' | 'MID_OCEAN_COORDINATES'
+  const [selectedGateway, setSelectedGateway] = usePlanningState('selectedGateway', 'ZACPT'); // Cape Town Port default
+  const [selectedStation, setSelectedStation] = usePlanningState('selectedStation', 'bharati_station'); // Bharati Indian Antarctic Base default
+  const [shipCoords, setShipCoords] = usePlanningState('shipCoords', [-64.50, 72.00]); // MV Vasiliy Golovnin fallback AIS fix
   const [vesselImo] = useState(9577133); // NCPOR chartered polar expedition vessel IMO
 
   // Navigation Parameters
-  const [forecastHours, setForecastHours] = useState(72);
-  const [vesselIceClass, setVesselIceClass] = useState('Polar Class 3 (PC3)');
-  const [safetyBufferKm, setSafetyBufferKm] = useState(25);
-  const [cruisingSpeed, setCruisingSpeed] = useState(14.5);
+  const [forecastHours, setForecastHours] = usePlanningState('forecastHours', 72);
+  const [vesselIceClass, setVesselIceClass] = usePlanningState('vesselIceClass', 'Polar Class 3 (PC3)');
+  const [safetyBufferKm, setSafetyBufferKm] = usePlanningState('safetyBufferKm', 25);
+  const [cruisingSpeed, setCruisingSpeed] = usePlanningState('cruisingSpeed', 14.5);
 
   // Pareto-optimal 3-route & Bunker Fuel States
   const [paretoRoutes, setParetoRoutes] = useState(null); // GeoJSON FeatureCollection
   const [activeRouteType, setActiveRouteType] = useState('BALANCED'); // 'SAFEST' | 'BALANCED' | 'FASTEST'
-  const [remainingFuelMt, setRemainingFuelMt] = useState(200.0); // 200 MT initial bunker reserve
-  const [maxTankCapacityMt] = useState(200.0); // Polar Class standard capacity
+  const activeRouteTypeRef = useRef(activeRouteType);
+  activeRouteTypeRef.current = activeRouteType;
+  const [remainingFuelMt, setRemainingFuelMt] = usePlanningState('remainingFuelMt', 450.0); // 200 MT initial bunker reserve
+  const [maxTankCapacityMt] = useState(500.0);
+  const [referenceBurn, setReferenceBurn] = usePlanningState('referenceBurn', 12);
+  const [reservePercent, setReservePercent] = usePlanningState('reservePercent', 15); // Polar Class standard capacity
 
   // Operational State & Status Advisories
   const [loading, setLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(0);
   const [fallbackAdvisory, setFallbackAdvisory] = useState(null);
   const [systemHealth, setSystemHealth] = useState(null);
   const activeRequest = useRef(null);
@@ -46,13 +67,13 @@ export default function App() {
   // Checkbox State Management for Map Display Layers
   const [layerVisibility, setLayerVisibility] = useState({
     seaIce: false,
-    refIcebergs: true,
-    sarCandidates: true,
+    refIcebergs: false,
+    sarCandidates: false,
     predictedIcebergs: true,
     riskHeatmap: true,
     optimizedRoutes: true,
     oceanCurrents: false,
-    weatherWind: true,
+    weatherWind: false,
     bathymetry: false
   });
 
@@ -69,7 +90,7 @@ export default function App() {
   const [seaIceLayerData, setSeaIceLayerData] = useState(null);
   const [oceanCurrentsData, setOceanCurrentsData] = useState(null);
   const [weatherWindData, setWeatherWindData] = useState(null);
-  const [layersSyncStatus, setLayersSyncStatus] = useState('LIVE: NOAA/BYU/ECMWF');
+  const [layersSyncStatus, setLayersSyncStatus] = useState('Dated observations + estimates');
 
   // Resolve Effective Origin & Destination
   const currentGateway = POLAR_GATEWAYS.find(g => g.code === selectedGateway) || POLAR_GATEWAYS[0];
@@ -84,7 +105,7 @@ export default function App() {
   const originLabel = departureMode === 'GATEWAY'
     ? currentGateway.name
     : departureMode === 'CURRENT_SHIP_GPS'
-      ? `MV Vasiliy Golovnin (IMO ${vesselImo}) AIS Fix`
+      ? `Saved planning waypoint (IMO ${vesselImo})`
       : 'Southern Ocean Waypoint (Map Click)';
 
   const destLabel = currentStation.name;
@@ -161,9 +182,16 @@ export default function App() {
     activeRequest.current?.abort();
     const controller = new AbortController();
     activeRequest.current = controller;
+    let timedOut = false;
+    const deadline = setTimeout(() => { timedOut = true; controller.abort(); }, 30000);
     setLoading(true);
     setErrorMsg(null);
     setFallbackAdvisory(null);
+    setParetoRoutes(null);
+    setWaypoints([]);
+    setDirectWaypoints([]);
+    setRouteMetrics(null);
+    setIcebergsPredicted([]);
 
     fetchHealth();
 
@@ -176,33 +204,41 @@ export default function App() {
         gateway_code: selectedGateway,
         destination_station_id: selectedStation,
         origin_coords: departureMode !== 'GATEWAY' ? [originCoords.lat, originCoords.lon] : undefined,
-        start_lat: originCoords.lat,
-        start_lon: originCoords.lon,
-        end_lat: destinationCoords.lat,
-        end_lon: destinationCoords.lon,
+        start_lat: departureMode === 'GATEWAY' ? undefined : originCoords.lat,
+        start_lon: departureMode === 'GATEWAY' ? undefined : originCoords.lon,
+        forecast_hours: forecastHours,
+        safety_buffer_km: safetyBufferKm,
         vessel_imo: vesselImo,
         remaining_fuel_mt: remainingFuelMt,
         max_tank_capacity_mt: maxTankCapacityMt,
         vessel_ice_class: vesselIceClass,
         cruising_speed_knots: cruisingSpeed,
-        grid_resolution_deg: 0.8
+        grid_resolution_deg: 0.8,
+        reference_burn_mt_day: referenceBurn,
+        reserve_percent: reservePercent
       };
 
-      const [calcRes, ibRes] = await Promise.all([
-        fetch(`${apiUrl}/api/v1/calculate-route`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(calcPayload),
-          signal: controller.signal
-        }),
-        fetch(`${apiUrl}/api/v1/icebergs?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {
-          signal: controller.signal
-        }).catch(() => null)
-      ]);
+      // Overlay data must not hold the route spinner open.
+      fetch(`${apiUrl}/api/v1/icebergs?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {
+        signal: controller.signal
+      }).then(r => r.ok ? r.json() : null).then(ibData => {
+        if (!ibData || controller.signal.aborted || activeRequest.current !== controller) return;
+        setIcebergsPresent(ibData.icebergs_present || []);
+        const details = new Map((ibData.detailed_forecasts || []).map(fc => [String(fc.iceberg_id), fc]));
+        setIcebergsPredicted((ibData.icebergs_predicted_72h || []).map(ib => ({
+          ...ib, trajectory_points: details.get(String(ib.id))?.trajectory_points || ib.trajectory_points,
+        })));
+      }).catch(() => {});
+      const calcRes = await fetch(`${apiUrl}/api/v1/calculate-route`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(calcPayload), signal: controller.signal
+      });
 
       if (controller.signal.aborted || activeRequest.current !== controller) return;
 
       if (!calcRes.ok) {
+        const failure = await calcRes.json().catch(() => ({}));
+        if (failure.detail?.message) throw new Error(failure.detail.message);
         throw new Error(`Routing calculation failed with status ${calcRes.status}`);
       }
 
@@ -224,46 +260,27 @@ export default function App() {
         }
 
         // Set active route geometry & metrics
-        const activeFeature = paretoData.features.find(f => f.properties?.route_type === activeRouteType) || paretoData.features[0];
+        const activeFeature = paretoData.features.find(f => f.properties?.route_type === paretoData.metadata?.recommended_route_type) || paretoData.features.find(f => f.properties?.route_type === activeRouteTypeRef.current) || paretoData.features[0];
         if (activeFeature) {
+          setActiveRouteType(activeFeature.properties.route_type);
           const wpts = activeFeature.properties?.waypoints_latlon || [];
           setWaypoints(wpts);
           setDirectWaypoints([[originCoords.lat, originCoords.lon], [destinationCoords.lat, destinationCoords.lon]]);
-          setRouteMetrics({
-            distance_nautical_miles: activeFeature.properties?.distance_nm || 0,
-            estimated_voyage_days: ((activeFeature.properties?.eta_hours || 0) / 24).toFixed(1),
-            estimated_voyage_hours: activeFeature.properties?.eta_hours || 0,
-            fuel_savings_percent: activeFeature.properties?.fuel_savings_pct || 14.2,
-            total_fuel_burn_mt: activeFeature.properties?.total_fuel_burn_mt || 0,
-            fuel_consumption_tons: activeFeature.properties?.total_fuel_burn_mt || 0,
-            feasibility_status: activeFeature.properties?.feasibility_status || 'OPTIMAL',
-            min_polaris_rio: activeFeature.properties?.min_polaris_rio ?? 0,
-            max_ice_concentration: activeFeature.properties?.max_ice_concentration ?? 0,
-            max_sea_ice_concentration_pct: activeFeature.properties?.max_ice_concentration ?? 18,
-            risk_score: activeFeature.properties?.route_type === 'SAFEST' ? 12.0 : activeFeature.properties?.route_type === 'BALANCED' ? 24.5 : 48.0,
-            risk_rating: activeFeature.properties?.route_type === 'SAFEST' ? 'LOW RISK' : activeFeature.properties?.route_type === 'BALANCED' ? 'OPTIMAL' : 'HIGH SPEED / MODERATE RISK',
-            collision_risk_index: activeFeature.properties?.route_type === 'SAFEST' ? 0.00 : 0.04
-          });
+          setRouteMetrics(metricsFromFeature(activeFeature));
         }
       }
 
-      // Populate live iceberg telemetry
-      if (ibRes && ibRes.ok) {
-        const ibData = await ibRes.json();
-        if (!controller.signal.aborted && activeRequest.current === controller) {
-          setIcebergsPresent(ibData.icebergs_present || []);
-          setIcebergsPredicted(ibData.icebergs_predicted_72h || []);
-        }
-      }
     } catch (err) {
-      if (controller.signal.aborted || activeRequest.current !== controller) return;
+      if (activeRequest.current !== controller || (controller.signal.aborted && !timedOut)) return;
       console.warn('In-voyage route calculation error:', err);
-      setErrorMsg('Navigation trajectory recalculation failed. Please verify departure parameters.');
+      setParetoRoutes(null);
+      setWaypoints([]);
+      setDirectWaypoints([]);
+      setRouteMetrics(null);
+      setErrorMsg(timedOut ? 'Route calculation timed out after 30 seconds. Please retry or choose a shorter demo passage.' : `Navigation trajectory recalculation failed. ${err.message}`);
     } finally {
-      if (activeRequest.current === controller && !controller.signal.aborted) {
-        activeRequest.current = null;
-        setLoading(false);
-      }
+      clearTimeout(deadline);
+      if (activeRequest.current === controller) setLoading(false);
     }
   }, [
     departureMode,
@@ -278,9 +295,11 @@ export default function App() {
     cruisingSpeed,
     remainingFuelMt,
     maxTankCapacityMt,
+    referenceBurn,
+    reservePercent,
+    refreshToken,
     forecastHours,
     safetyBufferKm,
-    activeRouteType,
     getApiUrl,
     fetchHealth
   ]);
@@ -291,30 +310,19 @@ export default function App() {
       const activeFeature = paretoRoutes.features.find(f => f.properties?.route_type === activeRouteType);
       if (activeFeature) {
         setWaypoints(activeFeature.properties?.waypoints_latlon || []);
-        setRouteMetrics(prev => ({
-          ...prev,
-          distance_nautical_miles: activeFeature.properties?.distance_nm || 0,
-          estimated_voyage_days: ((activeFeature.properties?.eta_hours || 0) / 24).toFixed(1),
-          estimated_voyage_hours: activeFeature.properties?.eta_hours || 0,
-          fuel_savings_percent: activeFeature.properties?.fuel_savings_pct || 14.2,
-          total_fuel_burn_mt: activeFeature.properties?.total_fuel_burn_mt || 0,
-          fuel_consumption_tons: activeFeature.properties?.total_fuel_burn_mt || 0,
-          feasibility_status: activeFeature.properties?.feasibility_status || 'OPTIMAL',
-          min_polaris_rio: activeFeature.properties?.min_polaris_rio ?? 0,
-          max_ice_concentration: activeFeature.properties?.max_ice_concentration ?? 0,
-          max_sea_ice_concentration_pct: activeFeature.properties?.max_ice_concentration ?? 18,
-          risk_score: activeFeature.properties?.route_type === 'SAFEST' ? 12.0 : activeFeature.properties?.route_type === 'BALANCED' ? 24.5 : 48.0,
-          risk_rating: activeFeature.properties?.route_type === 'SAFEST' ? 'LOW RISK' : activeFeature.properties?.route_type === 'BALANCED' ? 'OPTIMAL' : 'HIGH SPEED / MODERATE RISK',
-        }));
+        setRouteMetrics(metricsFromFeature(activeFeature));
+      } else {
+        setWaypoints([]);
+        setRouteMetrics(null);
       }
     }
   }, [activeRouteType, paretoRoutes]);
 
   // High-Grade Official Bridge Navigational Plan PDF Export Handler
-  const handleExportPDF = useCallback(() => {
+  const handleExportPDF = useCallback(async () => {
     if (!routeMetrics) return;
     try {
-      generateVoyageReportPDF({
+      await generateVoyageReportPDF({
         routeMetrics,
         waypoints,
         origin: { name: originLabel, lat: originCoords.lat, lon: originCoords.lon },
@@ -329,19 +337,28 @@ export default function App() {
     }
   }, [routeMetrics, waypoints, originLabel, originCoords.lat, originCoords.lon, destLabel, destinationCoords.lat, destinationCoords.lon, vesselIceClass, cruisingSpeed, icebergsPredicted, forecastHours]);
 
-  // Initial fetch on mount & parameter adjustment
-  useEffect(() => {
+  // Clear previous results before painting changed inputs.
+  useLayoutEffect(() => {
     fetchHealth();
     fetchRoute();
-    fetchAuxiliaryLayers();
     return () => {
       activeRequest.current?.abort();
       activeRequest.current = null;
     };
-  }, [fetchRoute, fetchHealth, fetchAuxiliaryLayers]);
+  }, [fetchRoute, fetchHealth]);
+  useEffect(() => { fetchAuxiliaryLayers(); }, [fetchAuxiliaryLayers]);
 
+  const resetDemo = () => {
+    setErrorMsg(null);
+    setRefreshToken(value=>value+1);
+    setActiveRouteType('BALANCED');
+    setLayerVisibility({seaIce:false,refIcebergs:false,sarCandidates:false,predictedIcebergs:true,riskHeatmap:true,optimizedRoutes:true,oceanCurrents:false,weatherWind:false,bathymetry:false});
+    activeRequest.current?.abort(); setDepartureMode('GATEWAY'); setSelectedGateway('ZACPT'); setSelectedStation('bharati_station');
+    setShipCoords([-64.5,72]); setForecastHours(72); setVesselIceClass('Polar Class 3 (PC3)'); setSafetyBufferKm(25); setCruisingSpeed(14.5); setRemainingFuelMt(450); setReferenceBurn(12); setReservePercent(15); setIsReportOpen(false);
+  };
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#050b18]">
+    <div className={`planner-shell ${expandedMap?'map-expanded':''} flex flex-col h-screen w-screen overflow-hidden bg-[#050b18]`}>
+      <button type="button" aria-pressed={expandedMap} onClick={()=>setExpandedMap(value=>!value)} className="map-space-toggle bg-slate-950 text-cyan-200 border border-cyan-700 rounded px-3 py-2 text-xs shadow-lg">{expandedMap?'Show planning panels':'Expand map'}</button>
       {/* Top Mission Navbar */}
       <Navbar
         loading={loading}
@@ -354,6 +371,9 @@ export default function App() {
       />
 
       {/* Circuit Breaker Advisory Toast */}
+      <div className="bg-sky-950 text-sky-100 text-xs px-4 py-1 border-b border-sky-800">
+        Observation-backed demo · USNIC 24 Sep 2026 · Forecasts, environment and vessel metrics are calculated estimates. Offshore approach legs only.
+      </div>
       {fallbackAdvisory && (
         <div role="status" className="flex items-center gap-2 border-b border-amber-500/50 bg-amber-950/90 px-5 py-2 text-xs font-mono text-amber-200 shrink-0">
           <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
@@ -376,8 +396,9 @@ export default function App() {
         </div>
       )}
 
+      <div className="bg-slate-950 text-xs text-slate-300 px-4 py-1 flex justify-between"><span>{loading ? 'Calculating for current inputs; previous routes cleared.' : paretoRoutes?.metadata?.approach_note}</span><button onClick={resetDemo} className="border border-slate-600 rounded px-2">Reset demo</button></div>
       {/* Main Workspace Area: Sidebar + Polar Map */}
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="planner-workspace flex flex-1 min-h-0 overflow-hidden relative">
         {/* Left Telemetry Sidebar */}
         <TelemetrySidebar
           routeMetrics={routeMetrics}
@@ -389,6 +410,8 @@ export default function App() {
           remainingFuelMt={remainingFuelMt}
           onChangeRemainingFuel={setRemainingFuelMt}
           maxTankCapacityMt={maxTankCapacityMt}
+          referenceBurn={referenceBurn} onChangeReferenceBurn={setReferenceBurn}
+          reservePercent={reservePercent} onChangeReservePercent={setReservePercent}
           onSelectRouteType={setActiveRouteType}
           onExportPDF={handleExportPDF}
           onOpenReport={() => setIsReportOpen(true)}
@@ -403,7 +426,9 @@ export default function App() {
             waypoints={waypoints}
             directWaypoints={directWaypoints}
             icebergsPresent={icebergsPresent}
-            icebergsPredicted={icebergsPredicted}
+            icebergsPredicted={icebergsPredicted.map(ib => ({...ib, safety_radius_km:ib.safety_radius_km+(routeMetrics?.iceberg_hazard_buffer_km ?? safetyBufferKm)-safetyBufferKm, planning_hazard_radius_km:ib.planning_hazard_radius_km+(routeMetrics?.iceberg_hazard_buffer_km ?? safetyBufferKm)-safetyBufferKm}))}
+            forecastHours={forecastHours}
+            safetyBufferKm={routeMetrics?.iceberg_hazard_buffer_km ?? safetyBufferKm}
             metoceanGrid={metoceanGrid}
             layerVisibility={layerVisibility}
             byuIcebergData={byuIcebergData}
@@ -435,7 +460,7 @@ export default function App() {
         onChangeStation={setSelectedStation}
         shipCoords={shipCoords}
         onAcquireShipGps={handleAcquireShipGps}
-        onManualCoordsChange={setShipCoords}
+        onManualCoordsChange={coords => {setShipCoords(coords); fetch(getApiUrl()+'/api/v1/vessel/update-fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vessel_imo:vesselImo,lat:coords[0],lon:coords[1]})}).catch(()=>setErrorMsg('Could not save the waypoint to the backend; coordinates remain in this browser.'));}}
         forecastHours={forecastHours}
         onChangeForecastHours={setForecastHours}
         vesselIceClass={vesselIceClass}

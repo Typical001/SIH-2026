@@ -1,0 +1,104 @@
+{
+  "usnic_records": 33,
+  "byu_records": 38,
+  "unique_snapshot_ids": 39,
+  "shared_ids": 32,
+  "byu_only": [
+    "B29",
+    "C33",
+    "C35",
+    "D30B",
+    "D36",
+    "UK324"
+  ],
+  "usnic_only": [
+    "D33D"
+  ],
+  "historical_tracks": 647,
+  "historical_rows": 516691,
+  "historical_first_date": "1976-02-01",
+  "historical_last_date": "2026-04-30",
+  "shelf": {
+    "features": 2081,
+    "polygon_types": {
+      "L": 1724,
+      "S": 357
+    },
+    "crs_wkt": "PROJCS[\"WGS_1984_Stereographic_South_Pole\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Stereographic_South_Pole\"],PARAMETER[\"False_Easting\",0.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",180.0],PARAMETER[\"Standard_Parallel_1\",-60.0],UNIT[\"Meter\",1.0]]",
+    "crs_name": "WGS_1984_Stereographic_South_Pole",
+    "source_vintage": 2022,
+    "coordinates": "Original projected coordinates; reprojection and topology checks required before web-map use"
+  },
+  "largest_by_reported_area": [
+    {
+      "id": "D15A",
+      "latitude": -66.63,
+      "longitude": 81.92,
+      "length_km": 94.452,
+      "width_km": 40.744,
+      "area_km2": 3037.47,
+      "last_update": "2026-09-24",
+      "source": "USNIC CSV",
+      "observed_at": null,
+      "thickness_m": null,
+      "mass_mt": null,
+      "orientation_deg": null
+    },
+    {
+      "id": "B22A",
+      "latitude": -69.69,
+      "longitude": 164.02,
+      "length_km": 53.708,
+      "width_km": 46.3,
+      "area_km2": 1371.96,
+      "last_update": "2026-09-24",
+      "source": "USNIC CSV",
+      "observed_at": null,
+      "thickness_m": null,
+      "mass_mt": null,
+      "orientation_deg": null
+    },
+    {
+      "id": "A81",
+      "latitude": -56.94,
+      "longitude": -44.39,
+      "length_km": 51.856,
+      "width_km": 46.3,
+      "area_km2": 1341.79,
+      "last_update": "2026-09-24",
+      "source": "USNIC CSV",
+      "observed_at": null,
+      "thickness_m": null,
+      "mass_mt": null,
+      "orientation_deg": null
+    },
+    {
+      "id": "C36",
+      "latitude": -67.46,
+      "longitude": 146.48,
+      "length_km": 42.596,
+      "width_km": 29.632,
+      "area_km2": 848.13,
+      "last_update": "2026-09-24",
+      "source": "USNIC CSV",
+      "observed_at": null,
+      "thickness_m": null,
+      "mass_mt": null,
+      "orientation_deg": null
+    },
+    {
+      "id": "D15B",
+      "latitude": -67.02,
+      "longitude": 81.58,
+      "length_km": 37.04,
+      "width_km": 22.224,
+      "area_km2": 610.52,
+      "last_update": "2026-09-24",
+      "source": "USNIC CSV",
+      "observed_at": null,
+      "thickness_m": null,
+      "mass_mt": null,
+      "orientation_deg": null
+    }
+  ]
+}

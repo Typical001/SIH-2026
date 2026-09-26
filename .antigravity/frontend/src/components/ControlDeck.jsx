@@ -68,15 +68,15 @@ export default function ControlDeck({
   };
 
   const iceClasses = [
-    { id: 'Polar Class 1 (PC1)', name: 'PC1: Year-Round Heavy Polar Icebreaker' },
-    { id: 'Polar Class 3 (PC3)', name: 'PC3: Year-Round Multi-Year Ice (India Expeditions)' },
-    { id: 'Polar Class 5 (PC5)', name: 'PC5: Medium First-Year Ice (Standard Polar Code)' },
-    { id: 'Polar Class 7 (PC7)', name: 'PC7: Thin First-Year Ice Strengthened' },
-    { id: 'Open Water Vessel',   name: 'Open Water: Non-Ice Strengthened Commercial' }
+    { id: 'Polar Class 1 (PC1)', name: 'PC1: Planning ice limit 100%' },
+    { id: 'Polar Class 3 (PC3)', name: 'PC3: Planning ice limit 90%' },
+    { id: 'Polar Class 5 (PC5)', name: 'PC5: Planning ice limit 75%' },
+    { id: 'Polar Class 7 (PC7)', name: 'PC7: Planning ice limit 40%' },
+    { id: 'Open Water Vessel',   name: 'Open Water: Planning ice limit 5%' }
   ];
 
   return (
-    <div className="glass-panel border-t border-cyan-500/20 px-5 py-3.5 z-20 shrink-0 select-none">
+    <div className="glass-panel border-t border-cyan-500/20 px-5 py-3.5 z-20 shrink-0 select-none max-h-[30vh] overflow-y-auto">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
 
         {/* ── Section 1: In-Voyage Departure Mode & Gateway (Cols 5) ── */}
@@ -88,7 +88,7 @@ export default function ControlDeck({
               Departure Positioning:
             </span>
             <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
-              {departureMode === 'GATEWAY' ? 'OFFICIAL GATEWAY' : departureMode === 'CURRENT_SHIP_GPS' ? 'IN-VOYAGE AIS FIX' : 'MAP CLICK FIX'}
+              {departureMode === 'GATEWAY' ? 'OFFICIAL GATEWAY' : departureMode === 'CURRENT_SHIP_GPS' ? 'SAVED / ASSUMED WAYPOINT' : 'MAP CLICK FIX'}
             </span>
           </div>
 
@@ -121,7 +121,7 @@ export default function ControlDeck({
               }`}
             >
               <Crosshair className="w-3.5 h-3.5" />
-              <span>Ship GPS</span>
+              <span>Vessel waypoint</span>
             </button>
 
             <button
@@ -163,7 +163,7 @@ export default function ControlDeck({
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                 <span className="text-slate-300">
-                  Fix: <strong className="text-amber-300">{Number(shipCoords[0]).toFixed(3)}°S, {Number(shipCoords[1]).toFixed(3)}°E</strong>
+                  Fix: <strong className="text-amber-300">{Number(shipCoords[0]).toFixed(3)}°, {Number(shipCoords[1]).toFixed(3)}°</strong>
                 </span>
               </div>
               <button
@@ -171,7 +171,7 @@ export default function ControlDeck({
                 onClick={onAcquireShipGps}
                 className="px-2 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-200 text-[10px] hover:bg-amber-900 transition"
               >
-                Re-Acquire AIS Fix
+                Load saved waypoint
               </button>
             </div>
           )}
@@ -323,7 +323,7 @@ export default function ControlDeck({
               disabled:opacity-50 disabled:cursor-not-allowed border border-cyan-400/40"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            <span>{loading ? 'Optimizing Corridor…' : 'Compute 3 Pareto Routes'}</span>
+            <span>{loading ? 'Optimizing Corridor…' : 'Compute route profiles'}</span>
           </button>
         </div>
 

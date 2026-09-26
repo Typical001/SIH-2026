@@ -1,0 +1,10518 @@
+[
+  {
+    "id": "A01",
+    "file": "historical_csv/a01.csv",
+    "rows": 100,
+    "first_date": "1978-07-23",
+    "last_date": "1979-05-06",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "sass_1",
+      "sass_2",
+      "sass_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A02",
+    "file": "historical_csv/a02.csv",
+    "rows": 92,
+    "first_date": "1978-07-23",
+    "last_date": "1979-10-21",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "sass_1",
+      "sass_2",
+      "sass_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A03",
+    "file": "historical_csv/a03.csv",
+    "rows": 4,
+    "first_date": "1979-02-04",
+    "last_date": "1979-06-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A04",
+    "file": "historical_csv/a04.csv",
+    "rows": 1,
+    "first_date": "1979-10-21",
+    "last_date": "1979-10-21",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A05",
+    "file": "historical_csv/a05.csv",
+    "rows": 8,
+    "first_date": "1979-10-28",
+    "last_date": "1979-11-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A06",
+    "file": "historical_csv/a06.csv",
+    "rows": 3,
+    "first_date": "1979-11-04",
+    "last_date": "1980-01-13",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A07",
+    "file": "historical_csv/a07.csv",
+    "rows": 1,
+    "first_date": "1979-11-11",
+    "last_date": "1979-11-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A08",
+    "file": "historical_csv/a08.csv",
+    "rows": 3,
+    "first_date": "1979-12-23",
+    "last_date": "1980-02-03",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A09",
+    "file": "historical_csv/a09.csv",
+    "rows": 1,
+    "first_date": "1980-01-13",
+    "last_date": "1980-01-13",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A10",
+    "file": "historical_csv/a10.csv",
+    "rows": 1,
+    "first_date": "1980-02-10",
+    "last_date": "1980-02-10",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A11",
+    "file": "historical_csv/a11.csv",
+    "rows": 2,
+    "first_date": "1980-05-04",
+    "last_date": "1980-05-18",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A12",
+    "file": "historical_csv/a12.csv",
+    "rows": 4,
+    "first_date": "1980-07-20",
+    "last_date": "1980-09-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A13",
+    "file": "historical_csv/a13.csv",
+    "rows": 40,
+    "first_date": "1980-08-10",
+    "last_date": "1981-01-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A14",
+    "file": "historical_csv/a14.csv",
+    "rows": 2,
+    "first_date": "1980-12-14",
+    "last_date": "1981-01-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A15",
+    "file": "historical_csv/a15.csv",
+    "rows": 28,
+    "first_date": "1981-03-22",
+    "last_date": "1981-08-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A16",
+    "file": "historical_csv/a16.csv",
+    "rows": 43,
+    "first_date": "1981-11-15",
+    "last_date": "1982-05-16",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A17",
+    "file": "historical_csv/a17.csv",
+    "rows": 4,
+    "first_date": "1983-04-17",
+    "last_date": "1983-05-29",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A19",
+    "file": "historical_csv/a19.csv",
+    "rows": 29,
+    "first_date": "1983-04-17",
+    "last_date": "1984-06-10",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A20A",
+    "file": "historical_csv/a20a.csv",
+    "rows": 202,
+    "first_date": "1986-09-07",
+    "last_date": "1988-03-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A20B",
+    "file": "historical_csv/a20b.csv",
+    "rows": 232,
+    "first_date": "1986-09-07",
+    "last_date": "1988-02-07",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A20",
+    "file": "historical_csv/a20.csv",
+    "rows": 38,
+    "first_date": "1986-01-26",
+    "last_date": "1986-08-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A21A",
+    "file": "historical_csv/a21a.csv",
+    "rows": 49,
+    "first_date": "1987-06-21",
+    "last_date": "1988-01-03",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A21",
+    "file": "historical_csv/a21.csv",
+    "rows": 33,
+    "first_date": "1986-07-27",
+    "last_date": "1986-12-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A22A",
+    "file": "historical_csv/a22a.csv",
+    "rows": 5000,
+    "first_date": "1994-02-06",
+    "last_date": "2007-10-23",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A22B",
+    "file": "historical_csv/a22b.csv",
+    "rows": 2260,
+    "first_date": "1994-02-06",
+    "last_date": "2000-09-17",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A22C",
+    "file": "historical_csv/a22c.csv",
+    "rows": 1128,
+    "first_date": "1998-05-16",
+    "last_date": "2001-12-02",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A22",
+    "file": "historical_csv/a22.csv",
+    "rows": 1092,
+    "first_date": "1986-09-28",
+    "last_date": "1994-02-08",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A23A",
+    "file": "historical_csv/a23a.csv",
+    "rows": 11953,
+    "first_date": "1991-11-10",
+    "last_date": "2026-03-31",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A23B",
+    "file": "historical_csv/a23b.csv",
+    "rows": 2838,
+    "first_date": "1991-11-17",
+    "last_date": "1999-11-09",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A23",
+    "file": "historical_csv/a23.csv",
+    "rows": 317,
+    "first_date": "1986-09-28",
+    "last_date": "1991-12-01",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A24A",
+    "file": "historical_csv/a24a.csv",
+    "rows": 9,
+    "first_date": "1992-03-29",
+    "last_date": "1992-05-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A24B",
+    "file": "historical_csv/a24b.csv",
+    "rows": 9,
+    "first_date": "1992-03-29",
+    "last_date": "1992-05-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A24C",
+    "file": "historical_csv/a24c.csv",
+    "rows": 9,
+    "first_date": "1992-03-29",
+    "last_date": "1992-05-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A24",
+    "file": "historical_csv/a24.csv",
+    "rows": 402,
+    "first_date": "1986-09-28",
+    "last_date": "1992-03-08",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A24D",
+    "file": "historical_csv/a24d.csv",
+    "rows": 9,
+    "first_date": "1992-03-29",
+    "last_date": "1992-05-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A25",
+    "file": "historical_csv/a25.csv",
+    "rows": 183,
+    "first_date": "1986-10-19",
+    "last_date": "1990-03-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A26",
+    "file": "historical_csv/a26.csv",
+    "rows": 27,
+    "first_date": "1987-10-04",
+    "last_date": "1988-04-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A27A",
+    "file": "historical_csv/a27a.csv",
+    "rows": 1,
+    "first_date": "2004-08-15",
+    "last_date": "2004-08-15",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A27",
+    "file": "historical_csv/a27.csv",
+    "rows": 4980,
+    "first_date": "1994-10-02",
+    "last_date": "2011-10-23",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A28",
+    "file": "historical_csv/a28.csv",
+    "rows": 256,
+    "first_date": "1989-09-24",
+    "last_date": "1992-11-29",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A29",
+    "file": "historical_csv/a29.csv",
+    "rows": 136,
+    "first_date": "1989-12-24",
+    "last_date": "1992-08-03",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A30",
+    "file": "historical_csv/a30.csv",
+    "rows": 3,
+    "first_date": "1991-03-17",
+    "last_date": "1991-05-12",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A31",
+    "file": "historical_csv/a31.csv",
+    "rows": 208,
+    "first_date": "1991-03-31",
+    "last_date": "1992-08-24",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A32A",
+    "file": "historical_csv/a32a.csv",
+    "rows": 198,
+    "first_date": "1995-05-28",
+    "last_date": "1995-12-11",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A32B",
+    "file": "historical_csv/a32b.csv",
+    "rows": 1,
+    "first_date": "1995-05-28",
+    "last_date": "1995-05-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A32",
+    "file": "historical_csv/a32.csv",
+    "rows": 102,
+    "first_date": "1995-02-12",
+    "last_date": "1995-05-24",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A33",
+    "file": "historical_csv/a33.csv",
+    "rows": 2,
+    "first_date": "1994-06-12",
+    "last_date": "1994-07-10",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A34A",
+    "file": "historical_csv/a34a.csv",
+    "rows": 1706,
+    "first_date": "2000-05-15",
+    "last_date": "2005-06-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "A34",
+    "file": "historical_csv/a34.csv",
+    "rows": 2,
+    "first_date": "1996-09-01",
+    "last_date": "1996-09-29",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A35A",
+    "file": "historical_csv/a35a.csv",
+    "rows": 706,
+    "first_date": "1998-09-27",
+    "last_date": "2000-11-12",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A35B",
+    "file": "historical_csv/a35b.csv",
+    "rows": 265,
+    "first_date": "1998-09-27",
+    "last_date": "2000-11-12",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A35C",
+    "file": "historical_csv/a35c.csv",
+    "rows": 204,
+    "first_date": "1998-12-06",
+    "last_date": "2000-11-12",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A35",
+    "file": "historical_csv/a35.csv",
+    "rows": 1593,
+    "first_date": "1994-05-22",
+    "last_date": "1998-09-30",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A36",
+    "file": "historical_csv/a36.csv",
+    "rows": 165,
+    "first_date": "1998-04-28",
+    "last_date": "1998-10-09",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A37",
+    "file": "historical_csv/a37.csv",
+    "rows": 5,
+    "first_date": "1998-05-03",
+    "last_date": "1998-08-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A38A",
+    "file": "historical_csv/a38a.csv",
+    "rows": 1634,
+    "first_date": "1998-10-18",
+    "last_date": "2004-07-26",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A38B",
+    "file": "historical_csv/a38b.csv",
+    "rows": 2091,
+    "first_date": "1998-10-18",
+    "last_date": "2004-11-24",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A38C",
+    "file": "historical_csv/a38c.csv",
+    "rows": 998,
+    "first_date": "1998-10-18",
+    "last_date": "2004-01-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A38",
+    "file": "historical_csv/a38.csv",
+    "rows": 1,
+    "first_date": "1998-10-11",
+    "last_date": "1998-10-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A38D",
+    "file": "historical_csv/a38d.csv",
+    "rows": 1554,
+    "first_date": "1999-07-21",
+    "last_date": "2004-01-29",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A38E",
+    "file": "historical_csv/a38e.csv",
+    "rows": 127,
+    "first_date": "2004-04-27",
+    "last_date": "2004-08-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "A38F",
+    "file": "historical_csv/a38f.csv",
+    "rows": 54,
+    "first_date": "2004-04-29",
+    "last_date": "2004-06-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "A38G",
+    "file": "historical_csv/a38g.csv",
+    "rows": 2,
+    "first_date": "2002-01-17",
+    "last_date": "2002-01-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "A39",
+    "file": "historical_csv/a39.csv",
+    "rows": 151,
+    "first_date": "1998-10-25",
+    "last_date": "2001-01-01",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A40A",
+    "file": "historical_csv/a40a.csv",
+    "rows": 196,
+    "first_date": "2000-10-26",
+    "last_date": "2001-05-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "A40",
+    "file": "historical_csv/a40.csv",
+    "rows": 40,
+    "first_date": "1999-01-31",
+    "last_date": "2001-05-06",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A41",
+    "file": "historical_csv/a41.csv",
+    "rows": 157,
+    "first_date": "1999-01-31",
+    "last_date": "2001-01-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A42",
+    "file": "historical_csv/a42.csv",
+    "rows": 696,
+    "first_date": "1999-05-16",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43A",
+    "file": "historical_csv/a43a.csv",
+    "rows": 1608,
+    "first_date": "2000-02-20",
+    "last_date": "2005-01-30",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43B",
+    "file": "historical_csv/a43b.csv",
+    "rows": 1372,
+    "first_date": "2000-05-07",
+    "last_date": "2004-02-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43C",
+    "file": "historical_csv/a43c.csv",
+    "rows": 1498,
+    "first_date": "2000-05-07",
+    "last_date": "2004-07-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43D",
+    "file": "historical_csv/a43d.csv",
+    "rows": 3840,
+    "first_date": "2001-04-29",
+    "last_date": "2012-02-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43E",
+    "file": "historical_csv/a43e.csv",
+    "rows": 441,
+    "first_date": "2001-04-29",
+    "last_date": "2005-12-18",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43F",
+    "file": "historical_csv/a43f.csv",
+    "rows": 2787,
+    "first_date": "2001-06-06",
+    "last_date": "2009-01-21",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43G",
+    "file": "historical_csv/a43g.csv",
+    "rows": 791,
+    "first_date": "2001-06-06",
+    "last_date": "2007-11-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43H",
+    "file": "historical_csv/a43h.csv",
+    "rows": 32,
+    "first_date": "2001-09-30",
+    "last_date": "2002-01-13",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43I",
+    "file": "historical_csv/a43i.csv",
+    "rows": 112,
+    "first_date": "2001-09-30",
+    "last_date": "2003-10-19",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43J",
+    "file": "historical_csv/a43j.csv",
+    "rows": 136,
+    "first_date": "2001-12-02",
+    "last_date": "2005-03-22",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A43K",
+    "file": "historical_csv/a43k.csv",
+    "rows": 485,
+    "first_date": "2007-11-25",
+    "last_date": "2009-04-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A44",
+    "file": "historical_csv/a44.csv",
+    "rows": 3,
+    "first_date": "2001-02-04",
+    "last_date": "2001-11-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A45",
+    "file": "historical_csv/a45.csv",
+    "rows": 125,
+    "first_date": "2001-08-21",
+    "last_date": "2002-03-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A46",
+    "file": "historical_csv/a46.csv",
+    "rows": 550,
+    "first_date": "2001-10-04",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A47",
+    "file": "historical_csv/a47.csv",
+    "rows": 674,
+    "first_date": "2001-05-20",
+    "last_date": "2003-04-13",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A48",
+    "file": "historical_csv/a48.csv",
+    "rows": 732,
+    "first_date": "2002-03-14",
+    "last_date": "2004-03-15",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A49",
+    "file": "historical_csv/a49.csv",
+    "rows": 2,
+    "first_date": "2003-01-01",
+    "last_date": "2003-01-26",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A50",
+    "file": "historical_csv/a50.csv",
+    "rows": 85,
+    "first_date": "2003-02-25",
+    "last_date": "2003-06-15",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A51",
+    "file": "historical_csv/a51.csv",
+    "rows": 1,
+    "first_date": "2002-10-27",
+    "last_date": "2002-10-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A52",
+    "file": "historical_csv/a52.csv",
+    "rows": 1160,
+    "first_date": "2003-02-09",
+    "last_date": "2006-05-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A53A",
+    "file": "historical_csv/a53a.csv",
+    "rows": 1077,
+    "first_date": "2005-02-06",
+    "last_date": "2008-04-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A53B",
+    "file": "historical_csv/a53b.csv",
+    "rows": 291,
+    "first_date": "2005-02-06",
+    "last_date": "2006-10-15",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A53",
+    "file": "historical_csv/a53.csv",
+    "rows": 2,
+    "first_date": "2005-01-09",
+    "last_date": "2005-01-30",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A54A",
+    "file": "historical_csv/a54a.csv",
+    "rows": 71,
+    "first_date": "2006-07-30",
+    "last_date": "2007-02-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A54B",
+    "file": "historical_csv/a54b.csv",
+    "rows": 8,
+    "first_date": "2006-07-30",
+    "last_date": "2006-08-06",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A54",
+    "file": "historical_csv/a54.csv",
+    "rows": 314,
+    "first_date": "2006-01-18",
+    "last_date": "2006-11-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A55",
+    "file": "historical_csv/a55.csv",
+    "rows": 310,
+    "first_date": "2008-02-10",
+    "last_date": "2009-08-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A56",
+    "file": "historical_csv/a56.csv",
+    "rows": 2938,
+    "first_date": "2008-05-25",
+    "last_date": "2016-11-18",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A57A",
+    "file": "historical_csv/a57a.csv",
+    "rows": 1284,
+    "first_date": "2016-01-04",
+    "last_date": "2019-08-09",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A57B",
+    "file": "historical_csv/a57b.csv",
+    "rows": 1059,
+    "first_date": "2015-12-31",
+    "last_date": "2018-11-23",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A57",
+    "file": "historical_csv/a57.csv",
+    "rows": 1980,
+    "first_date": "2008-05-25",
+    "last_date": "2016-01-01",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A58",
+    "file": "historical_csv/a58.csv",
+    "rows": 19,
+    "first_date": "2008-07-06",
+    "last_date": "2008-11-16",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A59",
+    "file": "historical_csv/a59.csv",
+    "rows": 303,
+    "first_date": "2008-07-06",
+    "last_date": "2011-02-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A60",
+    "file": "historical_csv/a60.csv",
+    "rows": 24,
+    "first_date": "2008-07-06",
+    "last_date": "2010-01-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A61",
+    "file": "historical_csv/a61.csv",
+    "rows": 2933,
+    "first_date": "2010-01-24",
+    "last_date": "2018-02-28",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A62A",
+    "file": "historical_csv/a62a.csv",
+    "rows": 140,
+    "first_date": "2013-04-05",
+    "last_date": "2013-08-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "A62",
+    "file": "historical_csv/a62.csv",
+    "rows": 921,
+    "first_date": "2011-01-23",
+    "last_date": "2013-08-18",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A63",
+    "file": "historical_csv/a63.csv",
+    "rows": 3301,
+    "first_date": "2012-11-24",
+    "last_date": "2021-12-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A64",
+    "file": "historical_csv/a64.csv",
+    "rows": 3122,
+    "first_date": "2014-04-11",
+    "last_date": "2022-12-16",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A65",
+    "file": "historical_csv/a65.csv",
+    "rows": 68,
+    "first_date": "2015-12-31",
+    "last_date": "2016-03-07",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A66",
+    "file": "historical_csv/a66.csv",
+    "rows": 461,
+    "first_date": "2016-01-01",
+    "last_date": "2017-04-05",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A67",
+    "file": "historical_csv/a67.csv",
+    "rows": 162,
+    "first_date": "2016-01-01",
+    "last_date": "2016-06-10",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68A",
+    "file": "historical_csv/a68a.csv",
+    "rows": 1324,
+    "first_date": "2017-09-01",
+    "last_date": "2021-04-21",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68B",
+    "file": "historical_csv/a68b.csv",
+    "rows": 1097,
+    "first_date": "2017-09-01",
+    "last_date": "2020-09-01",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68C",
+    "file": "historical_csv/a68c.csv",
+    "rows": 207,
+    "first_date": "2020-04-24",
+    "last_date": "2020-12-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68",
+    "file": "historical_csv/a68.csv",
+    "rows": 76,
+    "first_date": "2017-06-26",
+    "last_date": "2017-09-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "A68D",
+    "file": "historical_csv/a68d.csv",
+    "rows": 43,
+    "first_date": "2020-12-18",
+    "last_date": "2021-01-29",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68E",
+    "file": "historical_csv/a68e.csv",
+    "rows": 69,
+    "first_date": "2020-12-23",
+    "last_date": "2021-03-01",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68F",
+    "file": "historical_csv/a68f.csv",
+    "rows": 7,
+    "first_date": "2020-12-25",
+    "last_date": "2020-12-31",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68G",
+    "file": "historical_csv/a68g.csv",
+    "rows": 45,
+    "first_date": "2021-01-27",
+    "last_date": "2021-03-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68H",
+    "file": "historical_csv/a68h.csv",
+    "rows": 44,
+    "first_date": "2021-01-29",
+    "last_date": "2021-03-13",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68I",
+    "file": "historical_csv/a68i.csv",
+    "rows": 29,
+    "first_date": "2021-01-29",
+    "last_date": "2021-02-26",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68J",
+    "file": "historical_csv/a68j.csv",
+    "rows": 43,
+    "first_date": "2021-01-30",
+    "last_date": "2021-03-13",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68K",
+    "file": "historical_csv/a68k.csv",
+    "rows": 22,
+    "first_date": "2021-01-29",
+    "last_date": "2021-02-19",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68L",
+    "file": "historical_csv/a68l.csv",
+    "rows": 16,
+    "first_date": "2021-01-29",
+    "last_date": "2021-02-13",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68M",
+    "file": "historical_csv/a68m.csv",
+    "rows": 41,
+    "first_date": "2021-01-31",
+    "last_date": "2021-03-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68N",
+    "file": "historical_csv/a68n.csv",
+    "rows": 15,
+    "first_date": "2021-02-12",
+    "last_date": "2021-02-26",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68O",
+    "file": "historical_csv/a68o.csv",
+    "rows": 8,
+    "first_date": "2021-02-12",
+    "last_date": "2021-02-19",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A68P",
+    "file": "historical_csv/a68p.csv",
+    "rows": 15,
+    "first_date": "2021-02-12",
+    "last_date": "2021-02-26",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A69A",
+    "file": "historical_csv/a69a.csv",
+    "rows": 898,
+    "first_date": "2020-07-09",
+    "last_date": "2023-01-13",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A69B",
+    "file": "historical_csv/a69b.csv",
+    "rows": 770,
+    "first_date": "2020-07-10",
+    "last_date": "2022-09-10",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A69C",
+    "file": "historical_csv/a69c.csv",
+    "rows": 328,
+    "first_date": "2021-10-29",
+    "last_date": "2022-09-21",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A69",
+    "file": "historical_csv/a69.csv",
+    "rows": 39,
+    "first_date": "2020-06-26",
+    "last_date": "2020-08-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A70",
+    "file": "historical_csv/a70.csv",
+    "rows": 886,
+    "first_date": "2021-01-08",
+    "last_date": "2023-07-05",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A71",
+    "file": "historical_csv/a71.csv",
+    "rows": 161,
+    "first_date": "2021-01-08",
+    "last_date": "2021-06-17",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A72",
+    "file": "historical_csv/a72.csv",
+    "rows": 37,
+    "first_date": "2021-01-22",
+    "last_date": "2021-02-27",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A73",
+    "file": "historical_csv/a73.csv",
+    "rows": 44,
+    "first_date": "2021-01-22",
+    "last_date": "2021-03-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A74A",
+    "file": "historical_csv/a74a.csv",
+    "rows": 1812,
+    "first_date": "2021-02-28",
+    "last_date": "2026-04-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A74B",
+    "file": "historical_csv/a74b.csv",
+    "rows": 442,
+    "first_date": "2022-06-10",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A74",
+    "file": "historical_csv/a74.csv",
+    "rows": 436,
+    "first_date": "2021-03-05",
+    "last_date": "2022-05-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A75",
+    "file": "historical_csv/a75.csv",
+    "rows": 86,
+    "first_date": "2021-03-26",
+    "last_date": "2021-06-21",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76A",
+    "file": "historical_csv/a76a.csv",
+    "rows": 821,
+    "first_date": "2021-05-27",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76B",
+    "file": "historical_csv/a76b.csv",
+    "rows": 821,
+    "first_date": "2021-05-27",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76C",
+    "file": "historical_csv/a76c.csv",
+    "rows": 1752,
+    "first_date": "2021-05-27",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76",
+    "file": "historical_csv/a76.csv",
+    "rows": 10,
+    "first_date": "2021-05-14",
+    "last_date": "2021-05-23",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76D",
+    "file": "historical_csv/a76d.csv",
+    "rows": 113,
+    "first_date": "2023-05-05",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76E",
+    "file": "historical_csv/a76e.csv",
+    "rows": 83,
+    "first_date": "2023-05-12",
+    "last_date": "2023-08-18",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76F",
+    "file": "historical_csv/a76f.csv",
+    "rows": 101,
+    "first_date": "2023-05-12",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76G",
+    "file": "historical_csv/a76g.csv",
+    "rows": 106,
+    "first_date": "2023-05-12",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76H",
+    "file": "historical_csv/a76h.csv",
+    "rows": 106,
+    "first_date": "2023-05-12",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76I",
+    "file": "historical_csv/a76i.csv",
+    "rows": 17,
+    "first_date": "2023-05-12",
+    "last_date": "2023-05-28",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76J",
+    "file": "historical_csv/a76j.csv",
+    "rows": 79,
+    "first_date": "2023-05-26",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76K",
+    "file": "historical_csv/a76k.csv",
+    "rows": 92,
+    "first_date": "2023-05-26",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76L",
+    "file": "historical_csv/a76l.csv",
+    "rows": 91,
+    "first_date": "2023-05-26",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A76M",
+    "file": "historical_csv/a76m.csv",
+    "rows": 55,
+    "first_date": "2023-06-09",
+    "last_date": "2023-08-04",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A77",
+    "file": "historical_csv/a77.csv",
+    "rows": 1542,
+    "first_date": "2021-08-20",
+    "last_date": "2025-12-18",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A78",
+    "file": "historical_csv/a78.csv",
+    "rows": 729,
+    "first_date": "2021-08-27",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A79",
+    "file": "historical_csv/a79.csv",
+    "rows": 98,
+    "first_date": "2022-03-04",
+    "last_date": "2022-06-09",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A80A",
+    "file": "historical_csv/a80a.csv",
+    "rows": 951,
+    "first_date": "2022-12-02",
+    "last_date": "2025-09-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A80B",
+    "file": "historical_csv/a80b.csv",
+    "rows": 36,
+    "first_date": "2022-12-02",
+    "last_date": "2023-01-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A80C",
+    "file": "historical_csv/a80c.csv",
+    "rows": 27,
+    "first_date": "2022-12-02",
+    "last_date": "2022-12-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A80D",
+    "file": "historical_csv/a80d.csv",
+    "rows": 183,
+    "first_date": "2023-02-24",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A81",
+    "file": "historical_csv/a81.csv",
+    "rows": 1143,
+    "first_date": "2023-01-27",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B01",
+    "file": "historical_csv/b01.csv",
+    "rows": 247,
+    "first_date": "1978-07-23",
+    "last_date": "1986-02-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "sass_1",
+      "sass_2",
+      "sass_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B02",
+    "file": "historical_csv/b02.csv",
+    "rows": 72,
+    "first_date": "1983-01-09",
+    "last_date": "1985-12-29",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B03",
+    "file": "historical_csv/b03.csv",
+    "rows": 7,
+    "first_date": "1983-01-30",
+    "last_date": "1983-09-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B04",
+    "file": "historical_csv/b04.csv",
+    "rows": 33,
+    "first_date": "1983-07-03",
+    "last_date": "1985-02-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B05A",
+    "file": "historical_csv/b05a.csv",
+    "rows": 3,
+    "first_date": "1990-01-21",
+    "last_date": "1990-09-16",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B05",
+    "file": "historical_csv/b05.csv",
+    "rows": 19,
+    "first_date": "1983-06-19",
+    "last_date": "1987-12-06",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B06",
+    "file": "historical_csv/b06.csv",
+    "rows": 109,
+    "first_date": "1984-02-26",
+    "last_date": "1991-06-23",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B07A",
+    "file": "historical_csv/b07a.csv",
+    "rows": 32,
+    "first_date": "1990-03-25",
+    "last_date": "1991-11-10",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B07B",
+    "file": "historical_csv/b07b.csv",
+    "rows": 25,
+    "first_date": "1990-03-25",
+    "last_date": "1992-02-20",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B07",
+    "file": "historical_csv/b07.csv",
+    "rows": 54,
+    "first_date": "1987-04-12",
+    "last_date": "1989-01-08",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B08",
+    "file": "historical_csv/b08.csv",
+    "rows": 26,
+    "first_date": "1987-04-12",
+    "last_date": "1990-06-17",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09A",
+    "file": "historical_csv/b09a.csv",
+    "rows": 4457,
+    "first_date": "1989-08-13",
+    "last_date": "2003-10-03",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09B",
+    "file": "historical_csv/b09b.csv",
+    "rows": 12452,
+    "first_date": "1989-08-13",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09C",
+    "file": "historical_csv/b09c.csv",
+    "rows": 1584,
+    "first_date": "2010-12-05",
+    "last_date": "2015-06-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09",
+    "file": "historical_csv/b09.csv",
+    "rows": 430,
+    "first_date": "1987-10-11",
+    "last_date": "1989-07-30",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09D",
+    "file": "historical_csv/b09d.csv",
+    "rows": 2547,
+    "first_date": "2011-04-24",
+    "last_date": "2018-04-13",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09E",
+    "file": "historical_csv/b09e.csv",
+    "rows": 8,
+    "first_date": "2011-06-19",
+    "last_date": "2011-06-26",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09F",
+    "file": "historical_csv/b09f.csv",
+    "rows": 2845,
+    "first_date": "2011-08-14",
+    "last_date": "2019-05-28",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09G",
+    "file": "historical_csv/b09g.csv",
+    "rows": 5061,
+    "first_date": "2012-05-06",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09H",
+    "file": "historical_csv/b09h.csv",
+    "rows": 934,
+    "first_date": "2015-05-12",
+    "last_date": "2017-12-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09I",
+    "file": "historical_csv/b09i.csv",
+    "rows": 2473,
+    "first_date": "2015-10-22",
+    "last_date": "2022-08-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B09J",
+    "file": "historical_csv/b09j.csv",
+    "rows": 26,
+    "first_date": "2019-04-19",
+    "last_date": "2019-05-14",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B10A",
+    "file": "historical_csv/b10a.csv",
+    "rows": 1594,
+    "first_date": "1995-08-13",
+    "last_date": "2000-02-27",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B10B",
+    "file": "historical_csv/b10b.csv",
+    "rows": 770,
+    "first_date": "1995-08-27",
+    "last_date": "1997-10-21",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B10",
+    "file": "historical_csv/b10.csv",
+    "rows": 1338,
+    "first_date": "1992-01-12",
+    "last_date": "1995-09-15",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B11",
+    "file": "historical_csv/b11.csv",
+    "rows": 302,
+    "first_date": "1995-02-26",
+    "last_date": "1995-12-30",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B12",
+    "file": "historical_csv/b12.csv",
+    "rows": 192,
+    "first_date": "1997-02-23",
+    "last_date": "1997-11-20",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B13",
+    "file": "historical_csv/b13.csv",
+    "rows": 206,
+    "first_date": "1997-02-23",
+    "last_date": "1997-12-17",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B14A",
+    "file": "historical_csv/b14a.csv",
+    "rows": 16,
+    "first_date": "2001-03-25",
+    "last_date": "2001-05-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B14B",
+    "file": "historical_csv/b14b.csv",
+    "rows": 95,
+    "first_date": "2001-04-29",
+    "last_date": "2001-10-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B14",
+    "file": "historical_csv/b14.csv",
+    "rows": 1454,
+    "first_date": "1997-09-28",
+    "last_date": "2001-12-02",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15AA",
+    "file": "historical_csv/b15aa.csv",
+    "rows": 2015,
+    "first_date": "2014-09-07",
+    "last_date": "2020-03-16",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15AB",
+    "file": "historical_csv/b15ab.csv",
+    "rows": 4149,
+    "first_date": "2014-09-06",
+    "last_date": "2026-03-27",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15AC",
+    "file": "historical_csv/b15ac.csv",
+    "rows": 44,
+    "first_date": "2019-01-25",
+    "last_date": "2019-03-09",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15A",
+    "file": "historical_csv/b15a.csv",
+    "rows": 3205,
+    "first_date": "2000-05-04",
+    "last_date": "2009-03-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15B",
+    "file": "historical_csv/b15b.csv",
+    "rows": 4916,
+    "first_date": "2000-05-04",
+    "last_date": "2014-01-07",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15C",
+    "file": "historical_csv/b15c.csv",
+    "rows": 701,
+    "first_date": "2000-05-04",
+    "last_date": "2002-04-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15",
+    "file": "historical_csv/b15.csv",
+    "rows": 179,
+    "first_date": "2000-03-12",
+    "last_date": "2015-08-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15D",
+    "file": "historical_csv/b15d.csv",
+    "rows": 3027,
+    "first_date": "2000-08-13",
+    "last_date": "2008-11-25",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15E",
+    "file": "historical_csv/b15e.csv",
+    "rows": 156,
+    "first_date": "2000-08-13",
+    "last_date": "2001-05-20",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15F",
+    "file": "historical_csv/b15f.csv",
+    "rows": 4177,
+    "first_date": "2000-12-10",
+    "last_date": "2013-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15G",
+    "file": "historical_csv/b15g.csv",
+    "rows": 4105,
+    "first_date": "2001-04-29",
+    "last_date": "2012-12-14",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15H",
+    "file": "historical_csv/b15h.csv",
+    "rows": 121,
+    "first_date": "2001-05-27",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15I",
+    "file": "historical_csv/b15i.csv",
+    "rows": 1567,
+    "first_date": "2001-06-10",
+    "last_date": "2010-05-16",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15J1",
+    "file": "historical_csv/b15j1.csv",
+    "rows": 26,
+    "first_date": "2011-11-25",
+    "last_date": "2011-12-20",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "B15J",
+    "file": "historical_csv/b15j.csv",
+    "rows": 2908,
+    "first_date": "2003-10-16",
+    "last_date": "2012-01-09",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15K",
+    "file": "historical_csv/b15k.csv",
+    "rows": 4355,
+    "first_date": "2004-01-04",
+    "last_date": "2016-12-16",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15L",
+    "file": "historical_csv/b15l.csv",
+    "rows": 1367,
+    "first_date": "2005-06-26",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15M",
+    "file": "historical_csv/b15m.csv",
+    "rows": 696,
+    "first_date": "2005-10-30",
+    "last_date": "2008-05-18",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15N",
+    "file": "historical_csv/b15n.csv",
+    "rows": 1927,
+    "first_date": "2005-10-30",
+    "last_date": "2011-11-20",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15P",
+    "file": "historical_csv/b15p.csv",
+    "rows": 349,
+    "first_date": "2005-10-30",
+    "last_date": "2007-03-18",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15Q",
+    "file": "historical_csv/b15q.csv",
+    "rows": 860,
+    "first_date": "2006-02-12",
+    "last_date": "2008-12-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15R",
+    "file": "historical_csv/b15r.csv",
+    "rows": 3185,
+    "first_date": "2006-06-25",
+    "last_date": "2016-05-08",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15S",
+    "file": "historical_csv/b15s.csv",
+    "rows": 919,
+    "first_date": "2007-01-28",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15T",
+    "file": "historical_csv/b15t.csv",
+    "rows": 3855,
+    "first_date": "2007-12-23",
+    "last_date": "2019-04-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15U",
+    "file": "historical_csv/b15u.csv",
+    "rows": 9,
+    "first_date": "2008-03-30",
+    "last_date": "2008-04-20",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15V",
+    "file": "historical_csv/b15v.csv",
+    "rows": 155,
+    "first_date": "2010-01-24",
+    "last_date": "2010-06-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15W",
+    "file": "historical_csv/b15w.csv",
+    "rows": 36,
+    "first_date": "2011-08-28",
+    "last_date": "2011-10-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15X",
+    "file": "historical_csv/b15x.csv",
+    "rows": 1752,
+    "first_date": "2011-09-25",
+    "last_date": "2016-07-11",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15Y",
+    "file": "historical_csv/b15y.csv",
+    "rows": 1075,
+    "first_date": "2012-12-30",
+    "last_date": "2016-07-31",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B15Z",
+    "file": "historical_csv/b15z.csv",
+    "rows": 1370,
+    "first_date": "2014-09-08",
+    "last_date": "2018-06-08",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B16",
+    "file": "historical_csv/b16.csv",
+    "rows": 6716,
+    "first_date": "2000-03-12",
+    "last_date": "2020-02-29",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B17A",
+    "file": "historical_csv/b17a.csv",
+    "rows": 5166,
+    "first_date": "2000-12-24",
+    "last_date": "2015-06-29",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B17B",
+    "file": "historical_csv/b17b.csv",
+    "rows": 3232,
+    "first_date": "2000-12-24",
+    "last_date": "2009-11-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B17",
+    "file": "historical_csv/b17.csv",
+    "rows": 240,
+    "first_date": "2000-04-23",
+    "last_date": "2001-01-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B18",
+    "file": "historical_csv/b18.csv",
+    "rows": 58,
+    "first_date": "2000-04-02",
+    "last_date": "2001-01-07",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B19",
+    "file": "historical_csv/b19.csv",
+    "rows": 962,
+    "first_date": "2000-05-12",
+    "last_date": "2003-02-16",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B20",
+    "file": "historical_csv/b20.csv",
+    "rows": 1,
+    "first_date": "2000-09-24",
+    "last_date": "2000-09-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B21A",
+    "file": "historical_csv/b21a.csv",
+    "rows": 3413,
+    "first_date": "2002-01-24",
+    "last_date": "2012-12-02",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B21B",
+    "file": "historical_csv/b21b.csv",
+    "rows": 517,
+    "first_date": "2002-01-20",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B21",
+    "file": "historical_csv/b21.csv",
+    "rows": 78,
+    "first_date": "2001-11-11",
+    "last_date": "2002-01-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22A",
+    "file": "historical_csv/b22a.csv",
+    "rows": 8644,
+    "first_date": "2002-03-22",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22B",
+    "file": "historical_csv/b22b.csv",
+    "rows": 889,
+    "first_date": "2003-01-05",
+    "last_date": "2005-10-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22C",
+    "file": "historical_csv/b22c.csv",
+    "rows": 53,
+    "first_date": "2003-01-12",
+    "last_date": "2004-10-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22D",
+    "file": "historical_csv/b22d.csv",
+    "rows": 9,
+    "first_date": "2002-06-23",
+    "last_date": "2002-08-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22E",
+    "file": "historical_csv/b22e.csv",
+    "rows": 12,
+    "first_date": "2003-06-15",
+    "last_date": "2004-02-08",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B23",
+    "file": "historical_csv/b23.csv",
+    "rows": 674,
+    "first_date": "2003-01-05",
+    "last_date": "2005-01-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B24",
+    "file": "historical_csv/b24.csv",
+    "rows": 723,
+    "first_date": "2003-02-09",
+    "last_date": "2005-03-20",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B25",
+    "file": "historical_csv/b25.csv",
+    "rows": 5,
+    "first_date": "2003-02-09",
+    "last_date": "2003-05-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B26",
+    "file": "historical_csv/b26.csv",
+    "rows": 3,
+    "first_date": "2004-02-29",
+    "last_date": "2004-03-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B27",
+    "file": "historical_csv/b27.csv",
+    "rows": 2106,
+    "first_date": "2008-01-03",
+    "last_date": "2014-01-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B28",
+    "file": "historical_csv/b28.csv",
+    "rows": 4141,
+    "first_date": "2010-01-24",
+    "last_date": "2022-12-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B29",
+    "file": "historical_csv/b29.csv",
+    "rows": 5824,
+    "first_date": "2010-01-24",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B30A",
+    "file": "historical_csv/b30a.csv",
+    "rows": 105,
+    "first_date": "2019-06-15",
+    "last_date": "2019-09-27",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "B30B",
+    "file": "historical_csv/b30b.csv",
+    "rows": 22,
+    "first_date": "2019-06-15",
+    "last_date": "2019-07-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "B30",
+    "file": "historical_csv/b30.csv",
+    "rows": 2566,
+    "first_date": "2012-05-24",
+    "last_date": "2019-06-21",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B31A",
+    "file": "historical_csv/b31a.csv",
+    "rows": 122,
+    "first_date": "2018-03-10",
+    "last_date": "2018-07-09",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "B31",
+    "file": "historical_csv/b31.csv",
+    "rows": 1889,
+    "first_date": "2013-07-06",
+    "last_date": "2018-09-08",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B32",
+    "file": "historical_csv/b32.csv",
+    "rows": 320,
+    "first_date": "2014-08-27",
+    "last_date": "2015-07-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B33",
+    "file": "historical_csv/b33.csv",
+    "rows": 86,
+    "first_date": "2015-02-27",
+    "last_date": "2015-05-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B34",
+    "file": "historical_csv/b34.csv",
+    "rows": 765,
+    "first_date": "2015-03-03",
+    "last_date": "2017-04-05",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B35",
+    "file": "historical_csv/b35.csv",
+    "rows": 869,
+    "first_date": "2015-08-14",
+    "last_date": "2017-12-29",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B36",
+    "file": "historical_csv/b36.csv",
+    "rows": 36,
+    "first_date": "2015-08-28",
+    "last_date": "2015-10-02",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B37",
+    "file": "historical_csv/b37.csv",
+    "rows": 2262,
+    "first_date": "2016-01-01",
+    "last_date": "2022-03-11",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B38",
+    "file": "historical_csv/b38.csv",
+    "rows": 2793,
+    "first_date": "2016-01-01",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B39",
+    "file": "historical_csv/b39.csv",
+    "rows": 2789,
+    "first_date": "2016-01-01",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B40",
+    "file": "historical_csv/b40.csv",
+    "rows": 2283,
+    "first_date": "2016-01-01",
+    "last_date": "2022-04-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B41",
+    "file": "historical_csv/b41.csv",
+    "rows": 1562,
+    "first_date": "2016-09-09",
+    "last_date": "2020-12-23",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B42",
+    "file": "historical_csv/b42.csv",
+    "rows": 2038,
+    "first_date": "2017-04-07",
+    "last_date": "2022-11-04",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B43",
+    "file": "historical_csv/b43.csv",
+    "rows": 1246,
+    "first_date": "2017-04-07",
+    "last_date": "2020-09-03",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B44",
+    "file": "historical_csv/b44.csv",
+    "rows": 21,
+    "first_date": "2017-09-29",
+    "last_date": "2017-10-23",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B45",
+    "file": "historical_csv/b45.csv",
+    "rows": 2316,
+    "first_date": "2018-08-03",
+    "last_date": "2025-03-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B46",
+    "file": "historical_csv/b46.csv",
+    "rows": 1755,
+    "first_date": "2018-10-28",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B47",
+    "file": "historical_csv/b47.csv",
+    "rows": 2203,
+    "first_date": "2019-09-20",
+    "last_date": "2025-11-19",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B48",
+    "file": "historical_csv/b48.csv",
+    "rows": 124,
+    "first_date": "2020-02-07",
+    "last_date": "2020-06-09",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B49",
+    "file": "historical_csv/b49.csv",
+    "rows": 219,
+    "first_date": "2020-02-14",
+    "last_date": "2020-09-19",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B50",
+    "file": "historical_csv/b50.csv",
+    "rows": 888,
+    "first_date": "2020-04-13",
+    "last_date": "2022-09-17",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C01",
+    "file": "historical_csv/c01.csv",
+    "rows": 23,
+    "first_date": "1979-09-02",
+    "last_date": "1982-12-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C02",
+    "file": "historical_csv/c02.csv",
+    "rows": 226,
+    "first_date": "1978-07-23",
+    "last_date": "1990-02-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "sass_1",
+      "sass_2",
+      "sass_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C03",
+    "file": "historical_csv/c03.csv",
+    "rows": 2,
+    "first_date": "1983-01-23",
+    "last_date": "1983-02-27",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C04",
+    "file": "historical_csv/c04.csv",
+    "rows": 1,
+    "first_date": "1979-12-23",
+    "last_date": "1979-12-23",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C05",
+    "file": "historical_csv/c05.csv",
+    "rows": 194,
+    "first_date": "1986-03-16",
+    "last_date": "1995-10-29",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C06",
+    "file": "historical_csv/c06.csv",
+    "rows": 795,
+    "first_date": "1987-06-14",
+    "last_date": "1993-11-17",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C07",
+    "file": "historical_csv/c07.csv",
+    "rows": 274,
+    "first_date": "1988-03-13",
+    "last_date": "1992-10-11",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C08",
+    "file": "historical_csv/c08.csv",
+    "rows": 4973,
+    "first_date": "1996-01-07",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C09",
+    "file": "historical_csv/c09.csv",
+    "rows": 2228,
+    "first_date": "1996-04-07",
+    "last_date": "2004-12-08",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C10",
+    "file": "historical_csv/c10.csv",
+    "rows": 5223,
+    "first_date": "1992-03-25",
+    "last_date": "2006-07-13",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C11",
+    "file": "historical_csv/c11.csv",
+    "rows": 1582,
+    "first_date": "1997-03-02",
+    "last_date": "2001-07-23",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C12",
+    "file": "historical_csv/c12.csv",
+    "rows": 1595,
+    "first_date": "1997-03-02",
+    "last_date": "2001-07-23",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C13",
+    "file": "historical_csv/c13.csv",
+    "rows": 2,
+    "first_date": "1997-03-09",
+    "last_date": "1997-04-20",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C14A",
+    "file": "historical_csv/c14a.csv",
+    "rows": 3825,
+    "first_date": "2000-11-05",
+    "last_date": "2013-02-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C14B",
+    "file": "historical_csv/c14b.csv",
+    "rows": 1326,
+    "first_date": "2000-11-05",
+    "last_date": "2004-06-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C14",
+    "file": "historical_csv/c14.csv",
+    "rows": 330,
+    "first_date": "2000-02-19",
+    "last_date": "2003-01-26",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C15",
+    "file": "historical_csv/c15.csv",
+    "rows": 9389,
+    "first_date": "2000-02-19",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C16",
+    "file": "historical_csv/c16.csv",
+    "rows": 4904,
+    "first_date": "2000-09-14",
+    "last_date": "2014-06-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C17",
+    "file": "historical_csv/c17.csv",
+    "rows": 140,
+    "first_date": "2002-02-10",
+    "last_date": "2004-02-03",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C18A",
+    "file": "historical_csv/c18a.csv",
+    "rows": 1603,
+    "first_date": "2004-02-08",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C18B",
+    "file": "historical_csv/c18b.csv",
+    "rows": 7505,
+    "first_date": "2003-10-16",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C18",
+    "file": "historical_csv/c18.csv",
+    "rows": 651,
+    "first_date": "2002-05-12",
+    "last_date": "2004-02-21",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C19A",
+    "file": "historical_csv/c19a.csv",
+    "rows": 2153,
+    "first_date": "2003-05-11",
+    "last_date": "2009-04-01",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C19B",
+    "file": "historical_csv/c19b.csv",
+    "rows": 1381,
+    "first_date": "2002-12-05",
+    "last_date": "2006-12-31",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C19C1",
+    "file": "historical_csv/c19c1.csv",
+    "rows": 189,
+    "first_date": "2012-07-21",
+    "last_date": "2013-01-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "C19C",
+    "file": "historical_csv/c19c.csv",
+    "rows": 3505,
+    "first_date": "2003-06-08",
+    "last_date": "2013-03-31",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C19",
+    "file": "historical_csv/c19.csv",
+    "rows": 439,
+    "first_date": "2002-05-12",
+    "last_date": "2003-07-24",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C19D",
+    "file": "historical_csv/c19d.csv",
+    "rows": 1646,
+    "first_date": "2003-06-08",
+    "last_date": "2009-10-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C19E",
+    "file": "historical_csv/c19e.csv",
+    "rows": 198,
+    "first_date": "2003-08-28",
+    "last_date": "2004-04-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "C20",
+    "file": "historical_csv/c20.csv",
+    "rows": 1046,
+    "first_date": "2003-03-09",
+    "last_date": "2006-03-06",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C21A",
+    "file": "historical_csv/c21a.csv",
+    "rows": 1171,
+    "first_date": "2005-03-13",
+    "last_date": "2008-07-26",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C21B",
+    "file": "historical_csv/c21b.csv",
+    "rows": 6546,
+    "first_date": "2005-03-13",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C21C",
+    "file": "historical_csv/c21c.csv",
+    "rows": 178,
+    "first_date": "2005-03-13",
+    "last_date": "2006-06-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C21",
+    "file": "historical_csv/c21.csv",
+    "rows": 740,
+    "first_date": "2003-03-09",
+    "last_date": "2005-03-19",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C22",
+    "file": "historical_csv/c22.csv",
+    "rows": 44,
+    "first_date": "2005-02-20",
+    "last_date": "2005-10-23",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C23",
+    "file": "historical_csv/c23.csv",
+    "rows": 71,
+    "first_date": "2005-04-10",
+    "last_date": "2005-10-23",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C24",
+    "file": "historical_csv/c24.csv",
+    "rows": 7266,
+    "first_date": "2005-03-13",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C25",
+    "file": "historical_csv/c25.csv",
+    "rows": 317,
+    "first_date": "2006-03-26",
+    "last_date": "2007-02-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C26",
+    "file": "historical_csv/c26.csv",
+    "rows": 340,
+    "first_date": "2010-01-24",
+    "last_date": "2011-02-13",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C27",
+    "file": "historical_csv/c27.csv",
+    "rows": 50,
+    "first_date": "2010-01-24",
+    "last_date": "2010-03-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C28A2",
+    "file": "historical_csv/c28a2.csv",
+    "rows": 1313,
+    "first_date": "2011-08-30",
+    "last_date": "2015-05-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "C28A",
+    "file": "historical_csv/c28a.csv",
+    "rows": 1554,
+    "first_date": "2010-04-04",
+    "last_date": "2014-08-10",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C28B",
+    "file": "historical_csv/c28b.csv",
+    "rows": 3033,
+    "first_date": "2010-04-04",
+    "last_date": "2018-08-10",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C28",
+    "file": "historical_csv/c28.csv",
+    "rows": 43,
+    "first_date": "2010-02-14",
+    "last_date": "2010-03-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C29",
+    "file": "historical_csv/c29.csv",
+    "rows": 3612,
+    "first_date": "2016-01-01",
+    "last_date": "2026-02-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C30",
+    "file": "historical_csv/c30.csv",
+    "rows": 3715,
+    "first_date": "2016-01-01",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C31",
+    "file": "historical_csv/c31.csv",
+    "rows": 3715,
+    "first_date": "2016-01-01",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C32",
+    "file": "historical_csv/c32.csv",
+    "rows": 2556,
+    "first_date": "2016-01-01",
+    "last_date": "2023-03-07",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C33",
+    "file": "historical_csv/c33.csv",
+    "rows": 3613,
+    "first_date": "2016-04-07",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C34",
+    "file": "historical_csv/c34.csv",
+    "rows": 1333,
+    "first_date": "2017-04-30",
+    "last_date": "2020-12-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C35",
+    "file": "historical_csv/c35.csv",
+    "rows": 2690,
+    "first_date": "2018-08-03",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C36",
+    "file": "historical_csv/c36.csv",
+    "rows": 2529,
+    "first_date": "2019-02-01",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C37",
+    "file": "historical_csv/c37.csv",
+    "rows": 339,
+    "first_date": "2022-03-10",
+    "last_date": "2023-04-01",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "C38A",
+    "file": "historical_csv/c38a.csv",
+    "rows": 333,
+    "first_date": "2022-03-25",
+    "last_date": "2023-02-20",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C38B",
+    "file": "historical_csv/c38b.csv",
+    "rows": 501,
+    "first_date": "2022-03-25",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C38",
+    "file": "historical_csv/c38.csv",
+    "rows": 10,
+    "first_date": "2022-03-15",
+    "last_date": "2022-03-24",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C39",
+    "file": "historical_csv/c39.csv",
+    "rows": 1328,
+    "first_date": "2022-04-29",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C40",
+    "file": "historical_csv/c40.csv",
+    "rows": 51,
+    "first_date": "2023-04-28",
+    "last_date": "2023-06-26",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "D01",
+    "file": "historical_csv/d01.csv",
+    "rows": 9,
+    "first_date": "1976-02-01",
+    "last_date": "1977-01-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D02",
+    "file": "historical_csv/d02.csv",
+    "rows": 92,
+    "first_date": "1976-12-12",
+    "last_date": "1978-10-02",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "sass_1",
+      "sass_2",
+      "sass_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D03",
+    "file": "historical_csv/d03.csv",
+    "rows": 75,
+    "first_date": "1977-12-04",
+    "last_date": "1979-04-29",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "sass_1",
+      "sass_2",
+      "sass_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D04",
+    "file": "historical_csv/d04.csv",
+    "rows": 25,
+    "first_date": "1979-09-23",
+    "last_date": "1979-12-09",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D05",
+    "file": "historical_csv/d05.csv",
+    "rows": 1,
+    "first_date": "1979-12-16",
+    "last_date": "1979-12-16",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D06",
+    "file": "historical_csv/d06.csv",
+    "rows": 1,
+    "first_date": "1980-05-11",
+    "last_date": "1980-05-11",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D07",
+    "file": "historical_csv/d07.csv",
+    "rows": 1,
+    "first_date": "1983-02-06",
+    "last_date": "1983-02-06",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D08",
+    "file": "historical_csv/d08.csv",
+    "rows": 1,
+    "first_date": "1995-04-09",
+    "last_date": "1995-04-09",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D09",
+    "file": "historical_csv/d09.csv",
+    "rows": 1,
+    "first_date": "1995-03-05",
+    "last_date": "1995-03-05",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D10",
+    "file": "historical_csv/d10.csv",
+    "rows": 2,
+    "first_date": "1996-03-03",
+    "last_date": "1996-04-14",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D11",
+    "file": "historical_csv/d11.csv",
+    "rows": 1860,
+    "first_date": "1996-06-09",
+    "last_date": "2001-07-22",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D12",
+    "file": "historical_csv/d12.csv",
+    "rows": 1384,
+    "first_date": "1994-05-22",
+    "last_date": "1998-06-28",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "nscat_1",
+      "nscat_2",
+      "nscat_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D13",
+    "file": "historical_csv/d13.csv",
+    "rows": 4,
+    "first_date": "1997-01-02",
+    "last_date": "1997-05-04",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D14",
+    "file": "historical_csv/d14.csv",
+    "rows": 721,
+    "first_date": "2011-08-30",
+    "last_date": "2013-08-19",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D15A",
+    "file": "historical_csv/d15a.csv",
+    "rows": 3391,
+    "first_date": "2016-01-31",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D15B",
+    "file": "historical_csv/d15b.csv",
+    "rows": 3681,
+    "first_date": "2016-02-01",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D15",
+    "file": "historical_csv/d15.csv",
+    "rows": 1573,
+    "first_date": "2011-08-30",
+    "last_date": "2017-12-31",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D20A",
+    "file": "historical_csv/d20a.csv",
+    "rows": 4367,
+    "first_date": "2011-08-30",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D20B",
+    "file": "historical_csv/d20b.csv",
+    "rows": 993,
+    "first_date": "2014-09-12",
+    "last_date": "2017-05-31",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D20",
+    "file": "historical_csv/d20.csv",
+    "rows": 20,
+    "first_date": "2013-06-24",
+    "last_date": "2013-10-18",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D21A",
+    "file": "historical_csv/d21a.csv",
+    "rows": 1583,
+    "first_date": "2013-11-13",
+    "last_date": "2018-03-14",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D21B",
+    "file": "historical_csv/d21b.csv",
+    "rows": 2517,
+    "first_date": "2014-06-14",
+    "last_date": "2021-05-11",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D21",
+    "file": "historical_csv/d21.csv",
+    "rows": 35,
+    "first_date": "2013-11-01",
+    "last_date": "2014-03-28",
+    "columns": [
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D22",
+    "file": "historical_csv/d22.csv",
+    "rows": 2241,
+    "first_date": "2013-11-10",
+    "last_date": "2020-01-16",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D23",
+    "file": "historical_csv/d23.csv",
+    "rows": 3715,
+    "first_date": "2016-01-01",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D24",
+    "file": "historical_csv/d24.csv",
+    "rows": 74,
+    "first_date": "2016-01-01",
+    "last_date": "2016-03-14",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D25",
+    "file": "historical_csv/d25.csv",
+    "rows": 156,
+    "first_date": "2016-02-05",
+    "last_date": "2016-07-17",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D26",
+    "file": "historical_csv/d26.csv",
+    "rows": 2600,
+    "first_date": "2016-04-04",
+    "last_date": "2023-05-18",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D27",
+    "file": "historical_csv/d27.csv",
+    "rows": 2005,
+    "first_date": "2018-02-28",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D28",
+    "file": "historical_csv/d28.csv",
+    "rows": 1433,
+    "first_date": "2019-09-23",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D29A",
+    "file": "historical_csv/d29a.csv",
+    "rows": 806,
+    "first_date": "2021-06-11",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D29B",
+    "file": "historical_csv/d29b.csv",
+    "rows": 806,
+    "first_date": "2021-06-11",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D29C",
+    "file": "historical_csv/d29c.csv",
+    "rows": 806,
+    "first_date": "2021-06-11",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D30A",
+    "file": "historical_csv/d30a.csv",
+    "rows": 806,
+    "first_date": "2021-06-11",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D30B",
+    "file": "historical_csv/d30b.csv",
+    "rows": 1573,
+    "first_date": "2021-06-11",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D31",
+    "file": "historical_csv/d31.csv",
+    "rows": 573,
+    "first_date": "2022-01-28",
+    "last_date": "2023-08-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D32",
+    "file": "historical_csv/d32.csv",
+    "rows": 1236,
+    "first_date": "2022-10-15",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "E01",
+    "file": "historical_csv/e01.csv",
+    "rows": 294,
+    "first_date": "1992-02-09",
+    "last_date": "1992-11-28",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E02",
+    "file": "historical_csv/e02.csv",
+    "rows": 318,
+    "first_date": "1992-02-09",
+    "last_date": "1992-12-22",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E03",
+    "file": "historical_csv/e03.csv",
+    "rows": 132,
+    "first_date": "1992-08-13",
+    "last_date": "1992-12-22",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E04",
+    "file": "historical_csv/e04.csv",
+    "rows": 315,
+    "first_date": "1992-02-09",
+    "last_date": "1992-12-19",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E05",
+    "file": "historical_csv/e05.csv",
+    "rows": 675,
+    "first_date": "1992-02-12",
+    "last_date": "1993-12-17",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E06",
+    "file": "historical_csv/e06.csv",
+    "rows": 140,
+    "first_date": "1992-08-16",
+    "last_date": "1993-01-02",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E07",
+    "file": "historical_csv/e07.csv",
+    "rows": 248,
+    "first_date": "1994-05-07",
+    "last_date": "1995-01-09",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E08",
+    "file": "historical_csv/e08.csv",
+    "rows": 189,
+    "first_date": "1995-05-31",
+    "last_date": "1995-12-05",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E09",
+    "file": "historical_csv/e09.csv",
+    "rows": 189,
+    "first_date": "1995-02-12",
+    "last_date": "1995-08-19",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E10",
+    "file": "historical_csv/e10.csv",
+    "rows": 65,
+    "first_date": "1997-11-24",
+    "last_date": "1998-01-27",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E11",
+    "file": "historical_csv/e11.csv",
+    "rows": 192,
+    "first_date": "1993-04-22",
+    "last_date": "1993-10-30",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E12",
+    "file": "historical_csv/e12.csv",
+    "rows": 99,
+    "first_date": "1993-04-25",
+    "last_date": "1993-08-01",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E13",
+    "file": "historical_csv/e13.csv",
+    "rows": 114,
+    "first_date": "1996-08-02",
+    "last_date": "1996-11-23",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E14",
+    "file": "historical_csv/e14.csv",
+    "rows": 494,
+    "first_date": "1997-08-20",
+    "last_date": "1998-12-26",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E15",
+    "file": "historical_csv/e15.csv",
+    "rows": 237,
+    "first_date": "1998-04-19",
+    "last_date": "1998-12-11",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E16",
+    "file": "historical_csv/e16.csv",
+    "rows": 431,
+    "first_date": "1998-08-17",
+    "last_date": "1999-10-21",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E17",
+    "file": "historical_csv/e17.csv",
+    "rows": 431,
+    "first_date": "1998-08-17",
+    "last_date": "1999-10-21",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E18",
+    "file": "historical_csv/e18.csv",
+    "rows": 150,
+    "first_date": "1999-07-27",
+    "last_date": "1999-12-23",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E19",
+    "file": "historical_csv/e19.csv",
+    "rows": 153,
+    "first_date": "1999-04-01",
+    "last_date": "1999-08-31",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E20",
+    "file": "historical_csv/e20.csv",
+    "rows": 518,
+    "first_date": "1998-06-09",
+    "last_date": "1999-11-08",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "E21",
+    "file": "historical_csv/e21.csv",
+    "rows": 36,
+    "first_date": "1997-02-15",
+    "last_date": "1997-03-22",
+    "columns": [
+      "date",
+      "ers_1",
+      "ers_2",
+      "ers_3"
+    ]
+  },
+  {
+    "id": "SA02",
+    "file": "historical_csv/sa02.csv",
+    "rows": 70,
+    "first_date": "1978-07-23",
+    "last_date": "1978-09-30",
+    "columns": [
+      "date",
+      "sass_1",
+      "sass_2",
+      "sass_3"
+    ]
+  },
+  {
+    "id": "SA03",
+    "file": "historical_csv/sa03.csv",
+    "rows": 72,
+    "first_date": "1978-07-23",
+    "last_date": "1978-10-02",
+    "columns": [
+      "date",
+      "sass_1",
+      "sass_2",
+      "sass_3"
+    ]
+  },
+  {
+    "id": "SA04",
+    "file": "historical_csv/sa04.csv",
+    "rows": 72,
+    "first_date": "1978-07-23",
+    "last_date": "1978-10-02",
+    "columns": [
+      "date",
+      "sass_1",
+      "sass_2",
+      "sass_3"
+    ]
+  },
+  {
+    "id": "SA05",
+    "file": "historical_csv/sa05.csv",
+    "rows": 72,
+    "first_date": "1978-07-23",
+    "last_date": "1978-10-02",
+    "columns": [
+      "date",
+      "sass_1",
+      "sass_2",
+      "sass_3"
+    ]
+  },
+  {
+    "id": "SA06",
+    "file": "historical_csv/sa06.csv",
+    "rows": 24,
+    "first_date": "1978-09-09",
+    "last_date": "1978-10-02",
+    "columns": [
+      "date",
+      "sass_1",
+      "sass_2",
+      "sass_3"
+    ]
+  },
+  {
+    "id": "SA07",
+    "file": "historical_csv/sa07.csv",
+    "rows": 24,
+    "first_date": "1978-09-09",
+    "last_date": "1978-10-02",
+    "columns": [
+      "date",
+      "sass_1",
+      "sass_2",
+      "sass_3"
+    ]
+  },
+  {
+    "id": "UK01",
+    "file": "historical_csv/uk01.csv",
+    "rows": 251,
+    "first_date": "2001-01-10",
+    "last_date": "2001-10-30",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK02",
+    "file": "historical_csv/uk02.csv",
+    "rows": 301,
+    "first_date": "2001-04-20",
+    "last_date": "2002-02-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK03",
+    "file": "historical_csv/uk03.csv",
+    "rows": 164,
+    "first_date": "2001-05-15",
+    "last_date": "2001-10-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK04",
+    "file": "historical_csv/uk04.csv",
+    "rows": 235,
+    "first_date": "2001-05-15",
+    "last_date": "2002-01-04",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK052",
+    "file": "historical_csv/uk052.csv",
+    "rows": 819,
+    "first_date": "2011-08-30",
+    "last_date": "2014-01-21",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK05",
+    "file": "historical_csv/uk05.csv",
+    "rows": 121,
+    "first_date": "2001-03-16",
+    "last_date": "2001-07-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK06",
+    "file": "historical_csv/uk06.csv",
+    "rows": 55,
+    "first_date": "2001-08-28",
+    "last_date": "2001-10-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK07",
+    "file": "historical_csv/uk07.csv",
+    "rows": 129,
+    "first_date": "2001-08-25",
+    "last_date": "2001-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK08",
+    "file": "historical_csv/uk08.csv",
+    "rows": 145,
+    "first_date": "2001-08-25",
+    "last_date": "2002-01-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK093",
+    "file": "historical_csv/uk093.csv",
+    "rows": 1365,
+    "first_date": "2011-08-30",
+    "last_date": "2015-05-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK100",
+    "file": "historical_csv/uk100.csv",
+    "rows": 133,
+    "first_date": "2004-02-16",
+    "last_date": "2004-06-27",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK10",
+    "file": "historical_csv/uk10.csv",
+    "rows": 183,
+    "first_date": "2001-10-21",
+    "last_date": "2002-04-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK110",
+    "file": "historical_csv/uk110.csv",
+    "rows": 166,
+    "first_date": "2004-08-07",
+    "last_date": "2005-01-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK112",
+    "file": "historical_csv/uk112.csv",
+    "rows": 151,
+    "first_date": "2004-07-07",
+    "last_date": "2004-12-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK116",
+    "file": "historical_csv/uk116.csv",
+    "rows": 793,
+    "first_date": "2004-07-12",
+    "last_date": "2006-12-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK119",
+    "file": "historical_csv/uk119.csv",
+    "rows": 189,
+    "first_date": "2004-08-31",
+    "last_date": "2005-05-02",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK120",
+    "file": "historical_csv/uk120.csv",
+    "rows": 528,
+    "first_date": "2004-08-30",
+    "last_date": "2006-02-27",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK122",
+    "file": "historical_csv/uk122.csv",
+    "rows": 172,
+    "first_date": "2004-09-24",
+    "last_date": "2005-04-05",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK125",
+    "file": "historical_csv/uk125.csv",
+    "rows": 151,
+    "first_date": "2017-03-02",
+    "last_date": "2017-07-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK126",
+    "file": "historical_csv/uk126.csv",
+    "rows": 19,
+    "first_date": "2004-09-25",
+    "last_date": "2004-10-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK12",
+    "file": "historical_csv/uk12.csv",
+    "rows": 410,
+    "first_date": "2001-10-21",
+    "last_date": "2002-12-04",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK130",
+    "file": "historical_csv/uk130.csv",
+    "rows": 241,
+    "first_date": "2018-05-10",
+    "last_date": "2019-01-05",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK131",
+    "file": "historical_csv/uk131.csv",
+    "rows": 7,
+    "first_date": "2005-01-18",
+    "last_date": "2005-01-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK132",
+    "file": "historical_csv/uk132.csv",
+    "rows": 28,
+    "first_date": "2005-05-11",
+    "last_date": "2005-06-07",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK133",
+    "file": "historical_csv/uk133.csv",
+    "rows": 143,
+    "first_date": "2005-06-25",
+    "last_date": "2005-11-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK134",
+    "file": "historical_csv/uk134.csv",
+    "rows": 166,
+    "first_date": "2005-06-29",
+    "last_date": "2006-01-08",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK135",
+    "file": "historical_csv/uk135.csv",
+    "rows": 39,
+    "first_date": "2005-06-25",
+    "last_date": "2005-09-08",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK136",
+    "file": "historical_csv/uk136.csv",
+    "rows": 803,
+    "first_date": "2005-07-02",
+    "last_date": "2007-12-17",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK137",
+    "file": "historical_csv/uk137.csv",
+    "rows": 373,
+    "first_date": "2005-07-11",
+    "last_date": "2006-09-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK138",
+    "file": "historical_csv/uk138.csv",
+    "rows": 499,
+    "first_date": "2005-04-20",
+    "last_date": "2006-09-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK139",
+    "file": "historical_csv/uk139.csv",
+    "rows": 164,
+    "first_date": "2005-07-21",
+    "last_date": "2005-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK13",
+    "file": "historical_csv/uk13.csv",
+    "rows": 349,
+    "first_date": "2001-10-21",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK140",
+    "file": "historical_csv/uk140.csv",
+    "rows": 154,
+    "first_date": "2005-07-21",
+    "last_date": "2005-12-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK144",
+    "file": "historical_csv/uk144.csv",
+    "rows": 59,
+    "first_date": "2006-02-17",
+    "last_date": "2006-04-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK145",
+    "file": "historical_csv/uk145.csv",
+    "rows": 1220,
+    "first_date": "2006-02-14",
+    "last_date": "2009-11-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK147",
+    "file": "historical_csv/uk147.csv",
+    "rows": 26,
+    "first_date": "2005-04-27",
+    "last_date": "2005-05-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK148",
+    "file": "historical_csv/uk148.csv",
+    "rows": 503,
+    "first_date": "2006-03-26",
+    "last_date": "2008-10-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK14",
+    "file": "historical_csv/uk14.csv",
+    "rows": 354,
+    "first_date": "2002-01-03",
+    "last_date": "2002-12-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK151",
+    "file": "historical_csv/uk151.csv",
+    "rows": 264,
+    "first_date": "2005-04-07",
+    "last_date": "2005-12-26",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK155",
+    "file": "historical_csv/uk155.csv",
+    "rows": 537,
+    "first_date": "2006-09-26",
+    "last_date": "2008-03-15",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK156",
+    "file": "historical_csv/uk156.csv",
+    "rows": 220,
+    "first_date": "2007-01-27",
+    "last_date": "2007-09-03",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK157",
+    "file": "historical_csv/uk157.csv",
+    "rows": 1026,
+    "first_date": "2007-02-01",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK158",
+    "file": "historical_csv/uk158.csv",
+    "rows": 304,
+    "first_date": "2007-02-01",
+    "last_date": "2007-12-01",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK159",
+    "file": "historical_csv/uk159.csv",
+    "rows": 275,
+    "first_date": "2007-03-20",
+    "last_date": "2007-12-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK15",
+    "file": "historical_csv/uk15.csv",
+    "rows": 442,
+    "first_date": "2002-01-03",
+    "last_date": "2003-03-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK160",
+    "file": "historical_csv/uk160.csv",
+    "rows": 311,
+    "first_date": "2007-01-19",
+    "last_date": "2007-11-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK161",
+    "file": "historical_csv/uk161.csv",
+    "rows": 296,
+    "first_date": "2007-03-29",
+    "last_date": "2008-01-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK163",
+    "file": "historical_csv/uk163.csv",
+    "rows": 73,
+    "first_date": "2007-06-04",
+    "last_date": "2007-08-15",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK164",
+    "file": "historical_csv/uk164.csv",
+    "rows": 888,
+    "first_date": "2007-06-03",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK165",
+    "file": "historical_csv/uk165.csv",
+    "rows": 214,
+    "first_date": "2007-05-27",
+    "last_date": "2008-03-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK166",
+    "file": "historical_csv/uk166.csv",
+    "rows": 201,
+    "first_date": "2007-06-03",
+    "last_date": "2007-12-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK16",
+    "file": "historical_csv/uk16.csv",
+    "rows": 332,
+    "first_date": "2002-01-04",
+    "last_date": "2002-12-01",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK170",
+    "file": "historical_csv/uk170.csv",
+    "rows": 129,
+    "first_date": "2007-10-01",
+    "last_date": "2008-03-11",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK171",
+    "file": "historical_csv/uk171.csv",
+    "rows": 64,
+    "first_date": "2007-03-07",
+    "last_date": "2007-05-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK172",
+    "file": "historical_csv/uk172.csv",
+    "rows": 1328,
+    "first_date": "2006-02-04",
+    "last_date": "2009-11-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK173",
+    "file": "historical_csv/uk173.csv",
+    "rows": 1394,
+    "first_date": "2005-01-11",
+    "last_date": "2008-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK174",
+    "file": "historical_csv/uk174.csv",
+    "rows": 1460,
+    "first_date": "2006-02-20",
+    "last_date": "2012-03-11",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK175",
+    "file": "historical_csv/uk175.csv",
+    "rows": 1322,
+    "first_date": "2005-02-18",
+    "last_date": "2008-12-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK176",
+    "file": "historical_csv/uk176.csv",
+    "rows": 185,
+    "first_date": "2007-03-16",
+    "last_date": "2007-09-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK177",
+    "file": "historical_csv/uk177.csv",
+    "rows": 607,
+    "first_date": "2007-01-30",
+    "last_date": "2008-11-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK179",
+    "file": "historical_csv/uk179.csv",
+    "rows": 59,
+    "first_date": "2007-03-20",
+    "last_date": "2007-05-17",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK17",
+    "file": "historical_csv/uk17.csv",
+    "rows": 139,
+    "first_date": "2002-01-04",
+    "last_date": "2002-05-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK180",
+    "file": "historical_csv/uk180.csv",
+    "rows": 294,
+    "first_date": "2007-02-28",
+    "last_date": "2008-01-07",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK183",
+    "file": "historical_csv/uk183.csv",
+    "rows": 931,
+    "first_date": "2006-10-30",
+    "last_date": "2009-06-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK185",
+    "file": "historical_csv/uk185.csv",
+    "rows": 676,
+    "first_date": "2007-04-30",
+    "last_date": "2009-03-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK186",
+    "file": "historical_csv/uk186.csv",
+    "rows": 659,
+    "first_date": "2007-03-08",
+    "last_date": "2008-12-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK187",
+    "file": "historical_csv/uk187.csv",
+    "rows": 638,
+    "first_date": "2007-10-30",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK188",
+    "file": "historical_csv/uk188.csv",
+    "rows": 141,
+    "first_date": "2007-09-12",
+    "last_date": "2008-04-07",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK189",
+    "file": "historical_csv/uk189.csv",
+    "rows": 20,
+    "first_date": "2008-02-25",
+    "last_date": "2008-04-08",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK18",
+    "file": "historical_csv/uk18.csv",
+    "rows": 60,
+    "first_date": "2002-01-19",
+    "last_date": "2002-03-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK190",
+    "file": "historical_csv/uk190.csv",
+    "rows": 25,
+    "first_date": "2007-12-21",
+    "last_date": "2008-02-07",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK191",
+    "file": "historical_csv/uk191.csv",
+    "rows": 28,
+    "first_date": "2008-01-23",
+    "last_date": "2008-03-12",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK192",
+    "file": "historical_csv/uk192.csv",
+    "rows": 1397,
+    "first_date": "2008-02-11",
+    "last_date": "2013-09-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK193",
+    "file": "historical_csv/uk193.csv",
+    "rows": 621,
+    "first_date": "2008-03-12",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK194",
+    "file": "historical_csv/uk194.csv",
+    "rows": 359,
+    "first_date": "2008-03-12",
+    "last_date": "2009-03-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK195",
+    "file": "historical_csv/uk195.csv",
+    "rows": 72,
+    "first_date": "2008-01-30",
+    "last_date": "2008-04-10",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK196",
+    "file": "historical_csv/uk196.csv",
+    "rows": 25,
+    "first_date": "2008-03-12",
+    "last_date": "2008-04-05",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK19",
+    "file": "historical_csv/uk19.csv",
+    "rows": 949,
+    "first_date": "2001-07-19",
+    "last_date": "2004-02-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK201",
+    "file": "historical_csv/uk201.csv",
+    "rows": 140,
+    "first_date": "2005-02-20",
+    "last_date": "2005-07-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK202",
+    "file": "historical_csv/uk202.csv",
+    "rows": 22,
+    "first_date": "2005-02-21",
+    "last_date": "2005-03-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK203",
+    "file": "historical_csv/uk203.csv",
+    "rows": 9,
+    "first_date": "2005-03-14",
+    "last_date": "2005-03-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK205",
+    "file": "historical_csv/uk205.csv",
+    "rows": 227,
+    "first_date": "2004-07-27",
+    "last_date": "2005-03-10",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK206",
+    "file": "historical_csv/uk206.csv",
+    "rows": 349,
+    "first_date": "2004-11-10",
+    "last_date": "2005-12-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK207",
+    "file": "historical_csv/uk207.csv",
+    "rows": 657,
+    "first_date": "2004-11-13",
+    "last_date": "2006-10-02",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK208",
+    "file": "historical_csv/uk208.csv",
+    "rows": 264,
+    "first_date": "2005-01-16",
+    "last_date": "2005-10-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK209",
+    "file": "historical_csv/uk209.csv",
+    "rows": 97,
+    "first_date": "2005-07-06",
+    "last_date": "2005-10-10",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK20",
+    "file": "historical_csv/uk20.csv",
+    "rows": 401,
+    "first_date": "2002-01-18",
+    "last_date": "2003-02-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK210",
+    "file": "historical_csv/uk210.csv",
+    "rows": 368,
+    "first_date": "2004-12-23",
+    "last_date": "2005-12-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK211",
+    "file": "historical_csv/uk211.csv",
+    "rows": 2546,
+    "first_date": "1999-07-19",
+    "last_date": "2006-11-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK212",
+    "file": "historical_csv/uk212.csv",
+    "rows": 411,
+    "first_date": "2006-02-03",
+    "last_date": "2007-03-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK213",
+    "file": "historical_csv/uk213.csv",
+    "rows": 101,
+    "first_date": "2006-06-27",
+    "last_date": "2006-10-05",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK215",
+    "file": "historical_csv/uk215.csv",
+    "rows": 654,
+    "first_date": "2005-01-18",
+    "last_date": "2006-11-02",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK216",
+    "file": "historical_csv/uk216.csv",
+    "rows": 265,
+    "first_date": "2006-02-04",
+    "last_date": "2006-10-26",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK217",
+    "file": "historical_csv/uk217.csv",
+    "rows": 268,
+    "first_date": "2006-01-27",
+    "last_date": "2006-10-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK21",
+    "file": "historical_csv/uk21.csv",
+    "rows": 90,
+    "first_date": "2002-01-15",
+    "last_date": "2002-04-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK220",
+    "file": "historical_csv/uk220.csv",
+    "rows": 212,
+    "first_date": "2006-04-02",
+    "last_date": "2006-10-30",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK221",
+    "file": "historical_csv/uk221.csv",
+    "rows": 258,
+    "first_date": "2005-05-04",
+    "last_date": "2006-01-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK222",
+    "file": "historical_csv/uk222.csv",
+    "rows": 137,
+    "first_date": "2005-02-13",
+    "last_date": "2005-06-29",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK22",
+    "file": "historical_csv/uk22.csv",
+    "rows": 75,
+    "first_date": "2002-01-22",
+    "last_date": "2002-04-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK231",
+    "file": "historical_csv/uk231.csv",
+    "rows": 224,
+    "first_date": "2006-12-24",
+    "last_date": "2007-08-04",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK233",
+    "file": "historical_csv/uk233.csv",
+    "rows": 151,
+    "first_date": "2006-12-20",
+    "last_date": "2007-05-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK234",
+    "file": "historical_csv/uk234.csv",
+    "rows": 31,
+    "first_date": "2008-01-01",
+    "last_date": "2008-01-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK235",
+    "file": "historical_csv/uk235.csv",
+    "rows": 1434,
+    "first_date": "2008-01-19",
+    "last_date": "2019-06-06",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK236",
+    "file": "historical_csv/uk236.csv",
+    "rows": 148,
+    "first_date": "2008-01-24",
+    "last_date": "2008-09-12",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK237",
+    "file": "historical_csv/uk237.csv",
+    "rows": 147,
+    "first_date": "2008-01-29",
+    "last_date": "2008-08-03",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK238",
+    "file": "historical_csv/uk238.csv",
+    "rows": 76,
+    "first_date": "2008-03-30",
+    "last_date": "2008-06-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK239",
+    "file": "historical_csv/uk239.csv",
+    "rows": 45,
+    "first_date": "2008-03-30",
+    "last_date": "2008-05-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK23",
+    "file": "historical_csv/uk23.csv",
+    "rows": 67,
+    "first_date": "2002-01-21",
+    "last_date": "2002-03-28",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK240",
+    "file": "historical_csv/uk240.csv",
+    "rows": 11,
+    "first_date": "2008-03-30",
+    "last_date": "2008-04-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK241",
+    "file": "historical_csv/uk241.csv",
+    "rows": 25,
+    "first_date": "2008-03-30",
+    "last_date": "2008-04-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK242",
+    "file": "historical_csv/uk242.csv",
+    "rows": 45,
+    "first_date": "2008-03-30",
+    "last_date": "2008-05-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK243",
+    "file": "historical_csv/uk243.csv",
+    "rows": 51,
+    "first_date": "2008-04-03",
+    "last_date": "2008-05-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK245",
+    "file": "historical_csv/uk245.csv",
+    "rows": 263,
+    "first_date": "2008-02-18",
+    "last_date": "2008-12-26",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK246",
+    "file": "historical_csv/uk246.csv",
+    "rows": 111,
+    "first_date": "2008-03-30",
+    "last_date": "2008-07-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK247",
+    "file": "historical_csv/uk247.csv",
+    "rows": 396,
+    "first_date": "2008-03-14",
+    "last_date": "2009-04-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK248",
+    "file": "historical_csv/uk248.csv",
+    "rows": 243,
+    "first_date": "2008-04-11",
+    "last_date": "2008-12-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK249",
+    "file": "historical_csv/uk249.csv",
+    "rows": 587,
+    "first_date": "2008-04-16",
+    "last_date": "2009-11-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK24",
+    "file": "historical_csv/uk24.csv",
+    "rows": 345,
+    "first_date": "2002-03-04",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK250",
+    "file": "historical_csv/uk250.csv",
+    "rows": 73,
+    "first_date": "2008-05-10",
+    "last_date": "2008-08-03",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK251",
+    "file": "historical_csv/uk251.csv",
+    "rows": 564,
+    "first_date": "2008-05-08",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK253",
+    "file": "historical_csv/uk253.csv",
+    "rows": 53,
+    "first_date": "2008-07-24",
+    "last_date": "2008-09-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK254",
+    "file": "historical_csv/uk254.csv",
+    "rows": 42,
+    "first_date": "2008-03-20",
+    "last_date": "2008-04-30",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK255",
+    "file": "historical_csv/uk255.csv",
+    "rows": 46,
+    "first_date": "2008-08-03",
+    "last_date": "2008-09-17",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK256",
+    "file": "historical_csv/uk256.csv",
+    "rows": 442,
+    "first_date": "2008-09-07",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK257",
+    "file": "historical_csv/uk257.csv",
+    "rows": 40,
+    "first_date": "2008-08-23",
+    "last_date": "2008-10-01",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK258",
+    "file": "historical_csv/uk258.csv",
+    "rows": 44,
+    "first_date": "2008-09-08",
+    "last_date": "2008-10-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK259",
+    "file": "historical_csv/uk259.csv",
+    "rows": 55,
+    "first_date": "2008-09-07",
+    "last_date": "2008-10-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK25",
+    "file": "historical_csv/uk25.csv",
+    "rows": 447,
+    "first_date": "2002-01-15",
+    "last_date": "2003-04-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK261",
+    "file": "historical_csv/uk261.csv",
+    "rows": 60,
+    "first_date": "2008-08-27",
+    "last_date": "2008-10-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK262",
+    "file": "historical_csv/uk262.csv",
+    "rows": 153,
+    "first_date": "2008-08-15",
+    "last_date": "2009-01-14",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK263",
+    "file": "historical_csv/uk263.csv",
+    "rows": 345,
+    "first_date": "2008-08-15",
+    "last_date": "2009-07-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK264",
+    "file": "historical_csv/uk264.csv",
+    "rows": 148,
+    "first_date": "2008-08-15",
+    "last_date": "2009-01-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK265",
+    "file": "historical_csv/uk265.csv",
+    "rows": 176,
+    "first_date": "2008-08-16",
+    "last_date": "2009-02-07",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK266",
+    "file": "historical_csv/uk266.csv",
+    "rows": 19,
+    "first_date": "2008-08-29",
+    "last_date": "2008-09-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK267",
+    "file": "historical_csv/uk267.csv",
+    "rows": 94,
+    "first_date": "2008-09-02",
+    "last_date": "2008-12-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK268",
+    "file": "historical_csv/uk268.csv",
+    "rows": 221,
+    "first_date": "2008-06-07",
+    "last_date": "2009-01-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK269",
+    "file": "historical_csv/uk269.csv",
+    "rows": 16,
+    "first_date": "2008-10-24",
+    "last_date": "2008-11-08",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK26",
+    "file": "historical_csv/uk26.csv",
+    "rows": 345,
+    "first_date": "2002-01-16",
+    "last_date": "2002-12-26",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK270",
+    "file": "historical_csv/uk270.csv",
+    "rows": 247,
+    "first_date": "2008-07-30",
+    "last_date": "2009-04-05",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK271",
+    "file": "historical_csv/uk271.csv",
+    "rows": 105,
+    "first_date": "2008-10-08",
+    "last_date": "2009-01-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK272",
+    "file": "historical_csv/uk272.csv",
+    "rows": 301,
+    "first_date": "2009-01-26",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK273",
+    "file": "historical_csv/uk273.csv",
+    "rows": 12,
+    "first_date": "2008-12-15",
+    "last_date": "2009-01-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK274",
+    "file": "historical_csv/uk274.csv",
+    "rows": 13,
+    "first_date": "2008-12-15",
+    "last_date": "2009-01-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK275",
+    "file": "historical_csv/uk275.csv",
+    "rows": 10,
+    "first_date": "2008-12-15",
+    "last_date": "2009-01-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK276",
+    "file": "historical_csv/uk276.csv",
+    "rows": 356,
+    "first_date": "2008-11-29",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK277",
+    "file": "historical_csv/uk277.csv",
+    "rows": 63,
+    "first_date": "2009-01-05",
+    "last_date": "2009-03-08",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK278",
+    "file": "historical_csv/uk278.csv",
+    "rows": 8,
+    "first_date": "2009-02-08",
+    "last_date": "2009-02-15",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK279",
+    "file": "historical_csv/uk279.csv",
+    "rows": 10,
+    "first_date": "2009-02-08",
+    "last_date": "2009-02-17",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK27",
+    "file": "historical_csv/uk27.csv",
+    "rows": 142,
+    "first_date": "2002-01-30",
+    "last_date": "2002-06-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK280",
+    "file": "historical_csv/uk280.csv",
+    "rows": 71,
+    "first_date": "2009-02-07",
+    "last_date": "2009-04-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK281",
+    "file": "historical_csv/uk281.csv",
+    "rows": 103,
+    "first_date": "2009-02-07",
+    "last_date": "2009-05-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK282",
+    "file": "historical_csv/uk282.csv",
+    "rows": 55,
+    "first_date": "2009-02-07",
+    "last_date": "2009-04-02",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK283",
+    "file": "historical_csv/uk283.csv",
+    "rows": 7,
+    "first_date": "2009-02-07",
+    "last_date": "2009-02-13",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK284",
+    "file": "historical_csv/uk284.csv",
+    "rows": 228,
+    "first_date": "2009-02-15",
+    "last_date": "2009-09-30",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK285",
+    "file": "historical_csv/uk285.csv",
+    "rows": 112,
+    "first_date": "2009-01-27",
+    "last_date": "2009-05-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK286",
+    "file": "historical_csv/uk286.csv",
+    "rows": 66,
+    "first_date": "2009-05-19",
+    "last_date": "2009-08-12",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK288",
+    "file": "historical_csv/uk288.csv",
+    "rows": 46,
+    "first_date": "2009-06-13",
+    "last_date": "2009-07-28",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK289",
+    "file": "historical_csv/uk289.csv",
+    "rows": 221,
+    "first_date": "2009-04-17",
+    "last_date": "2009-11-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK28",
+    "file": "historical_csv/uk28.csv",
+    "rows": 95,
+    "first_date": "2002-01-02",
+    "last_date": "2002-04-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK290",
+    "file": "historical_csv/uk290.csv",
+    "rows": 499,
+    "first_date": "2011-08-29",
+    "last_date": "2013-02-05",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK291",
+    "file": "historical_csv/uk291.csv",
+    "rows": 193,
+    "first_date": "2009-05-14",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK292",
+    "file": "historical_csv/uk292.csv",
+    "rows": 125,
+    "first_date": "2009-07-21",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK293",
+    "file": "historical_csv/uk293.csv",
+    "rows": 187,
+    "first_date": "2009-05-20",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK294",
+    "file": "historical_csv/uk294.csv",
+    "rows": 119,
+    "first_date": "2009-07-27",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK295",
+    "file": "historical_csv/uk295.csv",
+    "rows": 22,
+    "first_date": "2009-11-02",
+    "last_date": "2009-11-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK297",
+    "file": "historical_csv/uk297.csv",
+    "rows": 26,
+    "first_date": "2009-10-29",
+    "last_date": "2009-11-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK29",
+    "file": "historical_csv/uk29.csv",
+    "rows": 35,
+    "first_date": "2002-02-22",
+    "last_date": "2002-03-28",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK304",
+    "file": "historical_csv/uk304.csv",
+    "rows": 121,
+    "first_date": "2011-08-30",
+    "last_date": "2011-12-28",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK30",
+    "file": "historical_csv/uk30.csv",
+    "rows": 196,
+    "first_date": "2002-07-15",
+    "last_date": "2003-01-26",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK314",
+    "file": "historical_csv/uk314.csv",
+    "rows": 692,
+    "first_date": "2011-08-29",
+    "last_date": "2013-09-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK315",
+    "file": "historical_csv/uk315.csv",
+    "rows": 1175,
+    "first_date": "2011-08-30",
+    "last_date": "2014-12-15",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK316",
+    "file": "historical_csv/uk316.csv",
+    "rows": 1223,
+    "first_date": "2012-01-19",
+    "last_date": "2015-05-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK318",
+    "file": "historical_csv/uk318.csv",
+    "rows": 81,
+    "first_date": "2011-08-30",
+    "last_date": "2011-11-18",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK319",
+    "file": "historical_csv/uk319.csv",
+    "rows": 395,
+    "first_date": "2011-08-30",
+    "last_date": "2012-09-27",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK31",
+    "file": "historical_csv/uk31.csv",
+    "rows": 263,
+    "first_date": "2002-04-28",
+    "last_date": "2003-01-15",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK320",
+    "file": "historical_csv/uk320.csv",
+    "rows": 509,
+    "first_date": "2011-08-30",
+    "last_date": "2013-01-19",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK321B",
+    "file": "historical_csv/uk321b.csv",
+    "rows": 189,
+    "first_date": "2014-04-06",
+    "last_date": "2014-10-11",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK321",
+    "file": "historical_csv/uk321.csv",
+    "rows": 966,
+    "first_date": "2012-03-15",
+    "last_date": "2014-11-05",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK322",
+    "file": "historical_csv/uk322.csv",
+    "rows": 1061,
+    "first_date": "2012-05-03",
+    "last_date": "2015-03-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3"
+    ]
+  },
+  {
+    "id": "UK323",
+    "file": "historical_csv/uk323.csv",
+    "rows": 217,
+    "first_date": "2014-12-08",
+    "last_date": "2015-07-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK324",
+    "file": "historical_csv/uk324.csv",
+    "rows": 4356,
+    "first_date": "2013-10-25",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK325",
+    "file": "historical_csv/uk325.csv",
+    "rows": 875,
+    "first_date": "2015-09-23",
+    "last_date": "2018-11-17",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK326",
+    "file": "historical_csv/uk326.csv",
+    "rows": 922,
+    "first_date": "2015-08-23",
+    "last_date": "2018-07-02",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UK32",
+    "file": "historical_csv/uk32.csv",
+    "rows": 121,
+    "first_date": "2002-04-28",
+    "last_date": "2002-08-26",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK33",
+    "file": "historical_csv/uk33.csv",
+    "rows": 151,
+    "first_date": "2002-04-28",
+    "last_date": "2002-09-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK34",
+    "file": "historical_csv/uk34.csv",
+    "rows": 512,
+    "first_date": "2002-04-27",
+    "last_date": "2003-09-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK35",
+    "file": "historical_csv/uk35.csv",
+    "rows": 107,
+    "first_date": "2002-04-24",
+    "last_date": "2002-08-08",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK36",
+    "file": "historical_csv/uk36.csv",
+    "rows": 68,
+    "first_date": "2002-04-28",
+    "last_date": "2002-07-04",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK38",
+    "file": "historical_csv/uk38.csv",
+    "rows": 511,
+    "first_date": "2002-05-09",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK39",
+    "file": "historical_csv/uk39.csv",
+    "rows": 501,
+    "first_date": "2002-06-11",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK40",
+    "file": "historical_csv/uk40.csv",
+    "rows": 532,
+    "first_date": "2002-04-27",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK42",
+    "file": "historical_csv/uk42.csv",
+    "rows": 277,
+    "first_date": "2002-04-28",
+    "last_date": "2003-01-29",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK45",
+    "file": "historical_csv/uk45.csv",
+    "rows": 82,
+    "first_date": "2002-04-28",
+    "last_date": "2002-07-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK46",
+    "file": "historical_csv/uk46.csv",
+    "rows": 183,
+    "first_date": "2002-04-28",
+    "last_date": "2002-10-27",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK47",
+    "file": "historical_csv/uk47.csv",
+    "rows": 85,
+    "first_date": "2002-04-28",
+    "last_date": "2002-07-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK48",
+    "file": "historical_csv/uk48.csv",
+    "rows": 797,
+    "first_date": "2002-04-28",
+    "last_date": "2004-07-02",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK49",
+    "file": "historical_csv/uk49.csv",
+    "rows": 227,
+    "first_date": "2002-04-28",
+    "last_date": "2002-12-10",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK50",
+    "file": "historical_csv/uk50.csv",
+    "rows": 1123,
+    "first_date": "2002-04-28",
+    "last_date": "2006-03-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK51",
+    "file": "historical_csv/uk51.csv",
+    "rows": 540,
+    "first_date": "2002-04-28",
+    "last_date": "2003-11-20",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK52",
+    "file": "historical_csv/uk52.csv",
+    "rows": 3496,
+    "first_date": "2002-04-28",
+    "last_date": "2014-01-21",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK53",
+    "file": "historical_csv/uk53.csv",
+    "rows": 789,
+    "first_date": "2002-04-28",
+    "last_date": "2004-06-27",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK54",
+    "file": "historical_csv/uk54.csv",
+    "rows": 600,
+    "first_date": "2002-05-11",
+    "last_date": "2003-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK55",
+    "file": "historical_csv/uk55.csv",
+    "rows": 252,
+    "first_date": "2002-05-11",
+    "last_date": "2003-01-17",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK56",
+    "file": "historical_csv/uk56.csv",
+    "rows": 184,
+    "first_date": "2003-04-24",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK57",
+    "file": "historical_csv/uk57.csv",
+    "rows": 100,
+    "first_date": "2002-06-30",
+    "last_date": "2002-10-07",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK58",
+    "file": "historical_csv/uk58.csv",
+    "rows": 155,
+    "first_date": "2002-06-30",
+    "last_date": "2002-12-01",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK59",
+    "file": "historical_csv/uk59.csv",
+    "rows": 126,
+    "first_date": "2002-06-30",
+    "last_date": "2002-11-02",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK60",
+    "file": "historical_csv/uk60.csv",
+    "rows": 105,
+    "first_date": "2002-06-30",
+    "last_date": "2002-10-12",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK61",
+    "file": "historical_csv/uk61.csv",
+    "rows": 87,
+    "first_date": "2002-07-04",
+    "last_date": "2002-09-28",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK62",
+    "file": "historical_csv/uk62.csv",
+    "rows": 124,
+    "first_date": "2002-07-04",
+    "last_date": "2003-06-28",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK63",
+    "file": "historical_csv/uk63.csv",
+    "rows": 165,
+    "first_date": "2002-09-22",
+    "last_date": "2003-04-27",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK64",
+    "file": "historical_csv/uk64.csv",
+    "rows": 2599,
+    "first_date": "2002-09-22",
+    "last_date": "2009-11-22",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK65",
+    "file": "historical_csv/uk65.csv",
+    "rows": 130,
+    "first_date": "2002-09-22",
+    "last_date": "2003-01-29",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK66",
+    "file": "historical_csv/uk66.csv",
+    "rows": 67,
+    "first_date": "2002-10-20",
+    "last_date": "2002-12-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK67",
+    "file": "historical_csv/uk67.csv",
+    "rows": 28,
+    "first_date": "2002-10-20",
+    "last_date": "2002-11-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK68",
+    "file": "historical_csv/uk68.csv",
+    "rows": 216,
+    "first_date": "2002-10-20",
+    "last_date": "2003-05-23",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK69",
+    "file": "historical_csv/uk69.csv",
+    "rows": 334,
+    "first_date": "2002-10-20",
+    "last_date": "2003-09-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK70",
+    "file": "historical_csv/uk70.csv",
+    "rows": 13,
+    "first_date": "2002-10-31",
+    "last_date": "2002-11-12",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK71",
+    "file": "historical_csv/uk71.csv",
+    "rows": 427,
+    "first_date": "2002-10-31",
+    "last_date": "2003-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK72",
+    "file": "historical_csv/uk72.csv",
+    "rows": 300,
+    "first_date": "2002-12-29",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK73",
+    "file": "historical_csv/uk73.csv",
+    "rows": 233,
+    "first_date": "2003-03-06",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK74",
+    "file": "historical_csv/uk74.csv",
+    "rows": 16,
+    "first_date": "2003-03-06",
+    "last_date": "2003-03-21",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK75",
+    "file": "historical_csv/uk75.csv",
+    "rows": 301,
+    "first_date": "2003-03-06",
+    "last_date": "2003-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK84",
+    "file": "historical_csv/uk84.csv",
+    "rows": 484,
+    "first_date": "2003-03-30",
+    "last_date": "2004-07-25",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK85",
+    "file": "historical_csv/uk85.csv",
+    "rows": 209,
+    "first_date": "2003-03-30",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK86",
+    "file": "historical_csv/uk86.csv",
+    "rows": 252,
+    "first_date": "2003-03-30",
+    "last_date": "2003-12-06",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK87",
+    "file": "historical_csv/uk87.csv",
+    "rows": 432,
+    "first_date": "2003-07-06",
+    "last_date": "2004-09-09",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK88",
+    "file": "historical_csv/uk88.csv",
+    "rows": 106,
+    "first_date": "2003-07-06",
+    "last_date": "2003-10-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK89",
+    "file": "historical_csv/uk89.csv",
+    "rows": 134,
+    "first_date": "2003-07-06",
+    "last_date": "2003-11-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK90",
+    "file": "historical_csv/uk90.csv",
+    "rows": 134,
+    "first_date": "2003-07-06",
+    "last_date": "2003-11-16",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK91",
+    "file": "historical_csv/uk91.csv",
+    "rows": 107,
+    "first_date": "2003-08-03",
+    "last_date": "2003-11-17",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK92",
+    "file": "historical_csv/uk92.csv",
+    "rows": 151,
+    "first_date": "2003-08-03",
+    "last_date": "2003-12-31",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UK93",
+    "file": "historical_csv/uk93.csv",
+    "rows": 3627,
+    "first_date": "2003-08-03",
+    "last_date": "2015-05-25",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "oscat_1",
+      "oscat_2",
+      "oscat_3",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK94",
+    "file": "historical_csv/uk94.csv",
+    "rows": 83,
+    "first_date": "2003-08-03",
+    "last_date": "2003-10-24",
+    "columns": [
+      "date",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK95",
+    "file": "historical_csv/uk95.csv",
+    "rows": 359,
+    "first_date": "2003-07-20",
+    "last_date": "2004-07-12",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK96",
+    "file": "historical_csv/uk96.csv",
+    "rows": 232,
+    "first_date": "2003-10-01",
+    "last_date": "2004-05-19",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK97",
+    "file": "historical_csv/uk97.csv",
+    "rows": 259,
+    "first_date": "2003-10-16",
+    "last_date": "2004-06-30",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3",
+      "seawinds_1",
+      "seawinds_2",
+      "seawinds_3"
+    ]
+  },
+  {
+    "id": "UK99",
+    "file": "historical_csv/uk99.csv",
+    "rows": 63,
+    "first_date": "2004-02-16",
+    "last_date": "2004-04-18",
+    "columns": [
+      "date",
+      "qscat_1",
+      "qscat_2",
+      "qscat_3"
+    ]
+  },
+  {
+    "id": "UKA57B",
+    "file": "historical_csv/uka57b.csv",
+    "rows": 1026,
+    "first_date": "2015-12-31",
+    "last_date": "2018-11-23",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "UKC33",
+    "file": "historical_csv/ukc33.csv",
+    "rows": 1585,
+    "first_date": "2016-04-07",
+    "last_date": "2021-01-12",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date"
+    ]
+  },
+  {
+    "id": "A82",
+    "file": "historical_csv/a82.csv",
+    "rows": 850,
+    "first_date": "2023-12-14",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A83",
+    "file": "historical_csv/a83.csv",
+    "rows": 700,
+    "first_date": "2024-05-23",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A84",
+    "file": "historical_csv/a84.csv",
+    "rows": 447,
+    "first_date": "2025-01-31",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "A85",
+    "file": "historical_csv/a85.csv",
+    "rows": 431,
+    "first_date": "2025-02-16",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22F",
+    "file": "historical_csv/b22f.csv",
+    "rows": 617,
+    "first_date": "2024-08-14",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22G",
+    "file": "historical_csv/b22g.csv",
+    "rows": 602,
+    "first_date": "2024-08-14",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22H",
+    "file": "historical_csv/b22h.csv",
+    "rows": 286,
+    "first_date": "2025-07-11",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "B22I",
+    "file": "historical_csv/b22i.csv",
+    "rows": 286,
+    "first_date": "2025-07-11",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "C18C",
+    "file": "historical_csv/c18c.csv",
+    "rows": 176,
+    "first_date": "2025-10-29",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D15C",
+    "file": "historical_csv/d15c.csv",
+    "rows": 88,
+    "first_date": "2026-01-16",
+    "last_date": "2026-04-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D33A",
+    "file": "historical_csv/d33a.csv",
+    "rows": 908,
+    "first_date": "2023-09-08",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D33B",
+    "file": "historical_csv/d33b.csv",
+    "rows": 908,
+    "first_date": "2023-09-08",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D33C",
+    "file": "historical_csv/d33c.csv",
+    "rows": 701,
+    "first_date": "2024-04-19",
+    "last_date": "2026-04-30",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D34",
+    "file": "historical_csv/d34.csv",
+    "rows": 887,
+    "first_date": "2023-10-20",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D35",
+    "file": "historical_csv/d35.csv",
+    "rows": 839,
+    "first_date": "2024-01-05",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D36",
+    "file": "historical_csv/d36.csv",
+    "rows": 776,
+    "first_date": "2024-02-08",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  },
+  {
+    "id": "D37",
+    "file": "historical_csv/d37.csv",
+    "rows": 427,
+    "first_date": "2025-02-20",
+    "last_date": "2026-04-22",
+    "columns": [
+      "ascat_1",
+      "ascat_2",
+      "ascat_3",
+      "date",
+      "nic_1",
+      "nic_2",
+      "nic_3",
+      "size_1",
+      "size_2"
+    ]
+  }
+]

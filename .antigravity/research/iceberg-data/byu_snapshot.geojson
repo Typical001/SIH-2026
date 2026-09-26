@@ -1,0 +1,803 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -26.416666666666668,
+          -54.03333333333333
+        ]
+      },
+      "properties": {
+        "id": "A76C",
+        "longitude": -26.416666666666668,
+        "latitude": -54.03333333333333,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.333333333333336,
+          -57.4
+        ]
+      },
+      "properties": {
+        "id": "A81",
+        "longitude": -47.333333333333336,
+        "latitude": -57.4,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.666666666666664,
+          -60.983333333333334
+        ]
+      },
+      "properties": {
+        "id": "A83",
+        "longitude": -50.666666666666664,
+        "latitude": -60.983333333333334,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -101.68333333333334,
+          -71.16666666666667
+        ]
+      },
+      "properties": {
+        "id": "A84",
+        "longitude": -101.68333333333334,
+        "latitude": -71.16666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -53.95,
+          -63.766666666666666
+        ]
+      },
+      "properties": {
+        "id": "A85",
+        "longitude": -53.95,
+        "latitude": -63.766666666666666,
+        "observation_day_of_year": 225,
+        "observation_date": "2026-08-13",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          143.21666666666667,
+          -66.05
+        ]
+      },
+      "properties": {
+        "id": "B09B",
+        "longitude": 143.21666666666667,
+        "latitude": -66.05,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          41.516666666666666,
+          -68.2
+        ]
+      },
+      "properties": {
+        "id": "B09G",
+        "longitude": 41.516666666666666,
+        "latitude": -68.2,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          164.86666666666667,
+          -69.85
+        ]
+      },
+      "properties": {
+        "id": "B22A",
+        "longitude": 164.86666666666667,
+        "latitude": -69.85,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -176.55,
+          -67.41666666666667
+        ]
+      },
+      "properties": {
+        "id": "B22F",
+        "longitude": -176.55,
+        "latitude": -67.41666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          163.8,
+          -70.18333333333334
+        ]
+      },
+      "properties": {
+        "id": "B22H",
+        "longitude": 163.8,
+        "latitude": -70.18333333333334,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -110.86666666666666,
+          -73.71666666666667
+        ]
+      },
+      "properties": {
+        "id": "B29",
+        "longitude": -110.86666666666666,
+        "latitude": -73.71666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -131.7,
+          -74.2
+        ]
+      },
+      "properties": {
+        "id": "B51",
+        "longitude": -131.7,
+        "latitude": -74.2,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          143.08333333333334,
+          -65.83333333333333
+        ]
+      },
+      "properties": {
+        "id": "C15",
+        "longitude": 143.08333333333334,
+        "latitude": -65.83333333333333,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.36666666666667,
+          -67.03333333333333
+        ]
+      },
+      "properties": {
+        "id": "C18B",
+        "longitude": 47.36666666666667,
+        "latitude": -67.03333333333333,
+        "observation_day_of_year": 251,
+        "observation_date": "2026-09-08",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.016666666666666,
+          -68.5
+        ]
+      },
+      "properties": {
+        "id": "C18C",
+        "longitude": 39.016666666666666,
+        "latitude": -68.5,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          95.88333333333334,
+          -64.96666666666667
+        ]
+      },
+      "properties": {
+        "id": "C21B",
+        "longitude": 95.88333333333334,
+        "latitude": -64.96666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.01666666666667,
+          -64.83333333333333
+        ]
+      },
+      "properties": {
+        "id": "C24",
+        "longitude": 96.01666666666667,
+        "latitude": -64.83333333333333,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.26666666666667,
+          -64.76666666666667
+        ]
+      },
+      "properties": {
+        "id": "C30",
+        "longitude": 96.26666666666667,
+        "latitude": -64.76666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.5,
+          -64.71666666666667
+        ]
+      },
+      "properties": {
+        "id": "C31",
+        "longitude": 96.5,
+        "latitude": -64.71666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          101.2,
+          -65.23333333333333
+        ]
+      },
+      "properties": {
+        "id": "C33",
+        "longitude": 101.2,
+        "latitude": -65.23333333333333,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          142.93333333333334,
+          -66.23333333333333
+        ]
+      },
+      "properties": {
+        "id": "C35",
+        "longitude": 142.93333333333334,
+        "latitude": -66.23333333333333,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          146.56666666666666,
+          -67.45
+        ]
+      },
+      "properties": {
+        "id": "C36",
+        "longitude": 146.56666666666666,
+        "latitude": -67.45,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.333333333333336,
+          -65.73333333333333
+        ]
+      },
+      "properties": {
+        "id": "C39",
+        "longitude": 56.333333333333336,
+        "latitude": -65.73333333333333,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.78333333333333,
+          -66.66666666666667
+        ]
+      },
+      "properties": {
+        "id": "D15A",
+        "longitude": 81.78333333333333,
+        "latitude": -66.66666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.46666666666667,
+          -67.01666666666667
+        ]
+      },
+      "properties": {
+        "id": "D15B",
+        "longitude": 81.46666666666667,
+        "latitude": -67.01666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.5,
+          -67.21666666666667
+        ]
+      },
+      "properties": {
+        "id": "D15C",
+        "longitude": 79.5,
+        "latitude": -67.21666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.25,
+          -67.31666666666666
+        ]
+      },
+      "properties": {
+        "id": "D15D",
+        "longitude": 79.25,
+        "latitude": -67.31666666666666,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.61666666666666,
+          -69.46666666666667
+        ]
+      },
+      "properties": {
+        "id": "D23",
+        "longitude": 74.61666666666666,
+        "latitude": -69.46666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.68333333333333,
+          -60.583333333333336
+        ]
+      },
+      "properties": {
+        "id": "D30B",
+        "longitude": -45.68333333333333,
+        "latitude": -60.583333333333336,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -39.13333333333333,
+          -57.96666666666667
+        ]
+      },
+      "properties": {
+        "id": "D32",
+        "longitude": -39.13333333333333,
+        "latitude": -57.96666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -55.18333333333333,
+          -63.55
+        ]
+      },
+      "properties": {
+        "id": "D33A",
+        "longitude": -55.18333333333333,
+        "latitude": -63.55,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.65,
+          -59.15
+        ]
+      },
+      "properties": {
+        "id": "D33B",
+        "longitude": -46.65,
+        "latitude": -59.15,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.7,
+          -62.21666666666667
+        ]
+      },
+      "properties": {
+        "id": "D33C",
+        "longitude": -54.7,
+        "latitude": -62.21666666666667,
+        "observation_day_of_year": 211,
+        "observation_date": "2026-07-30",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.91666666666667,
+          -67.1
+        ]
+      },
+      "properties": {
+        "id": "D34",
+        "longitude": 81.91666666666667,
+        "latitude": -67.1,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.0,
+          -60.35
+        ]
+      },
+      "properties": {
+        "id": "D35",
+        "longitude": -45.0,
+        "latitude": -60.35,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.76666666666667,
+          -66.26666666666667
+        ]
+      },
+      "properties": {
+        "id": "D36",
+        "longitude": 86.76666666666667,
+        "latitude": -66.26666666666667,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          36.333333333333336,
+          -69.2
+        ]
+      },
+      "properties": {
+        "id": "D37",
+        "longitude": 36.333333333333336,
+        "latitude": -69.2,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          148.8,
+          -66.95
+        ]
+      },
+      "properties": {
+        "id": "UK324",
+        "longitude": 148.8,
+        "latitude": -66.95,
+        "observation_day_of_year": 252,
+        "observation_date": "2026-09-09",
+        "observation_year_basis": "Inferred from page revision 09/14/26",
+        "source": "BYU ASCAT/OSCAT-2",
+        "length_km": null,
+        "width_km": null
+      }
+    }
+  ]
+}

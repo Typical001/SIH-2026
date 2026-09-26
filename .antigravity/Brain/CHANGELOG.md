@@ -1,4 +1,57 @@
+> **Current-runtime update (26 September 2026):** See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for the observation-backed engine and estimation formulas, [RUNNING.md](RUNNING.md) for setup/start/stop, and [TESTING.md](TESTING.md) for current passing checks. Earlier runtime descriptions and test counts below are historical and superseded. No new Git commit is implied.
+
 # Project changelog
+
+## 2026-09-26 — Observation routing, map repairs and boundary revert
+
+Working-tree changes; no commit or push created.
+
+- Routing: observed_routes.py and route_objectives.py now use a broader graph, shared constraints, distinct time/exposure objectives, directional metrics and overlap reporting. main.py includes dataset/model identity in request hashes. Sidebar/PDF expose objectives and shared corridors.
+- Map/report overlap: index.css isolates and clips map stacking, permits the map flex item to shrink, and places RouteComparisonModal above map controls. PolarMap uses the polar-map wrapper.
+- Route persistence: PolarMap renders three routes with a dedicated SVG renderer/pane, retaining canvas for bulk icebergs. Route clicks do not bubble to coordinate selection. VisibleUI mocks reflect SVG support.
+- Reverted experiment: noWrap, tile/world bounds, strict fitted minimum zoom and dark outside-world background were introduced to remove repeated continents, then removed at the user's request after route-display problems. worldCopyJump, wrapping, previous minimum-zoom behavior and water background are restored. Earlier stacking/SVG fixes remain.
+- Evidence: prior routing suite 16 backend tests; latest revert 27 frontend tests. Build passed before the final revert; default Fit route verified afterward. See TESTING.md for scope and limitations.
+- Documentation: all 17 Brain documents reconciled, old test counts corrected and historical checkpoints separated from current runtime. Google flat-map integration remains absent; the active basemap is OpenStreetMap.
+
+
+## 2026-09-25 — Demo fix 01
+
+Completed automatic offshore preset passages; retained all location selectors and
+facility markers. Added cached, coastline/iceberg-validated demo network and matching
+local main iceberg data. Verified all 20 location pairs offline and default route
+rendering in the browser. See [DEMO_PRESETS.md](DEMO_PRESETS.md).
+
+Follow-up: fixed prolonged calculation by rejecting land endpoints before expensive
+work, bounding graph preparation, separating iceberg fetching from route loading,
+and showing a timeout after 30 seconds. Added regression checks (12 backend / 17
+focused frontend pass); restarted the running backend.
+
+Added bundled Natural Earth coastline and full route-segment/endpoint validation; removed successful unchecked fallback responses; added 409/503 error behavior, missing-profile UI and old-result clearing. Declared pyproj/pyshp and added offline safety regressions. All-port demo remains pending offshore approach-point decision. See [DEMO_FIX_01.md](DEMO_FIX_01.md).
+
+## 2026-09-24 — Full application review and Brain reconciliation
+
+- Code reference: local HEAD **8bb44ea**; documentation-only working-tree update.
+- Reviewed all 47 first-party text/source/config/data files, eleven existing Brain documents and the runtime SQLite schema; inventoried vendor/generated/binary files separately.
+- Modified: Brain/README.md, PROJECT_OVERVIEW.md, ARCHITECTURE.md, API_REFERENCE.md, DEVELOPMENT.md, TESTING.md, KNOWN_ISSUES.md, CONTRIBUTING.md, FILE_INVENTORY.md and GIT_CHANGE_HISTORY.md, plus this CHANGELOG.md.
+- Added: Brain/AUDIT_2026-09-24.md with scope, findings, evidence and reconciliation record.
+- Corrected obsolete authentication, directed/segment-validated routing, provider-cache, endpoint, active-component and passing-test claims. Reconciled duplicate NAV-28/29 and added NAV-37–49; earlier regressions are reopened under their existing IDs.
+- Verification: frontend 14/23 tests pass (9 fail), build passes with chunk warning. Backend import fails on undeclared pyproj. Controlled checks with temporary dependency/database/providers: 4/5 no-route cases pass, correctness module cannot import InvalidRouteInput, pipeline functions 2/3 pass. Real DB hashes unchanged.
+- No application source/config/dependency changes, commit or deployment. No browser, rendered PDF or live-provider verification. Full boundaries: [TESTING.md](TESTING.md).
+- Rollback: review/revert only this documentation diff if needed; no data migration is included.
+
+## 2026-09-24 — Optimize official iceberg map rendering
+
+- `frontend/src/components/OfficialIcebergLayer.jsx`: replaced per-iceberg animated markers/popups/buffers with route/viewport-filtered canvas dots, a 150-visible-record cap, selected-item details and Near route / Explore area controls.
+- `frontend/src/utils/icebergVisibility.js`: added finite-coordinate, great-circle corridor, dateline-aware viewport and bounded-selection helpers.
+- `frontend/src/App.jsx`: passes the selected forecast horizon to the map and joins compact predictions with detailed hourly trajectories.
+- `frontend/src/components/PolarMap.jsx`, `TelemetrySidebar.jsx`, `index.css`: mounted the optimized layer and updated labels/styles.
+- `frontend/src/utils/icebergVisibility.test.js`, `App.test.jsx`: added focused filtering/geometry coverage and verified profile selection does not trigger another network calculation.
+- Verification: focused tests **13/13 passed**; Vite production build passed with the existing large-chunk warning.
+- Known limitation: the full iceberg catalog is still downloaded and retained; NAV-50 tracks server-side bounding boxes, pagination or vector tiles as the next scale improvement.
+
+## Historical records retained below
+
+The entries below preserve earlier descriptions and test claims. They are **not current guarantees** and some were contradicted by this review (notably mandatory auth, safety checks and 40/40 or 24/24 totals). Use the current reference documents and KNOWN_ISSUES for present behavior.
 
 ## 2026-09-19 — Enforce Mandatory Officer Authentication (`App.jsx` & `LoginModal.jsx`)
 

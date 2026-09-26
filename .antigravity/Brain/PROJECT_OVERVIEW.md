@@ -1,52 +1,63 @@
+> **Current-runtime update (26 September 2026):** See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for the observation-backed engine and estimation formulas, [RUNNING.md](RUNNING.md) for setup/start/stop, and [TESTING.md](TESTING.md) for current passing checks. Earlier runtime descriptions and test counts below are historical and superseded. No new Git commit is implied.
+
 # Project overview
 
-Current as of **2026-09-19**, `main` at **2cc8271** (with Frontend Login System and PDF Export features). PolarNav addresses SIH-26059, Dynamic Route Optimization & Iceberg Movement Forecasting for Polar Navigation. The implemented product is a prototype decision-support dashboard, not a certified navigation system or a trained AI forecasting model.
+## Current product — 26 September 2026
 
-## Implemented workflow
+A local Antarctic passage-planning demonstration using 33 dated USNIC iceberg observations, earlier BYU reference positions, Natural Earth land and USNIC shelf geometry. Missing drift, environment and vessel performance are explicitly calculated estimates. All five gateways and four stations remain available through offshore approach legs.
 
-1. Unauthenticated visitors are presented with a mandatory, non-bypassable **Polar Command Authentication Gate** (`LoginModal.jsx` with `isMandatory={true}`). Access to the main dashboard, Leaflet map, route planning controls, and API route calculations is completely locked until valid officer sign-in or 1-Click Quick Demo Access (Capt. Alex Vance, Dr. Priya Sharma, Cmdr. Henrik Lind) is completed.
-2. Once authenticated, select Bharati, Maitri or Casey. Presets depart Cape Town for Bharati/Maitri and Hobart for Casey; a searchable list of 13 Indian ports can override departure.
-3. Select PC1, PC3, PC7 or Open Water Vessel and a 24/48/72-hour forecast. Settings automatically request a full route; Optimize Route and Run Forecast both recalculate that route.
-4. The backend validates inputs, attempts an environmental fetch at departure, loads an iceberg catalog, projects drift and searches a directed geographic graph.
-5. The map shows computed/baseline routes, current/predicted iceberg positions, trajectory trails, planning envelopes and optional illustrative ice circles. Markers, trails and buffers toggle independently. The metocean control is disabled because the frontend does not fetch a grid.
-6. DecisionSupport and Analytics show returned metrics, baseline comparisons, sampled explanation factors, average forecast drift speeds, hazard intersections and forecast coverage gaps. Missing results remain empty; failed calculations show an alert and Retry.
-7. Authenticated officers can view their profile, vessel assignment, and ice class badge in the Navbar dropdown, or click **Sign Out** to instantly lock command access.
-8. Users can click **Export PDF** in DecisionSupport or **Export PDF Report** in the Analytics Modal to download an official 5-section bridge execution report powered by **PolarNav Engine**, populated with live calculated route metrics, waypoints, XAI factors, and Polar Code checklists.
+Safest minimizes cumulative estimated ice exposure, Fastest minimizes ETA, and Balanced trades ETA against exposure. Every profile uses the same requested vessel, speed and buffer. Shared corridors are labelled rather than artificially separated. The flat Leaflet/OpenStreetMap map supports world exploration, route fitting, canvas iceberg observations, SVG routes and a planning report displayed above the map. World wrapping is currently restored at the user's request; repeated continents at low zoom remain a known display limitation. The saved Google key is not used by this active map.
 
-Request cancellation and ownership guards suppress stale responses, including JSON parsing races. A one-second UTC display clock does not cause route requests. An offline banner reflects origin metadata.
+Current evidence: 16 backend tests at the routing checkpoint; 27 frontend tests at the latest revert checkpoint. Details and limitations are in [TESTING.md](TESTING.md).
 
-## Technology and modules
+## Historical product descriptions below — superseded
 
-| Layer | Implementation |
+## Demo scope agreed 2026-09-25
+
+Retain all five gateways and four Antarctic stations. Build repeatable simulated scenarios with consistent visible obstacles and calculated route behavior. Live-data reliability is no longer the product goal. [Fix 01](DEMO_FIX_01.md) implements route guards; offshore approach points and shared simulation datasets remain pending. Existing live feeds are still present until the next data-conversion step.
+
+Reviewed **2026-09-24**, code baseline **8bb44ea**.
+
+## Purpose and stack
+
+PolarNav demonstrates Southern Ocean voyage planning and iceberg movement forecasting for SIH-26059. React 18/Vite/Tailwind render the interface; Leaflet renders the map; FastAPI provides data and route calculations; NumPy, NetworkX and Shapely support the models. jsPDF and jspdf-autotable generate a browser download. No trained machine-learning model is loaded by the application.
+
+## Active workflow
+
+1. Select a gateway, retrieve the stored vessel fix, or enter/click an ocean coordinate.
+2. Choose Bharati, Maitri, McMurdo or Rothera; choose vessel class and speed.
+3. Adjust remaining fuel and request recalculation. The frontend sends `POST /api/v1/calculate-route`.
+4. Compare SAFEST, BALANCED and FASTEST profiles, their geometry, estimated time and bunker status.
+5. Inspect iceberg predictions, reference icebergs, SAR acquisition footprints, sea ice, currents, wind and bathymetry overlays.
+6. Open the voyage report or download a PDF through the Navbar, telemetry sidebar or comparison modal.
+
+The five gateway presets are Cape Town, Ushuaia, Punta Arenas, Hobart and Christchurch/Lyttelton. Presets are duplicated in the frontend and backend. The dashboard defaults to Cape Town–Bharati, Balanced, 200 MT remaining fuel and 200 MT capacity; the POST API itself defaults to PC5 and 450/500 MT. See API_REFERENCE for endpoint-specific defaults.
+
+Controls offer speed 8–22 knots, forecast 24–168 hours in 12-hour steps, and safety buffer 10–50 km. **The forecast and buffer controls currently affect the separately fetched iceberg overlay only:** three-profile routing remains fixed at 72 hours and a 15 km base buffer.
+
+## Connected and disconnected features
+
+| Feature | Current implementation |
 | --- | --- |
-| UI | React 18.3.1, Vite 5.4.21, Tailwind, Lucide, Leaflet/React Leaflet, jsPDF 3.0.4, jspdf-autotable 5.0.2 |
-| Auth & Session | `AuthContext.jsx` with `localStorage` persistence, 3 preset Quick Demo officer roles, and `LoginModal.jsx` glassmorphism modal |
-| PDF Reporting | Client-side `pdfGenerator.js` utility exporting official 5-section bridge navigational plans with PolarNav Engine branding |
-| API | FastAPI, Pydantic query constraints, Uvicorn; application endpoints including `POST /api/v1/auth/login` and `POST /api/v1/auth/signup` |
-| Routing | NetworkX directed A*, Shapely land checks, shared spherical geometry |
-| Drift | Hourly dead reckoning using weighted wind/current vectors and a fixed rotation |
-| Data | requests-based Open-Meteo forecast/archive/marine and attempted NOAA iceberg feed; analytic fallback components with Open-Meteo circuit breaker |
-| Persistence | Standard-library SQLite environmental and iceberg tables; 300-second process caches; client-side `localStorage` officer session |
-| Tests | unittest/ASGI backend checks; Vitest 4.1.11 with React Test Renderer 18.3.1 |
-| Hosting files | Python 3.10 Docker/Render backend and Vercel SPA frontend configuration |
+| Three route profiles | Active; three weighted searches, not a verified nondominated Pareto frontier |
+| Gateway/manual/map origin | Active; manual coordinates lack geographic validation |
+| Current ship GPS | Reads SQLite/seeded coordinates; no live AIS receiver or provider |
+| Iceberg forecast | Weighted wind/current dead reckoning; hourly trajectory available in detailed response |
+| Live feeds | External requests are attempted; cached and analytic fallbacks are mixed and mislabeled |
+| Risk heatmap | Hazard circles; the RIO grid is not sent/rendered as a heatmap |
+| SAR candidates | Imagery acquisition footprints or seeded boxes; no radar-image iceberg detector |
+| PDF report | Active browser generator; embeds unsupported safety/compliance statements |
+| Authentication | AuthContext and LoginModal files remain but are not mounted; no auth API endpoints |
+| Explainable routing | Old panel code remains; current route response lacks the documented XAI contract |
+| Historical/backtest routing | No current backtest endpoint/parameter implementation |
+| Automatic monitoring | Clock updates, but no timed route/feed refresh loop |
 
-## Data reality
+## Current limitations
 
-- Wind normally attempts the Open-Meteo ECMWF IFS forecast; failure uses SQLite or raises a missing-cache error. The retained analytic wind helper is used for controlled tests, not the normal runtime fallback. Rate-limiting is handled with a 60s in-memory circuit breaker.
-- Currents attempt Open-Meteo Marine and fall back to an analytic model. A HYCOM label in a string is not evidence of a direct HYCOM integration.
-- Sea-ice concentration is always analytic; there is no measured AMSR2 ingestion.
-- Icebergs attempt a NOAA GeoJSON URL, then fall back to 12 fixed examples. Persistence handles fallback seamlessly.
-- The origin preflight's `is_offline`, source label and receipt time are copied to the route response, although downstream calculations independently refetch data and can mix sources.
-- `backtest_date` is accepted by the API but unused. Forecast wind sampling ignores the supplied forecast hour and reads the first hourly value.
+Routing uses coarse geographic-degree grids, five hand-entered land polygons, node-only hazard checks and unchecked terminal/open-ocean/fallback segments. EPSG:3031 transformers are created but unused; the map remains EPSG:3857. The default 0.8-degree grid does not reach McMurdo's latitude and falls back geometrically.
 
-## Current route guarantees and limits
+Risk, fuel and status labels contain hardcoded assumptions. A failure may leave an old route visible under new settings or return a fabricated route with zero metrics. The exported report cannot establish vessel certification, emergency egress or SAR availability. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for specific fixes and [TESTING.md](TESTING.md) for verified failures.
 
-Input limits, complete edge/connector checks against the known polygons and conservative iceberg envelopes, exact endpoints, directed costs, consistent spherical baseline geometry, signed savings, PDF report generation, auth session persistence, and forecast-gap reporting are implemented. No-route returns 409 instead of invented success geometry. Open-water vessels reject sampled modeled ice.
+## Official iceberg display behavior
 
-The land mask remains incomplete. Polar Class weights are not operating limits; risk and fuel are illustrative models. Hazards cover the supplied trajectory conservatively rather than matching vessel arrival times. Many voyage durations exceed the forecast horizon. Therefore a successful route, LOW risk label or baseline comparison does not establish navigability.
-
-The map uses EPSG:3857 and external Esri tiles; two circles are explicitly illustrative ice zones. The UI has no manual coordinate, speed, buffer or backtest-date input. API speed defaults to 14.5 knots and buffer to 25 km. Backend station metadata includes McMurdo south of the supported route latitude domain; it is not a selectable UI destination.
-
-## Current quality status
-
-Frontend build passes cleanly, frontend Vitest tests are **40/40 passing**, and controlled backend checks are **24/24 passing** with substituted providers. Live integration, offline completeness and provider workload remain unresolved. Prioritized fixes and acceptance criteria are in [KNOWN_ISSUES.md](KNOWN_ISSUES.md); evidence is in [TESTING.md](TESTING.md).
+The dashboard keeps the full official catalog for routing but displays only nearby items. Near route mode shows present or forecast positions within a selected 25/50/100 km route corridor and the current viewport. Explore area requires zoom level 5 or closer and follows panning. Dots use a shared canvas renderer, at most 150 visible records, and show details/buffers/trails only for the selected dot. This is a visualization filter and does not remove hazards from route computation.

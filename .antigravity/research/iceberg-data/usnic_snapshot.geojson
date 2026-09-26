@@ -1,0 +1,797 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -26.48,
+          -54.45
+        ]
+      },
+      "properties": {
+        "id": "A76C",
+        "latitude": -54.45,
+        "longitude": -26.48,
+        "length_km": 29.632,
+        "width_km": 12.964,
+        "area_km2": 278.49,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.39,
+          -56.94
+        ]
+      },
+      "properties": {
+        "id": "A81",
+        "latitude": -56.94,
+        "longitude": -44.39,
+        "length_km": 51.856,
+        "width_km": 46.3,
+        "area_km2": 1341.79,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.8,
+          -60.89
+        ]
+      },
+      "properties": {
+        "id": "A83",
+        "latitude": -60.89,
+        "longitude": -51.8,
+        "length_km": 22.224,
+        "width_km": 12.964,
+        "area_km2": 189.82,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.68,
+          -70.41
+        ]
+      },
+      "properties": {
+        "id": "A84",
+        "latitude": -70.41,
+        "longitude": -97.68,
+        "length_km": 22.224,
+        "width_km": 11.112,
+        "area_km2": 181.0,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.52,
+          -60.56
+        ]
+      },
+      "properties": {
+        "id": "A85",
+        "latitude": -60.56,
+        "longitude": -52.52,
+        "length_km": 18.52,
+        "width_km": 5.556,
+        "area_km2": 62.62,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          143.15,
+          -66.07
+        ]
+      },
+      "properties": {
+        "id": "B09B",
+        "latitude": -66.07,
+        "longitude": 143.15,
+        "length_km": 50.004,
+        "width_km": 18.52,
+        "area_km2": 508.94,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          41.5,
+          -68.18
+        ]
+      },
+      "properties": {
+        "id": "B09G",
+        "latitude": -68.18,
+        "longitude": 41.5,
+        "length_km": 22.224,
+        "width_km": 12.964,
+        "area_km2": 160.06,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          164.02,
+          -69.69
+        ]
+      },
+      "properties": {
+        "id": "B22A",
+        "latitude": -69.69,
+        "longitude": 164.02,
+        "length_km": 53.708,
+        "width_km": 46.3,
+        "area_km2": 1371.96,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -175.67,
+          -67.6
+        ]
+      },
+      "properties": {
+        "id": "B22F",
+        "latitude": -67.6,
+        "longitude": -175.67,
+        "length_km": 25.928,
+        "width_km": 12.964,
+        "area_km2": 226.42,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          163.73,
+          -70.21
+        ]
+      },
+      "properties": {
+        "id": "B22H",
+        "latitude": -70.21,
+        "longitude": 163.73,
+        "length_km": 14.816,
+        "width_km": 11.112,
+        "area_km2": 75.47,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -131.65,
+          -74.2
+        ]
+      },
+      "properties": {
+        "id": "B51",
+        "latitude": -74.2,
+        "longitude": -131.65,
+        "length_km": 27.78,
+        "width_km": 5.556,
+        "area_km2": 79.0,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          143.02,
+          -65.84
+        ]
+      },
+      "properties": {
+        "id": "C15",
+        "latitude": -65.84,
+        "longitude": 143.02,
+        "length_km": 25.928,
+        "width_km": 18.52,
+        "area_km2": 213.53,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.35,
+          -67.0
+        ]
+      },
+      "properties": {
+        "id": "C18B",
+        "latitude": -67.0,
+        "longitude": 47.35,
+        "length_km": 18.52,
+        "width_km": 7.408,
+        "area_km2": 110.4,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.07,
+          -68.47
+        ]
+      },
+      "properties": {
+        "id": "C18C",
+        "latitude": -68.47,
+        "longitude": 39.07,
+        "length_km": 18.52,
+        "width_km": 3.704,
+        "area_km2": 53.07,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          95.83,
+          -64.98
+        ]
+      },
+      "properties": {
+        "id": "C21B",
+        "latitude": -64.98,
+        "longitude": 95.83,
+        "length_km": 22.224,
+        "width_km": 14.816,
+        "area_km2": 258.97,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.02,
+          -64.84
+        ]
+      },
+      "properties": {
+        "id": "C24",
+        "latitude": -64.84,
+        "longitude": 96.02,
+        "length_km": 20.372,
+        "width_km": 5.556,
+        "area_km2": 57.88,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.27,
+          -64.78
+        ]
+      },
+      "properties": {
+        "id": "C30",
+        "latitude": -64.78,
+        "longitude": 96.27,
+        "length_km": 16.668,
+        "width_km": 5.556,
+        "area_km2": 75.06,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96.49,
+          -64.68
+        ]
+      },
+      "properties": {
+        "id": "C31",
+        "latitude": -64.68,
+        "longitude": 96.49,
+        "length_km": 16.668,
+        "width_km": 5.556,
+        "area_km2": 73.07,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          146.48,
+          -67.46
+        ]
+      },
+      "properties": {
+        "id": "C36",
+        "latitude": -67.46,
+        "longitude": 146.48,
+        "length_km": 42.596,
+        "width_km": 29.632,
+        "area_km2": 848.13,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.27,
+          -65.72
+        ]
+      },
+      "properties": {
+        "id": "C39",
+        "latitude": -65.72,
+        "longitude": 56.27,
+        "length_km": 14.816,
+        "width_km": 5.556,
+        "area_km2": 52.13,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.92,
+          -66.63
+        ]
+      },
+      "properties": {
+        "id": "D15A",
+        "latitude": -66.63,
+        "longitude": 81.92,
+        "length_km": 94.452,
+        "width_km": 40.744,
+        "area_km2": 3037.47,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          81.58,
+          -67.02
+        ]
+      },
+      "properties": {
+        "id": "D15B",
+        "latitude": -67.02,
+        "longitude": 81.58,
+        "length_km": 37.04,
+        "width_km": 22.224,
+        "area_km2": 610.52,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.41,
+          -67.22
+        ]
+      },
+      "properties": {
+        "id": "D15C",
+        "latitude": -67.22,
+        "longitude": 79.41,
+        "length_km": 25.928,
+        "width_km": 12.964,
+        "area_km2": 115.62,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.3,
+          -67.29
+        ]
+      },
+      "properties": {
+        "id": "D15D",
+        "latitude": -67.29,
+        "longitude": 79.3,
+        "length_km": 14.816,
+        "width_km": 11.112,
+        "area_km2": 55.89,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.71,
+          -69.44
+        ]
+      },
+      "properties": {
+        "id": "D23",
+        "latitude": -69.44,
+        "longitude": 74.71,
+        "length_km": 12.964,
+        "width_km": 11.112,
+        "area_km2": 105.6,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -38.99,
+          -57.48
+        ]
+      },
+      "properties": {
+        "id": "D32",
+        "latitude": -57.48,
+        "longitude": -38.99,
+        "length_km": 16.668,
+        "width_km": 11.112,
+        "area_km2": 106.39,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -55.65,
+          -64.07
+        ]
+      },
+      "properties": {
+        "id": "D33A",
+        "latitude": -64.07,
+        "longitude": -55.65,
+        "length_km": 31.484,
+        "width_km": 14.816,
+        "area_km2": 388.04,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.58,
+          -59.29
+        ]
+      },
+      "properties": {
+        "id": "D33B",
+        "latitude": -59.29,
+        "longitude": -45.58,
+        "length_km": 38.892,
+        "width_km": 22.224,
+        "area_km2": 320.68,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.38,
+          -61.95
+        ]
+      },
+      "properties": {
+        "id": "D33C",
+        "latitude": -61.95,
+        "longitude": -54.38,
+        "length_km": 16.668,
+        "width_km": 9.26,
+        "area_km2": 78.8,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -55.16,
+          -63.58
+        ]
+      },
+      "properties": {
+        "id": "D33D",
+        "latitude": -63.58,
+        "longitude": -55.16,
+        "length_km": 27.78,
+        "width_km": 11.112,
+        "area_km2": 203.51,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          82.06,
+          -67.16
+        ]
+      },
+      "properties": {
+        "id": "D34",
+        "latitude": -67.16,
+        "longitude": 82.06,
+        "length_km": 20.372,
+        "width_km": 14.816,
+        "area_km2": 165.8,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.65,
+          -60.1
+        ]
+      },
+      "properties": {
+        "id": "D35",
+        "latitude": -60.1,
+        "longitude": -45.65,
+        "length_km": 27.78,
+        "width_km": 11.112,
+        "area_km2": 216.13,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          36.36,
+          -69.21
+        ]
+      },
+      "properties": {
+        "id": "D37",
+        "latitude": -69.21,
+        "longitude": 36.36,
+        "length_km": 55.56,
+        "width_km": 12.964,
+        "area_km2": 477.77,
+        "last_update": "2026-09-24",
+        "source": "USNIC CSV",
+        "observed_at": null,
+        "thickness_m": null,
+        "mass_mt": null,
+        "orientation_deg": null
+      }
+    }
+  ]
+}

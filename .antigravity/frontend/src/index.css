@@ -54,7 +54,7 @@
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #040814 !important;
+  background: #205777;
   font-family: inherit;
 }
 
@@ -101,4 +101,31 @@
 
 .radar-ping {
   animation: radar-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Bounded iceberg layer: static canvas dots, detail only on selection. */
+.iceberg-display-control { max-width: min(250px, 45vw); }
+.iceberg-mode-button { border: 1px solid #475569; border-radius: 4px; padding: 4px 7px; }
+.iceberg-mode-button[aria-pressed="true"] { background: #164e63; border-color: #22d3ee; color: #cffafe; }
+.iceberg-mode-button:disabled { opacity: .5; }
+.iceberg-mode-button:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+.map-space-toggle { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 1500; }
+.planner-workspace { isolation: isolate; z-index: 0; }
+.planner-workspace > main { min-width: 0; overflow: hidden; }
+.polar-map { isolation: isolate; overflow: hidden; }
+.report-overlay { z-index: 2000; }
+.planner-shell:not(.map-expanded) .map-space-toggle { top: auto; bottom: 8px; }
+.map-expanded .planner-workspace { position: fixed; inset: 0; z-index: 100; display: block; }
+.map-expanded .planner-workspace > aside { display: none; }
+.map-expanded .planner-workspace > main { width: 100%; height: 100dvh; min-height: 0; }
+.map-expanded { height: 100dvh; overflow: hidden; }
+
+@media (max-width: 700px) {
+  .planner-shell { height: auto; min-height: 100dvh; overflow: visible; }
+  .planner-workspace { flex-direction: column; flex: none; overflow: visible; }
+  .planner-workspace > main { order: -1; flex: none; height: 65dvh; min-height: 420px; }
+  .planner-workspace > :not(main) { width: 100%; max-width: none; max-height: 320px; }
+  .iceberg-display-control { max-width: 200px; padding: 8px; }
+  .map-expanded .map-space-toggle { left: 58px; transform: none; top: 10px; max-width: 115px; }
+  .map-expanded .leaflet-control.iceberg-display-control { margin-top: 80px; }
 }

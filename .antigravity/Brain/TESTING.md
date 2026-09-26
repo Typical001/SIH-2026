@@ -1,88 +1,51 @@
-# Testing and verification
+# Current verification — 26 September 2026
 
-Review performed **2026-09-19**, baseline **main at 2cc8271** (with Frontend Login System and PDF Export features).
+## Latest map and documentation checkpoint
 
-## Current results
+- Report layering: browser checks at narrow and 1920px desktop widths showed the report above the map; desktop map bounds stayed inside the viewport.
+- Route persistence: original disappearance was not reproduced in the in-app browser. After introducing dedicated SVG routes, all three paths remained drawn through small pans, clicks and zoom; no alert was present. This does not prove every browser/dateline case is fixed.
+- Single-world experiment: noWrap/maxBounds and a fitted minimum zoom were tried, then reverted at the user's request after a reported route-display regression. Current tests expect worldCopyJump and no maxBounds. Horizontal repetition is therefore still possible.
+- Final revert: 27 frontend tests passed across 5 files; default Fit route was visually checked. Production build passed before the final revert, not afterward. Backend code was unchanged by these map fixes; the 16-test result below belongs to the earlier routing checkpoint.
+- This Brain reconciliation only reviewed documentation and source; it does not represent a new backend run, deployment or exhaustive browser audit.
 
-| Check | Result | Conditions |
-| --- | --- | --- |
-| npm.cmd test, frontend | **40 passed, 0 failed**, 40 total (100%) | Vitest 4.1.11; includes active-route summary & Login modal coverage |
-| npm.cmd run build | **Passed**, 1,948 modules | Vite 5.4.21; includes `jsPDF`, `jspdf-autotable` & `AuthContext` |
-| test_no_route + test_route_correctness | **24 passed** (5 + 19) | Deterministic providers/preflight; external requests prohibited |
-| test_backend functions | **3 passed** | Same fixtures; actual drift/geometry/router |
-| Default offline route probe | **HTTP 200 in ~0.55 seconds** | `POLARNAV_LIVE_DATA` unset; analytic providers used |
-| Open-Meteo Circuit Breaker | **Automatic Failover** | Rate-limited (HTTP 429) requests enter 60s cooldown to mock model |
-| Demo iceberg persistence | **12 save attempts** | `json` import and writes present |
 
-App.test.jsx passed 22/22; VisibleUI.test.jsx passed 18/18.
+## Backend
 
-Production build bundle contains `index.html`, `index-JcY2Bqjj.css` (32.84 kB), `index.es-BPR4rl4W.js` (150.81 kB), `jspdf` & `html2canvas` chunks, and `index-PG83Mwwu.js` (808.41 kB).
+From backend: `venv/Scripts/python.exe -m unittest test_route_objectives test_observation_demo -v`
 
-Controlled Cape Town–Bharati output was **3725.5 NM, -20.3% modeled fuel savings**. These are deterministic fixture results, not external observations or a navigation recommendation.
+16 tests passed in 71.2 seconds. Includes all 20 gateway/station combinations with 3 default PC3 profiles each; each returned segment is checked against the applicable hazards, land, shelves and vessel rules. Every pair also verifies common speed/buffer, Fastest minimum time, Safest minimum exposure, and Balanced minimum combined cost among returned profiles. Added tests verify distinct optima on a controlled graph, no forced detours when optima coincide, current direction, overlap and dateline behavior. Also covers:
 
-## Frontend reproduction
+- Between-waypoint land collision and antimeridian crossing.
+- Blocked endpoint / iceberg-start rejection, no fallback, unavailable-data 503, invalid inputs 422.
+- Forecast/buffer changes, a large-envelope blocked scenario, speed and burn sensitivity.
+- Zero fuel / reserve-aware recommendations and capacity validation.
+- PC3 versus PC5 McMurdo eligibility and Open Water restriction.
+- Small shared observation payload; lazy trajectory and envelope consistency.
+- Custom coordinates, explicit saved waypoint persistence and no reset during calculation.
+- No runtime external connection; all layer endpoints carry non-live labels.
+- Concurrent profile requests generate one cached graph.
 
-From frontend:
+## Frontend and export
 
-```powershell
-npm.cmd test
-npm.cmd run build
-```
+Worldwide map update: browser confirmed OpenStreetMap tiles loaded, global extent, visible attribution and working World view / Fit route buttons. Full-window mode retains Show planning panels. Map controls use capture handlers so Leaflet's propagation guard does not swallow React button actions. Coastline fallback remains below the tile pane; the frontend now intentionally makes external map-tile requests.
 
-Component mocks isolate network/Leaflet; PDF report generation was verified via client-side jsPDF data formatting unit assertions.
+Google 3D is inactive following the requested return to the flat map. It is not part of this route-profile verification.
 
-## Controlled backend reproduction
+From frontend: `npm test` -> 27 passed across 5 files, including coastline failure/retry recovery and shared-corridor/objective labels.
+`npm run build` -> passed, main JS approximately 358 kB (111 kB gzip); PDF libraries are loaded on demand.
 
-Run from .antigravity with backend requirements installed. This is the review harness, not a new source file or deployed mode. Import-time DB initialization is suppressed; provider substitution precedes dependent module imports.
+Tests cover late-response suppression, aborts/timeouts, failed-route clearing, reset while already at defaults, profiles without extra fetches, route availability, consistent zero values, fuel controls, local map/offshore endpoints, iceberg filtering and actual PDF generation. The two-page PDF test output was text-extracted and page 1 visually inspected for layout and source labels.
 
-```powershell
-@'
-import sys, unittest
-from unittest.mock import patch
-sys.path.insert(0, 'backend')
-import database
-with patch.object(database, 'init_sqlite_db'):
-    import data_engine
-with patch.object(data_engine.MetoceanEngine, 'get_wind_vector', side_effect=data_engine.MetoceanEngine.get_wind_vector_mock), patch.object(data_engine.MetoceanEngine, 'get_ocean_current', side_effect=data_engine.MetoceanEngine.get_ocean_current_mock), patch.object(data_engine, 'get_initial_icebergs', side_effect=data_engine.get_initial_icebergs_mock), patch.object(data_engine.requests, 'get', side_effect=AssertionError('Unexpected network call')):
-    import main, test_backend, test_no_route, test_route_correctness
-    with patch.object(main, 'fetch_environmental_layer', return_value={'is_offline': False, 'data_source': 'Review synthetic fixtures', 'last_synced_timestamp': None}):
-        suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(m) for m in (test_no_route, test_route_correctness)])
-        result = unittest.TextTestRunner(verbosity=1).run(suite)
-        if not result.wasSuccessful():
-            raise SystemExit(1)
-        test_backend.test_metocean_engine()
-        test_backend.test_drift_physics_engine()
-        test_backend.test_pathfinder_collision_avoidance()
-'@ | .\backend\venv\Scripts\python.exe -B -
-```
+Browser inspection confirmed three default routes, the fuel-feasible recommendation, observation/estimate banner, offshore endpoints and matching report metrics. Small-width layout now keeps the map visible and makes lower controls scrollable.
 
-## Diagnostic conditions
+## Performance observations
 
-Missing-cache probes mocked requests.get to raise ConnectionError and database.get_latest_ocean_snapshot to return None. ASGI paths: default short route from test_no_route.request_route, /api/v1/icebergs?forecast_hours=0, and one-point metocean at (-34,18). The latter two raised ValueError, corresponding to unhandled server errors under normal serving.
+Earlier 234–365 ms timings applied to the retired four-band graph. The expanded graph and overlap comparison measured roughly 0.9–6.2 seconds across three checked voyages before the overlap latitude prefilter; the default route measured 796 ms after the prefilter and restart, with the same comparison results. These are measurements, not latency guarantees. Default iceberg HTTP body previously measured 25,342 bytes, versus the earlier reported 24.6 MB. Map display is a separate local file loaded once and gzip-compressed by the backend.
 
-Persistence probing cleared _ICEBERG_CACHE and spied on save_iceberg_snapshot. The current demo path makes 12 serialization/write attempts. Spatial fallback used a separate temporary SQLite DB with explicit db_path arguments; the application DB was not created/edited.
+Start/stop verification: health reported version 2.0.0 and 33 icebergs; default request returned 3 profiles. Stop-Project.ps1 left zero listeners on ports 8000/3000. Start-Project.ps1 restarted both services successfully. Final browser inspection showed all 3 routes, no console errors, and 1 matching iceberg in the default route corridor. Production desktop map geometry was visually checked.
 
-The malformed-200 probe returned {}, substituted a synthetic current and spied on save_ocean_snapshot. Preflight returned is_offline=false and Live ECMWF / USNIC Feed with default wind and a save call. This tests missing-field handling, not a real provider schema.
+## Scope
 
-## Coverage and remaining verification
+The current acceptance suite targets main.py, observed_data.py, observed_routes.py and route_geometry.py. Legacy backend test files and inactive UI panel files remain historical diagnostic material and are not evidence of current operational capabilities. No claim is made that this demo validates real-world navigation or that the uncalibrated forecast is accurate.
 
-Existing backend cases cover input/workload bounds, thin known land barriers, connectors, hazards between nodes, trajectory envelopes, directed weights versus Dijkstra, baseline geometry, open-water ice rejection, speed/fuel and coverage gaps. Frontend cases cover request ownership, clock behavior, result/XAI clearing, retries, comparisons, visible controls, independent map layers, and PDF report export.
-
-Needed next:
-
-- Deterministic provider contract fixtures for malformed/partial responses, units, timestamps, rate limits and failures.
-- SQLite expiry/spatial limits, persistence errors, source retention and iceberg round-trip/readback.
-- Historical-date propagation, time-indexed fields and bounded provider call counts.
-- Consistent endpoint errors, partial downstream outages, offline banner reset and nested payload validation.
-- Browser smoke tests, clean installs, split hosting/API configuration, persistent storage and representative performance.
-- Sourced coastlines, vessel constraints and measured drift/fuel/risk validation.
-
-## Historical results
-
-| Checkpoint | Recorded result |
-| --- | --- |
-| September 14 work, later 6097e6c | 3 pipeline + 5 no-route + 14 frontend passed |
-| dccfa3b review, recorded 3684d67 | Pipeline/build passed; no-route import failed; npm test missing |
-| 6d1f221 restoration | 3 pipeline + 5 no-route + 20 frontend passed; build passed |
-| dedbb48 geometry/UI work | 24 unittest + 3 pipeline + 36 frontend passes |
-| Current 2cc8271 + PDF Feature | 24 unittest + 3 pipeline + 36/36 frontend passes |
+Toolchain deprecation warnings remain non-failing. The test suite does not require live data providers.

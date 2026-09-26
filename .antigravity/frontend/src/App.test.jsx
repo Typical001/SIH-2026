@@ -116,6 +116,48 @@ afterEach(async () => {
 });
 
 describe('PolarNav App In-Voyage Architecture', () => {
+  it('rejects late responses after inputs change', async () => {
+    const normal=mockFetch.getMockImplementation(); const pending=[];
+    mockFetch.mockImplementation((url,options)=>url.includes('/api/v1/calculate-route')
+      ? new Promise(resolve=>pending.push({resolve,options})) : normal(url,options));
+    await act(async()=>{app=create(<App/>);});
+    await act(async()=>{app.root.findByProps({'data-testid':'controldeck'}).props.onChangeGateway('USH');});
+    expect(pending[0].options.signal.aborted).toBe(true);
+    const result=distance=>({ok:true,json:async()=>({type:'FeatureCollection',metadata:{recommended_route_type:'BALANCED'},features:[{properties:{route_type:'BALANCED',distance_nm:distance,eta_hours:10,waypoints_latlon:[[-55,-66],[-60,-66]]}}]})});
+    await act(async()=>pending.at(-1).resolve(result(222)));
+    await act(async()=>pending[0].resolve(result(999)));
+    expect(app.root.findByProps({'data-testid':'sidebar'}).props.routeMetrics.distance_nautical_miles).toBe(222);
+  });
+
+  it('reset recalculates even when defaults are already selected',async()=>{
+    await act(async()=>{app=create(<App/>);});
+    const before=mockFetch.mock.calls.filter(c=>c[0].includes('calculate-route')).length;
+    await act(async()=>app.root.findAllByType('button').find(b=>b.children.join('')==='Reset demo').props.onClick());
+    expect(mockFetch.mock.calls.filter(c=>c[0].includes('calculate-route')).length).toBeGreaterThan(before);
+  });
+  it('finishes route loading even when the iceberg request remains pending', async () => {
+    const normal = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((url, options) => url.includes('/api/v1/icebergs?')
+      ? new Promise(() => {}) : normal(url, options));
+    await act(async () => { app = create(<App />); });
+    expect(app.root.findByProps({ 'data-testid': 'sidebar' }).props.loading).toBe(false);
+    expect(app.root.findByProps({ 'data-testid': 'sidebar' }).props.routeMetrics).toBeTruthy();
+  });
+
+  it('ends a stalled route request with a timeout message', async () => {
+    vi.useFakeTimers();
+    const normal = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((url, options) => url.includes('/api/v1/calculate-route')
+      ? new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('Aborted'))))
+      : normal(url, options));
+    try {
+      await act(async () => { app = create(<App />); });
+      await act(async () => { await vi.advanceTimersByTimeAsync(30000); });
+      expect(app.root.findByProps({ 'data-testid': 'sidebar' }).props.loading).toBe(false);
+      expect(app.root.findByProps({ role: 'alert' }).findByType('p').children.join('')).toContain('timed out');
+    } finally { vi.useRealTimers(); }
+  });
+
   it('mounts cleanly and renders all ECDIS bridge components', async () => {
     await act(async () => {
       app = create(<App />);
@@ -136,6 +178,10 @@ describe('PolarNav App In-Voyage Architecture', () => {
     expect(postPayload.origin_type).toBe('GATEWAY');
     expect(postPayload.gateway_code).toBe('ZACPT');
     expect(postPayload.destination_station_id).toBe('bharati_station');
+    expect(postPayload.start_lat).toBeUndefined();
+    expect(postPayload.end_lat).toBeUndefined();
+    expect(postPayload.forecast_hours).toBe(72);
+    expect(postPayload.safety_buffer_km).toBe(25);
   });
 
   it('allows switching departure mode to CURRENT_SHIP_GPS', async () => {
@@ -156,11 +202,13 @@ describe('PolarNav App In-Voyage Architecture', () => {
     });
     const sidebarProps = app.root.findByProps({ 'data-testid': 'sidebar' }).props;
     expect(sidebarProps.activeRouteType).toBe('BALANCED');
+    const requestsBeforeSelection = mockFetch.mock.calls.length;
     await act(async () => {
       sidebarProps.onSelectRouteType('SAFEST');
     });
     const updatedSidebarProps = app.root.findByProps({ 'data-testid': 'sidebar' }).props;
     expect(updatedSidebarProps.activeRouteType).toBe('SAFEST');
+    expect(mockFetch.mock.calls).toHaveLength(requestsBeforeSelection);
   });
 
   it('displays error alert on network failure and allows retry', async () => {
@@ -183,5 +231,21 @@ describe('PolarNav App In-Voyage Architecture', () => {
     // Clicking retry button
     const retryBtn = alert.findByType('button');
     expect(retryBtn).toBeDefined();
+  });
+
+  it('clears a previous route and shows the backend blocked-passage message', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await act(async () => { app = create(<App />); });
+    expect(app.root.findByProps({ 'data-testid': 'sidebar' }).props.routeMetrics).toBeTruthy();
+    const previousFetch = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((url, options) => url.includes('/api/v1/calculate-route')
+      ? Promise.resolve({ ok: false, status: 409, json: async () => ({ detail: { message: 'No safe route available in this scenario.' } }) })
+      : previousFetch(url, options));
+    await act(async () => {
+      app.root.findByProps({ 'data-testid': 'controldeck' }).props.onChangeDepartureMode('CURRENT_SHIP_GPS');
+    });
+    expect(app.root.findByProps({ 'data-testid': 'sidebar' }).props.routeMetrics).toBeNull();
+    expect(app.root.findByProps({ 'data-testid': 'polarmap' }).props.waypoints).toEqual([]);
+    expect(app.root.findByProps({ role: 'alert' }).findByType('p').children.join('')).toContain('No safe route available');
   });
 });

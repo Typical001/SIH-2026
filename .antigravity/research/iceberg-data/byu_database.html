@@ -1,0 +1,533 @@
+<html><!-- #BeginTemplate "/Templates/main.dwt" --><!-- DW6 -->
+<head>
+<!-- #BeginEditable "doctitle" --> 
+
+<title>Iceberg Tracking Database</title>
+<!-- #EndEditable --> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="keywords" content="SCP,BYU,CERS,MERS,engineering,computer,NSCAT,YSCAT,Quikscat,Scatterometer,NASA,microwave,remote,sensing,space,satellite,greenland,amazon,antartic,icebergs,ice,ocean,wind,SAR,seawinds,weather,SIR">
+<meta name="description" content="The NASA Scatterometer Climate Record Pathfinder (SCP) is a NASA sponsored project to develop scatterometer-based data time series to support climate studies of the Earth's cryosphere and biosphere. Originally developed to measure winds over the ocean from space, scatterometer data has proved to be very useful in a variety of studies including polar ice and tropical vegetation. Because the scatterometer radar signal can penetrate the surface, a scatterometer can observe subsurface/subcanopy climate-related features.">
+<meta name="Copyright" content="Images, text, datasets, and content (c) Copyright Brigham Young University, 2003, 2007, 2015, 2020. All rights reserved.">
+<link href="/Stylesheets/mainstyle.css" rel="stylesheet" type="text/css">
+</head>
+<body bgcolor=#D1D1D1 marginheight=0 marginwidth=0 topmargin=0 bottommargin=0 rightmargin=0 leftmargin=0>
+<table border=0 width=100% height=100% cellpadding=0 cellspacing=0>
+  <tr> 
+    <td width=119 colspan=2 rowspan=4 valign=top bgcolor="#666666"><img src="/images/qscat_earth2.gif" width=119 height=83 border=0></td>
+    <td width=1 bgcolor="#666666"><img src="/images/spacer.gif" width=1 height=64 border=0></td>
+    <td width=100% colspan=2 align=right valign=middle bgcolor=#5C5C5C> 
+      <img src="/images/spacer.gif" width=450 height=1 border=0><br><img src="/images/hdr_logo.jpg" width=450 height=50 border=0><img src="/images/spacer.gif" width=41 height=8 border=0></td>
+  </tr>
+  <tr bgcolor=#5C5C5C> 
+    <td valign=top colspan=3><img src="/images/spacer.gif" width=500 height=1 border=0></td>
+  </tr>
+  <tr bgcolor=#5C5C5C> 
+    <td align=left bgcolor=#9FAFD0><img src="/images/darkgraydot.gif" width=1 height=18 border=0></td>
+    <td valign=middle bgcolor=#9FAFD0 align=center><img src="/images/byubar.gif" width=477 height=16 border=0></td>
+    <td align=right bgcolor=#9FAFD0><img src="/images/darkgraydot.gif" width=1 height=18 border=0></td>
+  </tr>
+  <tr bgcolor=#5C5C5C> 
+    <td valign=top colspan=3 height=1><img src="/images/spacer.gif" width=500 height=1 border=0></td>
+  </tr>
+  <tr> 
+    <td valign=top width=2 bgcolor="#999999"><img src="/images/spacer.gif" width=2 height=500 border=0></td>
+    <td valign=top align=right bgcolor="#999999"><br> 
+      <!-- navigation system -->
+      <table width=105 border=0 cellpadding=0 cellspacing=0>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/"
+        class="menu">Home Page</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/FAQ.html"
+        class="menu">FAQ</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/pub.html"
+        class="menu">Publications</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/doc.html"
+        class="menu">Documentation</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/downloads.html"
+        class="menu">Software</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+		<tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/movies.html"
+        class="menu">Movies</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/gallery.html"
+        class="menu">Image Gallery</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>	
+		<tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/data.html"
+        class="menu">Image Data</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+	<tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr>
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/validation.html"
+        class="menu">Validation</a></font></td>
+        </tr>
+        <tr>
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr>
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+	<tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="https://search.scp.byu.edu/"
+        class="menu">Data Search</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+		<tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/derived.html"
+        class="menu">Derived Products</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+		<tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/links.html"
+        class="menu">Related Links</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="/contact.html"
+        class="menu">Contact Us</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+        <tr> 
+          <td><img src="/images/spacer.gif" width=3 height=3 border=0></td>
+          <td><font size=-2><a href="https://ftp.scp.byu.edu/"
+        class="menu">SCP file site</a></font></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/darkgraydot.gif"
+        width=105 height=1 border=0></td>
+        </tr>
+        <tr> 
+          <td colspan=2><img src="/images/spacer.gif"
+        width=105 height=13 border=0></td>
+        </tr>
+      </table>
+      <!-- end navigation system -->
+    </td>
+    <td width=1 align="left" valign="top" bgcolor="#999999"><img src="/images/darkgraydot.gif" width=1 height=344 border=0></td>
+    <td height=100% valign=top colspan=3 class="page_desc"> <table border=0 cellpadding=10>
+	    <tr>
+          <td valign=top><br>
+            <!-- #BeginEditable "content" -->
+<center><font size=+3>The Antarctic Iceberg Tracking Database</font>
+<br><font size=+1>1978 &amp; 1992-present (Brigham Young University)</font>
+<br><font size=-1>Jeff Budge, Scheridan Vorwaller, Kyle Cribs, and David G. Long</font>
+<br><font size=-1>Last database update: 13 Oct 2023 (for current positions <a href="https://www.scp.byu.edu/current_icebergs.html">click here</a>)</font><br><br>
+<p>Tracking A68A: <a href="A68tracking.html">update<a><p>
+<br><img SRC="composite2.gif" alt="Iceberg Tracks" height=500 width=500>
+<br><font size=-1>(Iceberg Tracks from 1999-2020)</font>
+</center>
+
+<p>Using data from all available satellite scatterometer instruments, along with
+measurements from the National Ice Center (NIC), we have produced
+a consolidated iceberg tracking database.&nbsp; The BYU database includes icebergs
+identified in enhanced resolution scatterometer backscatter images during
+July-Sept. 1978 (from Seasat), July 1996-June 1997 (from NSCAT), 
+1992-2001 (from ERS-1/2), June 1999-November 2009 (from QuikSCAT), 2008-present (from ASCAT),
+ 2012-2014 (from OSCAT), 2017-2019 (OSCAT2).
+Images were obtained from the <a href="https://www.scp.byu.edu/">Scatterometer
+Climate Record Pathfinder</a> (SCP) project.
+
+<p>Data sets from multiple different spaceborne scatterometer instruments
+are used to track icebergs. For each data set, resolution
+enhancement is performed by BYU's Scatterometer Image reconstruction
+(SIR) and/or SIR Filtering (SIRF) algorithms. The scatterometer
+instruments used in this study are the Seasat-A Satellite
+Scatterometer (SASS), the European Space Agency's Remote Sensing
+Satellite 1(2) (ERS-1/-2), the NASA Scatterometer (NSCAT), the
+QuikSCAT/SeaWinds scatterometer (QSCAT), the MetOp-A, -B and -C
+Advanced Scatterometer (ASCAT) sensors, and the Indian Space Research
+Organization's Oceansat-2 scatterometer. The Seasat-A
+scatterometer (SASS) was a dual-polarization Ku-band (14.6 GHz)
+scatterometer that operated from July to Sept. 1978. Using the SIRF
+algorithm, Antarctic images are generated every 12-48 days (a
+longer time is required for SASS compared to other instruments due to
+the sampling characteristics of the nominally 50 km backscatter
+measurements). The ERS-1/2 spacecraft carried a C-band (5.3 GHz)
+active microwave instrument (AMI). The scatterometer mode
+provides nominally 50 km resolution data. Using SIR, Antarctic
+images are produced every 6 days. The ERS-1/2 scatterometers
+operated from Jan. 1992 to Jan. 2001. The NSCAT scatterometer is
+a Ku-band Doppler radar similar to SASS, but with dual-side
+measurement capability and a dense 25 km resolution sampling.
+Using SIRF, Antarctic images were produced every 3 days. The
+NSCAT mission lasted from Sept. 1996 to June 1997. QuikSCAT was
+launched as a ``quick recovery'' mission to help fill the gap created
+by loss of NSCAT due a satellite failure. This scatterometer
+allows daily images of Antarctica to be created. QuikSCAT
+operated from July 1999 to November 2009. ASCAT-A was launched in
+October of 2006 and operated through most of 2021. Since then two other
+ASCATs have been launched.  The ASCAT senors operate at C-Band
+(5.255 GHz) at vertical polarization only. The SIRF algorithm
+applied to ASCAT (<a href="
+https://www.scp.byu.edu/docs/pdf/MERS1002.pdf">Standard BYU ASCAT Land/Ice
+Products</a>) generates images from 1 and 2 days of data over
+Antarctica. Iceberg tracks for ASCAT have only been done back to the
+beginning of the ASCAT data. This provides an overlap of two data sets
+(QuikSCAT and ASCAT) for a few years (October 2006 to November
+2009). The Oceansat-2 scatterometer (OSCAT-1) dataset begins August 2011
+and continues through the end of March 2014. Its antenna geometry and
+frequency are similar to that of QuikSCAT. 
+A follow-on OSCAT mission (OSCAT-2 on ScatSat) 
+began in Nov. 2016, and is currently be used for iceberg tracking.
+
+<p>The initial position for each iceberg is located based on either
+(1) a position reported by the National Ice Center (NIC)'s web page
+(<a href="https://www.natice.noaa.gov/pub/icebergs/Iceberg_Tabular.pdf">
+https://www.natice.noaa.gov/pub/icebergs/Iceberg_Tabular.pdf</a>)
+or (2) by the sighting of a moving iceberg in a time series of
+scatterometer images. From an initial point, the iceberg
+is tracked in the scatterometer image time series forward and backward
+in time to major calving or breakup events.  Gaps in the
+position track result from long time/space spacing in NIC reports,
+missing scatterometer data and from the
+occasional loss ofcontrast between the iceberg and surrounding area
+during summer months.  Where possible interpolation is done to give an estimate
+of its position during those times. For each image, a lat/lon position is
+reported for each iceberg, with mostly daily position updates.
+In the consolidated database, lengths of the major and minor axes of
+each iceberg are given. 
+<p>"Named" icebergs are those whose name (which starts with a, b, c, or d)
+is assigned by the NIC.  Other icebergs were also observed in scatterometer data. These are the "unnamed" icebergs and stored in files that begin with s, e, uor k, depending on the time period.  
+<p>Iceberg positions are reported in a separate CSV file for each
+iceberg. The file name is the same as that of the iceberg. For example
+the file "b27.csv" contains the position track information for B27 from ASCAT.&nbsp;
+A few lines from the b27.csv file are shown below:
+<p>
+ascat_1,ascat_2,date,nic_1,nic_2,nic_3,oscat_1,oscat_2,qscat_1,qscat_2,size_1,size_2<br>
+,,2007336,-66.78,81.92,1,,,,,55,31<br>
+,,2007337,-66.78,81.92,0,,,,,,<br>
+
+<p>Latitude and longitude are specified in decimal degrees
+with positive North and East, respectively. The day is specified
+as YYYYDDD, with the day given as a three digit day of the year. Size are dimensions in km.
+<p>
+A separate database containing more derivative measurements and statistics is also given
+in the links below. This database contains a single latitude and longitude point for each day,
+as well as an estimate of size (in sq km) and rotation velocity. 
+
+<p>The iceberg database and statistical database can be obtained via the links shown
+below.
+
+<p>ASCAT-B/C are now the primary sensors and positions are derived from a combination of the sensors.  While the <a href="/current_icebergs.html">real-time positions</a> are updated weekly or more often, the full database files referred to on this page are only updated once or twice a year.</p>
+<p>If you become aware of a large (>5 km) Antarctic iceberg not contained in the database during the time period of our sensors, please inform us of its position and the time of observation.  We can then use historical data to determine its origin and fate and add it to the tracking database.</p> 
+<p>As of 8 Sept 2023, the top Antarctic icebergs of all time ranked by size are:
+<center><table cols=2>
+<tr> <td><font size=-1>Iceberg&nbsp;</td><td><font size=-1>Area (sq km)</font></td></tr>
+<tr> <td><center><font size=-1>B15 </font></td><td><font size=-1> 11000</font></td></tr>
+<tr> <td><center><font size=-1>A20 </font></td><td><font size=-1> 7284</font></td></tr>
+<tr> <td><center><font size=-1>A24 </font></td><td><font size=-1> 6863</font></td></tr>
+<tr> <td><center><font size=-1>C19 </font></td><td><font size=-1> 6368</font></td></tr>
+<tr> <td><center><font size=-1>A23 </font></td><td><font size=-1> 5883</font></td></tr>
+<tr> <td><center><font size=-1>A68 </font></td><td><font size=-1> 5800</font></td></tr>
+<tr> <td><center><font size=-1>B10 </font></td><td><font size=-1> 5689</font></td></tr>
+<tr> <td><center><font size=-1>A38 </font></td><td><font size=-1> 5603</font></td></tr>
+<tr> <td><center><font size=-1>A22 </font></td><td><font size=-1> 5212</font></td></tr>
+<tr> <td><center><font size=-1>B09 </font></td><td><font size=-1> 5096</font></td></tr>
+</table></center>
+</p> <hr>
+
+<center>
+<p><b><font size=+1>CONSOLIDATED DATABASE FILES </font><font size=-1>(format and contents)</font></b>
+<p>The consolidated BYU/NIC iceberg database is described in the paper J.S. Budge and D.G. Long, &quot;A Comprehensive Database for Antarctic Iceberg Tracking Using Scatterometer Data,&quot; <em>IEEE Journal of Selected Topics in Applied Earth Observations</em>, Vol. 11, No. 2, <a href="https://dx.doi.org/10.1109/JSTARS.2017.2784186">doi:10.1109/JSTARS.2017.2784186</a>, 2017.
+
+<table>
+<tr><td><font size=-1>
+Note: the previous distribution file has some position errors. The current version corrects this error and adds new icebergs.</td></tr> 
+<tr><td><font size=-1>
+<center><a href="consolidated_database_v8.0.zip">Consolidated Database [v8.0] (4.1 MB zip file)</a> NIC and scatterometer-derived Antarctic iceberg positions. Covers 1978 through April 22, 2025. </center></font>
+</td></tr>
+<tr><td><font size=-1>
+<center><a href="stats_database_v7.1.zip">Statistical Database [v7.1] (2.5 MB zip file)</a> Daily averaged iceberg position, mask, size, and rotation angle. Covers 1978 through August 25, 2023. </center></font>
+</td></tr>
+</table></center>
+<p>The individual icebergdatabase files are stored as comma separated values (.csv) that can be read by common spreadsheet programs.  Matlab functions to read and plot the database files are available: <a href=consolplot.m>consolplot.m</a> and <a href=statsplot.m>statsplot.m</a></p>
+
+<p>
+Database Format
+<p>
+Within each zip file are one file per iceberg, with the name of the iceberg as the name of the file. Each of these .csv files is arranged with a single row header, showing what data each column contains. The names should be self explanatory. 
+
+<p>
+For the stats database  there is a field for the date, mean latitude and longitude of all sensor positions given for that date, an estimate of the size (sq km) and rotation velocity of that berg, and a mask indicating its surroundings type. For reference, <br>
+<center><font size=-1><b>Mask Values</font></b> <br>
+<table><tr><td><font size=-1>#</td><td><font size=-1>Surrounding</font></td></tr>
+<tr><td><font size=-1>0</font> </td><td><font size=-1>Near Land or no data</font></td></tr>
+<tr><td><font size=-1>1</font> </td><td><font size=-1>Sea Ice </font></td></tr>
+<tr><td><font size=-1>2</font> </td><td><font size=-1>Open Ocean </font></td></tr>
+<tr><td><font size=-1>3</font> </td><td><font size=-1>No Data </font></td></tr>
+</table></center>
+<p>
+The 'flags' column indicates the senor(s) used to compute the reported
+mean latitudes and longitudes. It is a decimal number corresponding to the sensors used to create the single track, as well as a single bit to show if the measurement is interpolated. Each sensor is one 4 bite nibble. The nibbles are arranged as follows:  (from lsb)<br>
+<center>
+<table><tr><td><font size=-1>Nibble </font></td><td><font size=-1>Sensor </font></td></tr>
+<tr><td align=center><font size=-1>1 </font></td><td><font size=-1>SASS </font></td></tr>
+<tr><td align=center><font size=-1>2 </font></td><td><font size=-1>ERS </font></td></tr>
+<tr><td align=center><font size=-1>3 </font></td><td><font size=-1>NSCAT </font></td></tr>
+<tr><td align=center><font size=-1>4 </font></td><td><font size=-1>SeaWinds </font></td></tr>
+<tr><td align=center><font size=-1>5 </font></td><td><font size=-1>QuikSCAT </font></td></tr>
+<tr><td align=center><font size=-1>6 </font></td><td><font size=-1>OSCAT </font></td></tr>
+<tr><td align=center><font size=-1>7 </font></td><td><font size=-1>ASCAT </font></td></tr>
+<tr><td align=center><font size=-1>8 </font></td><td><font size=-1>NIC (multiple sensors)</font></td></tr>
+</table></center>
+
+<!--
+<hr>
+<p><b><font size=+1>OLD DATABASE FILES**</font></b>
+<p>**note: the old version of the BYU iceberg database is no longer being updated after 2016.
+<br><b>ASCAT portion of the database in a gzipped tar file from the SCP web site: <a href="icebergDatabase_ascat.tar.gz">icebergDatabase_ascat.tar.gz</a></b>
+<br><b>QSCAT portion of the database in a gzipped tar file from the SCP web site: <a href="icebergDatabase_qscat.tar.gz">icebergDatabase_qscat.tar.gz</a></b>
+ <br><b>OSCAT portion of the database in a gzipped tar file from the SCP web site: <a href="icebergDatabase_oscat.tar.gz">icebergDatabase_oscat.tar.gz</a></b>
+<br><b>All other portions (SASS, ERS-1/2, NSCAT) in a gzipped tar file from the SCP web site: <a href="icebergDatabase_other.tar.gz">icebergDatabase_other.tar.gz</a></b>
+-->
+
+<!--
+<p><b>Individual iceberg tracking files are available for each sensor through
+the web links below.</b></center>
+
+<center><table COLS=2 WIDTH="450" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE>
+<center><b><u>INSTRUMENT</u></b></center>
+</td>
+
+<td>
+<center><b><u>TIME PERIOD</u></b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="sass/">SASS</a></b></center>
+</td>
+
+<td>
+<center><b>July 1978 - Sept. 1978</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="ers/">ERS-1/2</a></b></center>
+</td>
+
+<td>
+<center><b>Jan. 1992 - Jan. 2001</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="nscat/">NSCAT</a></b></center>
+</td>
+
+<td>
+<center><b>Sept. 1996 - June 1997</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="seawinds/">SeaWinds</a></b></center>
+</td>
+
+<td>
+<center><b>April 2003 - October 2003</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="qscat/">QSCAT</a></b></center>
+</td>
+<td>
+<center><b>July 1999 - November 2009</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="oscat/">OSCAT</b></center>
+</td>
+<td>
+<center><b>November 2010 - February  2014</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><b><a href="ascat/">ASCAT</b></center>
+</td>
+<td>
+<center><b>November 2009 - Jul 2017</b></center>
+</td>
+</tr>
+-->
+
+
+<hr>
+<p> Related papers:<br>
+J.S. Budge and D.G. Long, "A comprehensive database for Antarctic iceberg tracking using scatterometer data," <em>IEEE Journal of Selected Topics in Applied Earth Observations</em>, Vol. 11, No. 2, <a href="https://dx.doi.org/10.1109/JSTARS.2017.2784186">doi:10.1109/JSTARS.2017.2784186</a>, 2017.
+ (<a href="https://www.mers.byu.edu/long/papers/JSTARS2018_budge.pdf">847 kB PDF*</a>)<br>
+K.M. Stuart and D.G. Long, "Tracking large tabular icebergs using the SeaWinds Ku-band microwave scatterometer", <em>Deep-Sea Research Part II</em>,
+<a href="https://dx.doi.org/10.1016/j.dsr2.2010.11.004">doi:10.1016/j.dsr2.2010.11.004</a>, Vol. 58, pp. 1285-1300, 2011.
+(<a href="https://www.mers.byu.edu/long/papers/DeepSeaResearchII_2011.pdf">1.6 MB PDF</a>)
+<br>
+D.G. Long, J. Ballantyne, and C. Bertoia, "Is the Number of Icebergs Really Increasing?" <em>EOS, Transactions of the American Geophysical Union</em>, Vol. 83, No. 42, pp 469 & 474, 15 Oct. 2002.
+(<a href="https://www.mers.byu.edu/long/papers/EOSiceberg2002.pdf">620 kB PDF</a>)<br>
+K.M. Stuart and D.G. Long, "Iceberg Size and Orientation Estimation using SeaWinds", <em>Cold Regions Science and Technology</em>, doi:10.1016/j.coldregions.2011.07.006, 2011. (<a href="https://www.mers.byu.edu/long/papers/ColdRegions_2011.pdf">1.7MB PDF</a>)<br>
+<br>
+**An older report further describing this multidecadal database of Antarctic
+icebergs observed with scatterometer data is available in pdf format from
+the SCP web site at <a href="IcebergReport.pdf">IcebergReport.</a><br>
+<br>
+Animations of the daily movement of selected individual icebergs can be found <a href="https://ftp.scp.byu.edu/data/misc/iceberg_animations/">here</a>.  Note that many icebergs do not move for extended periods of time.<br>
+
+<br>
+<center>
+<p>Support from both NASA and NSF is acknowledged.</p>
+<p>Last Revised: 8 Sept 2023</center>
+<p>
+<hr WIDTH="100%">
+
+
+
+<br>For further information contact:
+<p><tt>Dr. David G. Long&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="mailto:long@ee.byu.edu">long@ee.byu.edu</a></tt>
+
+<br><tt>Professor, Electrical and Computer Eng. Dept. <a href="https://www.ee.byu.edu/">https://www.ee.byu.edu/</a></tt>
+<br><tt>Brigham Young University&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="https://www.byu.edu/">https://www.byu.edu/</a></tt>
+<br><tt>450 Engineering Building&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+voice: 801-422-4383</tt>
+<br><tt>Provo, Utah&nbsp;&nbsp;&nbsp; 84602&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fax: 801-422-0201</tt>
+<p><tt>Microwave Earth Remote Sensing (MERS) Lab:&nbsp; <a href="https://www.mers.byu.edu/">https://www.mers.byu.edu/</a></tt>
+<br><tt>Scatterometer Climate Record Pathfinder:&nbsp;&nbsp;&nbsp; <a href="https://www.scp.byu.edu/">https://www.scp.byu.edu/</a></tt>
+            <!-- #EndEditable --> 
+          </td>
+		</tr>
+      </table></td>
+  </tr>
+</table>
+</body>
+<!-- #EndTemplate --></html>

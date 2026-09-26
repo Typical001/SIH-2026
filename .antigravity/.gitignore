@@ -1,4 +1,8 @@
 node_modules/
+.run/
+backend/data/user_vessel_fixes.json
+backend/data/user_vessel_fixes.tmp
+**/__pycache__/
 dist/
 dist/
 dist/

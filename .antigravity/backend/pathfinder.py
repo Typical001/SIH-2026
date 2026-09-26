@@ -7,7 +7,7 @@ Three simultaneous maritime route profiles over a SINGLE shared IMO POLARIS risk
 Key guarantees:
   * build_risk_tensor() runs ONCE per request — no triple graph rebuild.
   * astar_guarded() caps at max_iterations=25_000 + 1.2 s wall-clock timer.
-  * Fallback cascade: SAFEST relaxes RIO, FASTEST falls back to BALANCED. Never HTTP 500.
+  * Only validated graph paths are returned; unavailable profiles are reported.
 """
 
 from __future__ import annotations
@@ -64,56 +64,10 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 # =============================================================================
-# LAND-SEA MASK  (Natural Earth 1:10m coastline polygons – Indian Ocean sector)
+# LAND-SEA MASK (bundled Natural Earth 1:10 million global land polygons)
 # =============================================================================
 
-class LandMask:
-    """
-    Lightweight land-sea mask for the India <-> Southern Ocean shipping corridor.
-    Covers: Sri Lanka, Southern India, Maldives, Lakshadweep, Andaman & Nicobar.
-    Shapely convention: (lon, lat) = (x, y). Built lazily, cached as class attribute.
-    """
-
-    _RAW_POLYGONS = [
-        # Sri Lanka
-        [
-            (79.695, 9.835), (80.025, 9.810), (80.240, 9.500),
-            (80.740, 9.370), (81.300, 8.560), (81.870, 8.090),
-            (81.880, 7.280), (81.640, 6.820), (81.220, 6.200),
-            (80.600, 5.940), (80.060, 5.970), (79.710, 6.260),
-            (79.510, 6.750), (79.420, 7.290), (79.500, 7.950),
-            (79.690, 8.580), (79.695, 9.835),
-        ],
-        # Southern India - convex-hull approximation
-        [
-            (74.900, 10.200), (76.000,  9.800), (76.300,  8.900),
-            (77.100,  8.100), (77.550,  8.100), (78.200,  8.700),
-            (79.100,  9.300), (79.900, 10.350), (80.200, 11.000),
-            (80.320, 13.400), (80.100, 13.400), (79.500, 13.000),
-            (78.000, 11.700), (77.400, 11.000), (76.800, 10.700),
-            (75.900, 10.600), (74.900, 10.200),
-        ],
-        # Maldives
-        [(72.600, -0.700), (73.800, -0.700), (73.800, 7.200), (72.600, 7.200), (72.600, -0.700)],
-        # Lakshadweep Islands
-        [(71.800, 10.000), (74.200, 10.000), (74.200, 12.800), (71.800, 12.800), (71.800, 10.000)],
-        # Andaman & Nicobar Islands
-        [(92.100, 6.700), (93.200, 6.700), (93.200, 13.700), (92.100, 13.700), (92.100, 6.700)],
-    ]
-
-    _land_union = None
-
-    @classmethod
-    def _get_land(cls):
-        if cls._land_union is None:
-            polys = [make_valid(Polygon(coords)) for coords in cls._RAW_POLYGONS]
-            cls._land_union = unary_union(polys)
-        return cls._land_union
-
-    @classmethod
-    def is_land(cls, lat: float, lon: float) -> bool:
-        """Return True if the (lat, lon) point lies on a landmass."""
-        return cls._get_land().contains(Point(lon, lat))
+from route_geometry import LandMask, segment_clear, route_clear, wrap_lon
 
 
 # =============================================================================
@@ -168,30 +122,34 @@ class RiskTensor:
         self.res = grid_resolution_deg
         self.base_safety_buffer_km = base_safety_buffer_km
         
-        min_lat = max(-75.0, min(start_coord[0], end_coord[0]) - 3.0)
+        min_lat = max(-85.0, min(start_coord[0], end_coord[0]) - 3.0)
         max_lat = min(25.0, max(start_coord[0], end_coord[0]) + 3.0)
         min_lon = min(start_coord[1], end_coord[1]) - 5.0
         max_lon = max(start_coord[1], end_coord[1]) + 5.0
         bbox = (min_lat, max_lat, min_lon, max_lon)
 
-        self.hazard_polygons_base = _prepare_hazard_polys(iceberg_forecasts, base_safety_buffer_km, bbox)
-        self.hazard_polygons_safe = _prepare_hazard_polys(iceberg_forecasts, base_safety_buffer_km + 10.0, bbox)
+        self.hazard_polygons_base = _prepare_hazard_polys(iceberg_forecasts, base_safety_buffer_km)
+        self.hazard_polygons_safe = _prepare_hazard_polys(iceberg_forecasts, base_safety_buffer_km + 10.0)
         self.node_data: Dict[Tuple[float,float], NodeData] = {}
         self.lats: List[float] = []
         self.lons: List[float] = []
         self._built = False
+        self.segment_cache = {}
+        self.deadline = time.monotonic() + 20.0
 
     def build(self) -> "RiskTensor":
         if self._built:
             return self
         s_lat, s_lon = self.start_coord
         e_lat, e_lon = self.end_coord
-        min_lat = max(-75.0, min(s_lat, e_lat) - 2.5)
+        min_lat = max(-85.0, min(s_lat, e_lat) - 2.5)
         max_lat = min(25.0, max(s_lat, e_lat) + 2.5)
         min_lon = min(s_lon, e_lon) - 4.5
         max_lon = max(s_lon, e_lon) + 4.5
         lats = [round(float(v), 3) for v in np.arange(min_lat, max_lat + self.res*0.5, self.res)]
         lons = [round(float(v), 3) for v in np.arange(min_lon, max_lon + self.res*0.5, self.res)]
+        if len(lats) * len(lons) > 40000:
+            raise NoRouteFoundError('Demo grid too large; increase grid resolution.')
         self.lats = lats
         self.lons = lons
 
@@ -199,6 +157,8 @@ class RiskTensor:
         MetoceanEngine.preload_live_corridor(self.start_coord, self.end_coord, num_samples=5)
 
         for lat in lats:
+            if time.monotonic() > self.deadline:
+                raise RuntimeError('Demo graph preparation exceeded its 20-second budget.')
             for lon in lons:
                 sic = MetoceanEngine.get_sea_ice_concentration(lat, lon)
                 oc = MetoceanEngine.get_ocean_current(lat, lon, time_hours=1.0)
@@ -293,7 +253,9 @@ def _build_graph(tensor: RiskTensor, profile: str) -> nx.Graph:
     Build an nx.Graph with profile-specific edge costs from the shared tensor.
     profile: 'SAFEST' | 'BALANCED' | 'FASTEST'
     """
-    G = nx.Graph()
+    G = nx.DiGraph()
+    hazards = tensor.hazard_polygons_safe if profile == 'SAFEST' else tensor.hazard_polygons_base
+    G.graph['hazards'] = hazards
     lats = tensor.lats; lons = tensor.lons; nd_map = tensor.node_data
     dirs = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
 
@@ -326,6 +288,8 @@ def _build_graph(tensor: RiskTensor, profile: str) -> nx.Graph:
 
     # Add edges
     for i, lat in enumerate(lats):
+        if time.monotonic() > tensor.deadline:
+            raise RuntimeError('Demo graph preparation exceeded its 20-second budget.')
         for j, lon in enumerate(lons):
             u = (lat, lon)
             if G.nodes[u].get("impassable"):
@@ -336,6 +300,11 @@ def _build_graph(tensor: RiskTensor, profile: str) -> nx.Graph:
                 if 0 <= ni < len(lats) and 0 <= nj < len(lons):
                     v = (lats[ni], lons[nj])
                     if not G.has_node(v) or G.nodes[v].get("impassable"):
+                        continue
+                    edge_key = (profile == 'SAFEST', tuple(sorted((u, v))))
+                    if edge_key not in tensor.segment_cache:
+                        tensor.segment_cache[edge_key] = segment_clear(u, v, hazards)
+                    if not tensor.segment_cache[edge_key]:
                         continue
                     nd_v = nd_map[v]
                     dist_nm = haversine_nm(lat, lon, v[0], v[1])
@@ -364,7 +333,12 @@ def _connect_terminal(
     res: float
 ) -> Tuple[float, float]:
     lat, lon = coord
-    key = (round(lat, 3), round(lon, 3))
+    key = (float(lat), float(lon))
+    hazards = G.graph.get('hazards', [])
+    if not segment_clear(coord, coord, hazards):
+        raise NoRouteFoundError('Departure or arrival is inside land or an iceberg buffer.')
+    if key in G and G.nodes[key].get('impassable'):
+        raise NoRouteFoundError('Endpoint is blocked for this route profile.')
     if key not in G:
         G.add_node(key, impassable=False, lat=lat, lon=lon, sic=0.0, rio=3.0,
                    ocean_u=0.0, ocean_v=0.0, ocean_spd=0.0, wind_u=0.0, wind_v=0.0)
@@ -373,8 +347,9 @@ def _connect_terminal(
         nk = (nlat, nlon)
         if G.has_node(nk) and not G.nodes[nk].get("impassable"):
             dist = haversine_nm(lat, lon, nlat, nlon)
-            if dist < thresh:
+            if dist < thresh and segment_clear(coord, nk, hazards):
                 G.add_edge(key, nk, weight=dist, distance_nm=dist)
+                G.add_edge(nk, key, weight=dist, distance_nm=dist)
     return key
 
 
@@ -437,7 +412,8 @@ def geometric_tangent_fallback(
     Tier 2 Algorithmic Circuit Breaker:
     Calculates an interpolated Great Circle line and deflects tangential waypoints
     around intersecting 15 km iceberg buffer boundaries.
-    Guarantees collision-free passage without hangs or unhandled 500 errors.
+    Legacy diagnostic helper only; not used to produce successful route responses.
+    Its output is not a validated route.
     """
     lats = np.linspace(start[0], end[0], n)
     lons = np.linspace(start[1], end[1], n)
@@ -486,7 +462,7 @@ class ParetoRouteEngine:
     """
     Computes 3 Pareto-optimal maritime routes (SAFEST, BALANCED, FASTEST)
     over a single shared IMO POLARIS risk tensor.
-    Never returns HTTP 500: all failures trigger graceful fallback cascade.
+    Returns validated graph paths only; unavailable profiles are reported explicitly.
     """
 
     PROFILE_META = {
@@ -513,163 +489,74 @@ class ParetoRouteEngine:
     ) -> Dict[str, Any]:
         """
         Builds shared risk tensor once; runs 3 guarded A* searches.
-        Supports Split-Stage Routing:
-          - If origin >= -60°S: Stage 1 open ocean down to -60°S, then Stage 2 Polar A* grid.
-          - If origin < -60°S: Directly runs Stage 2 Polar A* grid from current ship position.
+        Searches the entire passage, including the open-ocean leg and terminal edges.
         Evaluates IMO Polar bunker fuel feasibility for all 3 profiles.
         Auto-promotes BALANCED if SAFEST exceeds available fuel reserves.
         """
         if iceberg_forecasts is None:
             iceberg_forecasts = []
 
-        # ── Split-Stage Positioning Logic ────────────────────────────────────
-        s_lat, s_lon = start_coord
-        e_lat, e_lon = end_coord
-
-        if s_lat >= -60.0:
-            # Stage 1: Open Ocean leg from Gateway down to Polar Entrance (-60.0°S)
-            denom = (e_lat - s_lat)
-            fraction_to_60 = (-60.0 - s_lat) / denom if abs(denom) > 1e-5 else 0.5
-            entry_lon = s_lon + fraction_to_60 * (e_lon - s_lon)
-            entry_coord = (-60.0, entry_lon)
-
-            num_open = max(8, int(abs(-60.0 - s_lat) * 1.2))
-            open_lats = np.linspace(s_lat, -60.0, num_open)
-            open_lons = np.linspace(s_lon, entry_lon, num_open)
-            stage1_wpts = [(round(float(la), 4), round(float(lo), 4)) for la, lo in zip(open_lats, open_lons)]
-            polar_start = entry_coord
-        else:
-            # In-Voyage / Below -60°S: Skip Stage 1; engage Polar A* directly from ship fix
-            stage1_wpts = []
-            polar_start = start_coord
-
-        # ── Stage 2: Polar Stereographic A* Search Below -60°S ─────────────
-        tensor = RiskTensor(
-            polar_start, end_coord, iceberg_forecasts,
-            self.vessel_ice_class, self.res, 15.0
-        ).build()
-        hazard_polygons = tensor.hazard_polygons_base
-
-        G_safe = _build_graph(tensor, "SAFEST")
-        G_bal  = _build_graph(tensor, "BALANCED")
-        G_fast = _build_graph(tensor, "FASTEST")
-
-        s_safe = _connect_terminal(G_safe, polar_start, tensor.node_data, self.res)
-        e_safe = _connect_terminal(G_safe, end_coord,   tensor.node_data, self.res)
-        s_bal  = _connect_terminal(G_bal,  polar_start, tensor.node_data, self.res)
-        e_bal  = _connect_terminal(G_bal,  end_coord,   tensor.node_data, self.res)
-        s_fast = _connect_terminal(G_fast, polar_start, tensor.node_data, self.res)
-        e_fast = _connect_terminal(G_fast, end_coord,   tensor.node_data, self.res)
-
-        # BALANCED (serves as base anchor)
-        bal_flags: List[str] = []
-        bal_path, _ = astar_guarded(G_bal, s_bal, e_bal)
-        if bal_path is None:
-            bal_flags.append("GEOMETRIC_SAFETY_CORRIDOR_FALLBACK")
-            bal_path = geometric_tangent_fallback(polar_start, end_coord, hazard_polygons)
-
-        # SAFEST with Tier 1 RIO-relaxation and Tier 2 Geometric Tangent Fallback
-        safe_flags: List[str] = []
-        safe_path, _ = astar_guarded(G_safe, s_safe, e_safe)
-        if safe_path is None:
-            safe_flags.append("SAFETY_CONSTRAINTS_RELAXED")
-            for node in list(G_safe.nodes):
-                if G_safe.nodes[node].get("impassable") and node in tensor.node_data:
-                    nd = tensor.node_data[node]
-                    if -5.0 <= nd.rio < 0.0:
-                        G_safe.nodes[node]["impassable"] = False
-            _connect_terminal(G_safe, polar_start, tensor.node_data, self.res)
-            _connect_terminal(G_safe, end_coord,   tensor.node_data, self.res)
-            safe_path, _ = astar_guarded(G_safe, s_safe, e_safe)
-        if safe_path is None:
-            safe_flags.append("GEOMETRIC_SAFETY_CORRIDOR_FALLBACK")
-            safe_path = geometric_tangent_fallback(polar_start, end_coord, tensor.hazard_polygons_safe)
-
-        # FASTEST with BALANCED fallback
-        fast_flags: List[str] = []
-        fast_path, _ = astar_guarded(G_fast, s_fast, e_fast)
-        if fast_path is None:
-            fast_path = bal_path
-            fast_flags += ["FASTEST_FALLBACK_TO_BALANCED", "is_fallback"]
-
-        # Concatenate Stage 1 Open Ocean + Stage 2 Polar Waypoints
-        def assemble_wpts(polar_nodes):
-            polar_pts = [[float(la), float(lo)] for la, lo in polar_nodes]
-            if stage1_wpts:
-                return [list(pt) for pt in stage1_wpts[:-1]] + polar_pts
-            return polar_pts
-
-        sw = assemble_wpts(safe_path)
-        bw = assemble_wpts(bal_path)
-        fw = assemble_wpts(fast_path)
-
-        sm = _route_metrics(sw, hazard_polygons, self.vessel_ice_class, self.cruising_speed_knots, remaining_fuel_mt, max_tank_capacity_mt, "SAFEST")
-        bm = _route_metrics(bw, hazard_polygons, self.vessel_ice_class, self.cruising_speed_knots, remaining_fuel_mt, max_tank_capacity_mt, "BALANCED")
-        fm = _route_metrics(fw, hazard_polygons, self.vessel_ice_class, self.cruising_speed_knots, remaining_fuel_mt, max_tank_capacity_mt, "FASTEST")
-
-        # Range Gating & Auto-Promotion:
-        # If Safest route is UNREACHABLE due to detour distance, auto-promote Balanced route
-        auto_promoted = False
-        auto_switched_message = None
-        if sm.get("feasibility_status") == "UNREACHABLE":
-            auto_promoted = True
-            auto_switched_message = "Safest route exceeds fuel endurance. Auto-switched to Balanced corridor."
-            safe_flags.append("SAFEST_UNREACHABLE_INSUFFICIENT_BUNKER")
-            bal_flags.append("AUTO_PROMOTED_FROM_SAFEST")
-            bal_flags.append("FEASIBLE_BUNKER_CORRIDOR")
-
-        def feature(w, profile, metrics, flags):
-            coords = [[lon, lat] for lat, lon in w]  # GeoJSON: [lon, lat]
-            return {
-                "type": "Feature",
-                "geometry": {"type": "LineString", "coordinates": coords},
-                "properties": {
-                    "route_type": profile,
-                    "color": self.PROFILE_META[profile]["color"],
-                    "label": self.PROFILE_META[profile]["label"],
-                    "distance_nm": metrics["distance_nm"],
-                    "eta_hours": metrics["eta_hours"],
-                    "min_polaris_rio": metrics["min_polaris_rio"],
-                    "max_ice_concentration": metrics["max_ice_concentration"],
-                    "min_iceberg_proximity_km": metrics.get("min_iceberg_proximity_km"),
-                    "total_fuel_burn_mt": metrics["total_fuel_burn_mt"],
-                    "mandatory_reserve_mt": metrics["mandatory_reserve_mt"],
-                    "total_required_fuel_mt": metrics["total_required_fuel_mt"],
-                    "fuel_surplus_deficit_mt": metrics["fuel_surplus_deficit_mt"],
-                    "tank_left_percentage": metrics["tank_left_percentage"],
-                    "feasibility_status": metrics["feasibility_status"],
-                    "endurance_days": metrics["endurance_days"],
-                    "endurance_nm": metrics["endurance_nm"],
-                    "ice_fuel_penalty_mt": metrics.get("ice_fuel_penalty_mt", 0.0),
-                    "current_fuel_penalty_mt": metrics.get("current_fuel_penalty_mt", 0.0),
-                    "data_source": data_source_label,
-                    "flags": flags,
-                    "waypoints_latlon": w,
-                }
-            }
-
+        for lat, lon in (start_coord, end_coord):
+            if not (math.isfinite(lat) and math.isfinite(lon) and -85 <= lat <= 25 and -180 <= lon <= 180):
+                raise NoRouteFoundError('Coordinates are outside the supported demo area.')
+        if start_coord == end_coord:
+            raise NoRouteFoundError('Departure and arrival must be different.')
+        requested_end = end_coord
+        end_coord = (end_coord[0], start_coord[1] + wrap_lon(end_coord[1] - start_coord[1]))
+        tensor = RiskTensor(start_coord, end_coord, iceberg_forecasts,
+                            self.vessel_ice_class, self.res, 15.0).build()
+        features, unavailable = [], {}
+        for profile in self.PROFILE_META:
+            graph = _build_graph(tensor, profile)
+            hazards = graph.graph['hazards']
+            try:
+                source = _connect_terminal(graph, start_coord, tensor.node_data, self.res)
+                target = _connect_terminal(graph, end_coord, tensor.node_data, self.res)
+                path, status = astar_guarded(graph, source, target)
+            except NoRouteFoundError:
+                path, status = None, 'BLOCKED_ENDPOINT'
+            if path is None:
+                unavailable[profile] = status
+                continue
+            points = [[float(lat), float(lon)] for lat, lon in path]
+            if not route_clear(points, hazards):
+                unavailable[profile] = 'OBSTACLE_INTERSECTION'
+                continue
+            metrics = _route_metrics(points, hazards, self.vessel_ice_class,
+                                     self.cruising_speed_knots, remaining_fuel_mt,
+                                     max_tank_capacity_mt, profile)
+            features.append({
+                'type': 'Feature',
+                'geometry': {'type': 'LineString', 'coordinates': [[lon, lat] for lat, lon in points]},
+                'properties': {
+                    'route_type': profile, **self.PROFILE_META[profile], **metrics,
+                    'data_source': data_source_label, 'flags': [],
+                    'waypoints_latlon': points, 'geometry_validated': True,
+                    'validation_scope': 'Local demo coastline and supplied forecast buffers',
+                },
+            })
+        if not features:
+            raise NoRouteFoundError('No safe route available for these endpoints and demo obstacles.')
+        feasible = [f for f in features if f['properties']['feasibility_status'] != 'UNREACHABLE']
+        recommended = feasible[0]['properties']['route_type'] if feasible else None
         return {
-            "type": "FeatureCollection",
-            "features": [
-                feature(sw, "SAFEST",   sm, safe_flags),
-                feature(bw, "BALANCED", bm, bal_flags),
-                feature(fw, "FASTEST",  fm, fast_flags),
-            ],
-            "metadata": {
-                "vessel_ice_class": self.vessel_ice_class,
-                "cruising_speed_knots": self.cruising_speed_knots,
-                "remaining_fuel_mt": round(remaining_fuel_mt, 1),
-                "max_tank_capacity_mt": round(max_tank_capacity_mt, 1),
-                "recommended_route_type": "BALANCED" if auto_promoted else "SAFEST",
-                "auto_switched": auto_promoted,
-                "auto_switched_message": auto_switched_message,
-                "origin": {"lat": start_coord[0], "lon": start_coord[1]},
-                "destination": {"lat": end_coord[0], "lon": end_coord[1]},
-                "icebergs_tracked": len(hazard_polygons),
-                "grid_resolution_deg": self.res,
-                "algorithm": "POLARIS-Guarded A* (Pareto-3 Profile + Bunker)",
-                "data_source": data_source_label,
-            }
+            'type': 'FeatureCollection', 'features': features,
+            'metadata': {
+                'vessel_ice_class': self.vessel_ice_class,
+                'cruising_speed_knots': self.cruising_speed_knots,
+                'remaining_fuel_mt': remaining_fuel_mt,
+                'max_tank_capacity_mt': max_tank_capacity_mt,
+                'recommended_route_type': recommended,
+                'auto_switched': recommended is not None and recommended != 'SAFEST',
+                'auto_switched_message': None,
+                'unavailable_profiles': unavailable,
+                'origin': {'lat': start_coord[0], 'lon': start_coord[1]},
+                'destination': {'lat': requested_end[0], 'lon': requested_end[1]},
+                'icebergs_tracked': len(tensor.hazard_polygons_base),
+                'grid_resolution_deg': self.res,
+                'algorithm': 'Demo A* with full segment validation',
+                'data_source': data_source_label,
+            },
         }
 
 
@@ -725,8 +612,8 @@ class PolarPathfinder:
 
         # Latitude bounds: full corridor from departure port to Antarctic
         # waters.  Upper cap at 25°N covers the entire Indian subcontinent
-        # and Sri Lanka; lower cap at 75°S avoids unreachable polar grids.
-        min_lat = max(-75.0, min_lat)   # never past 75°S
+        # and Sri Lanka; the southern limit includes McMurdo.
+        min_lat = max(-85.0, min_lat)
         max_lat = min(25.0,  max_lat)   # never above 25°N
 
         lats = np.arange(min_lat, max_lat + self.res * 0.5, self.res)
@@ -828,6 +715,8 @@ class PolarPathfinder:
                         if v_cost >= self.HAZARD_IMPASSABLE_COST:
                             continue  # Impassable target node
 
+                        if not segment_clear(u, v, hazard_polygons):
+                            continue
                         # Edge weight = Haversine nautical distance * avg node cost factor * current drift alignment
                         dist_nm = haversine_nm(u[0], u[1], v[0], v[1])
                         avg_cost_factor = (u_cost + v_cost) / 2.0
@@ -848,8 +737,10 @@ class PolarPathfinder:
                         graph.add_edge(u, v, weight=edge_weight, distance_nm=dist_nm)
 
         # Add exact start and end nodes to graph and connect to nearest grid neighbors
-        start_node = (round(start_lat, 3), round(start_lon, 3))
-        end_node = (round(end_lat, 3), round(end_lon, 3))
+        start_node = (float(start_lat), float(start_lon))
+        end_node = (float(end_lat), float(end_lon))
+        if not segment_clear(start_node, start_node, hazard_polygons) or not segment_clear(end_node, end_node, hazard_polygons):
+            raise NoRouteFoundError('Departure or arrival is inside a demo obstacle.')
 
         graph.add_node(start_node, lat=start_lat, lon=start_lon, sic=0.0, base_cost=1.0, in_hazard=False)
         graph.add_node(end_node, lat=end_lat, lon=end_lon, sic=0.8, base_cost=2.0, in_hazard=False)
@@ -857,13 +748,13 @@ class PolarPathfinder:
         # Connect start to closest accessible grid nodes
         for node in nodes_grid:
             dist = haversine_nm(start_lat, start_lon, node[0], node[1])
-            if dist < self.res * 120.0 and graph.nodes[node].get("base_cost", 1.0) < self.HAZARD_IMPASSABLE_COST:
+            if dist < self.res * 120.0 and graph.nodes[node].get("base_cost", 1.0) < self.HAZARD_IMPASSABLE_COST and segment_clear(start_node, node, hazard_polygons):
                 graph.add_edge(start_node, node, weight=dist * graph.nodes[node]["base_cost"], distance_nm=dist)
 
         # Connect end to closest accessible grid nodes
         for node in nodes_grid:
             dist = haversine_nm(end_lat, end_lon, node[0], node[1])
-            if dist < self.res * 120.0 and graph.nodes[node].get("base_cost", 1.0) < self.HAZARD_IMPASSABLE_COST:
+            if dist < self.res * 120.0 and graph.nodes[node].get("base_cost", 1.0) < self.HAZARD_IMPASSABLE_COST and segment_clear(node, end_node, hazard_polygons):
                 graph.add_edge(node, end_node, weight=dist * graph.nodes[node]["base_cost"], distance_nm=dist)
 
         return graph, [start_node, end_node], hazard_polygons
@@ -905,6 +796,9 @@ class PolarPathfinder:
             raise NoRouteFoundError(
                 "No route found for the selected endpoints and planning settings."
             ) from exc
+
+        if not route_clear(path_nodes, hazard_polygons):
+            raise NoRouteFoundError('Route intersects a demo coastline or iceberg buffer.')
 
         # Process waypoints
         waypoints = [[float(lat), float(lon)] for lat, lon in path_nodes]

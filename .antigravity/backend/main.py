@@ -1,760 +1,153 @@
-"""
-FastAPI Backend Application:
-SIH Problem Statement 26059: Dynamic Route Optimization & Iceberg Movement Forecasting for Polar Navigation.
-
-API Endpoints:
-- GET /api/v1/polar-route: Comprehensive A* safe navigation path & metrics
-- GET /api/v1/icebergs: Active & 72-hour projected iceberg coordinates with drift trajectories
-- GET /api/v1/metocean: Metocean vector grid (ERA5 Wind, HYCOM Currents, AMSR2 Sea Ice)
-- GET /api/v1/stations: Polar stations & departure ports
-- GET /api/health: Service health & telemetry state
-"""
-
-from fastapi import FastAPI, HTTPException, Query, Body
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
-import uvicorn
-
-import sqlite3
+"""Local observation-backed planning API. No outbound providers or seeded AIS."""
+import hashlib
 import json
-import os
-import datetime
+from pathlib import Path
+from typing import Literal
+from threading import Lock
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field, ConfigDict, model_validator
+from observed_data import DATASET_ID, SNAPSHOT, LOCATIONS, forecast, iceberg_response, layer_data
+from observed_routes import calculate, APPROACH_CHAINS, NoRouteFoundError, hazard_geometry, profile_graph, PROFILES, ROUTING_MODEL
+from shapely.geometry import mapping
+from observed_data import vessel_class
 
-from data_engine import (
-    get_initial_icebergs,
-    fetch_live_usnic_icebergs,
-    fetch_live_byu_icebergs,
-    fetch_live_sar_candidates,
-    fetch_live_sea_ice_layer,
-    fetch_live_ocean_currents_layer,
-    fetch_live_weather_wind_layer,
-    GEBCO_WMS_TILE_URL,
-    get_layer_cache,
-    POLAR_STATIONS,
-    POLAR_GATEWAYS,
-    ANTARCTIC_STATIONS,
-    get_vessel_last_fix,
-    update_vessel_fix,
-    MetoceanEngine,
-    Iceberg
-)
-from drift_engine import DriftPhysicsEngine
-from pathfinder import NoRouteFoundError, PolarPathfinder, ParetoRouteEngine
+@asynccontextmanager
+async def lifespan(app):
+    for profile in PROFILES: profile_graph(72,25,profile,'PC3')
+    yield
 
-app = FastAPI(
-    title="PolarNav: Dynamic Route Optimization & Iceberg Forecasting",
-    description="Production-ready prototype for SIH Problem Statement 26059 (Southern Ocean / Antarctica Passage)",
-    version="1.0.0"
-)
-
-# Enable CORS for frontend applications
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-DB_PATH = os.path.join(os.path.dirname(__file__), "polar_nav_offline.db")
-
-def init_sqlite_db():
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS iceberg_registry_cache (
-            id TEXT PRIMARY KEY,
-            name TEXT,
-            lat REAL,
-            lon REAL,
-            length_km REAL,
-            width_km REAL,
-            thickness_m REAL,
-            mass_mt REAL,
-            ice_class TEXT,
-            source TEXT,
-            confidence REAL,
-            last_updated_utc TEXT,
-            metadata_json TEXT
-        )
-        """)
-        conn.commit()
-        conn.close()
-    except Exception:
-        pass
-
-# Initialize DB on import/startup
-init_sqlite_db()
-
-def save_icebergs_to_db(icebergs: List[Iceberg]):
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM iceberg_registry_cache")
-        for ib in icebergs:
-            cursor.execute("""
-            INSERT OR REPLACE INTO iceberg_registry_cache (
-                id, name, lat, lon, length_km, width_km, thickness_m, mass_mt, ice_class, source, confidence, last_updated_utc, metadata_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                ib.id, ib.name, ib.lat, ib.lon, ib.length_km, ib.width_km,
-                ib.thickness_m, ib.mass_mt, ib.ice_class, ib.source,
-                ib.confidence, ib.last_updated_utc, json.dumps(ib.metadata)
-            ))
-        conn.commit()
-        conn.close()
-    except Exception:
-        pass
-
-
-@app.get("/api/health")
-def health_check():
-    icebergs, is_live, source_name, _ = fetch_live_usnic_icebergs()
-    if is_live:
-        save_icebergs_to_db(icebergs)
-        mode = "ONLINE_LIVE_SATELLITE"
-        header_text = "ONLINE: USNIC Satellite & ECMWF Live Sync"
-    else:
-        mode = "OFFLINE_MODE"
-        header_text = "OFFLINE RESILIENCE ACTIVE: Local Shipboard Cache Running"
-
-    return {
-        "status": "healthy",
-        "mode": mode,
-        "header_status_text": header_text,
-        "is_live_satellite": is_live,
-        "source": source_name,
-        "iceberg_count": len(icebergs),
-        "service": "PolarNav Dynamic Routing API",
-        "version": "1.0.0",
-        "physics_engine": "72h Dead-Reckoning Integrator (ERA5 + HYCOM)",
-        "pathfinding_engine": "A-Star NetworkX Multi-Factor Spatial Graph",
-        "timestamp_utc": datetime.datetime.utcnow().isoformat() + "Z"
-    }
-
-
-@app.get("/api/v1/icebergs/live")
-def get_live_icebergs_geojson():
-    """
-    Returns the exact GeoJSON FeatureCollection of all currently tracked USNIC/NOAA satellite icebergs
-    directly to the Leaflet ECDIS map.
-    """
-    icebergs, is_live, source_name, geojson_data = fetch_live_usnic_icebergs()
-    if is_live:
-        save_icebergs_to_db(icebergs)
-    
-    return {
-        "status": "success",
-        "mode": "ONLINE_LIVE_SATELLITE" if is_live else "OFFLINE_CACHE",
-        "source": source_name,
-        "total_icebergs": len(icebergs),
-        "geojson": geojson_data
-    }
-
-
-# =============================================================================
-# DEDICATED LAYER DISPATCH ENDPOINTS (MAP DISPLAY LAYERS)
-# =============================================================================
-
-@app.get("/api/v1/layers/usnic-icebergs")
-def get_layer_usnic_icebergs():
-    """
-    Returns active USNIC/NOAA satellite-tracked iceberg coordinates.
-    """
-    icebergs, is_live, source_name, geojson_data = fetch_live_usnic_icebergs()
-    if is_live:
-        save_icebergs_to_db(icebergs)
-    return {
-        "status": "success",
-        "layer": "usnic_icebergs",
-        "mode": "ONLINE_LIVE_SATELLITE" if is_live else "OFFLINE_CACHE",
-        "is_live": is_live,
-        "source": source_name,
-        "total_features": len(geojson_data.get("features", [])),
-        "geojson": geojson_data
-    }
-
-
-@app.get("/api/v1/layers/byu-icebergs")
-def get_layer_byu_icebergs():
-    """
-    Returns reference icebergs from BYU MERS Antarctic Iceberg Tracking Database.
-    """
-    is_live, source_name, geojson_data = fetch_live_byu_icebergs()
-    return {
-        "status": "success",
-        "layer": "byu_icebergs",
-        "mode": "ONLINE_LIVE_FEED" if is_live else "OFFLINE_CACHE",
-        "is_live": is_live,
-        "source": source_name,
-        "total_features": len(geojson_data.get("features", [])),
-        "geojson": geojson_data
-    }
-
-
-@app.get("/api/v1/layers/sar-candidates")
-def get_layer_sar_candidates():
-    """
-    Returns recent Sentinel-1 SAR imagery acquisition footprints and radar candidate polygons.
-    """
-    is_live, source_name, geojson_data = fetch_live_sar_candidates()
-    return {
-        "status": "success",
-        "layer": "sar_candidates",
-        "mode": "ONLINE_LIVE_FEED" if is_live else "OFFLINE_CACHE",
-        "is_live": is_live,
-        "source": source_name,
-        "total_features": len(geojson_data.get("features", [])),
-        "geojson": geojson_data
-    }
-
-
-@app.get("/api/v1/layers/sea-ice")
-def get_layer_sea_ice(
-    lat: Optional[float] = Query(None, description="Optional latitude for point inspection"),
-    lon: Optional[float] = Query(None, description="Optional longitude for point inspection"),
-):
-    """
-    Returns AMSR2 25 km Sea Ice Concentration (SIC) grid across the operational corridor.
-    """
-    is_live, source_name, geojson_data = fetch_live_sea_ice_layer(lat, lon)
-    return {
-        "status": "success",
-        "layer": "sea_ice",
-        "mode": "ONLINE_LIVE_FEED" if is_live else "OFFLINE_CACHE",
-        "is_live": is_live,
-        "source": source_name,
-        "total_features": len(geojson_data.get("features", [])),
-        "geojson": geojson_data
-    }
-
-
-@app.get("/api/v1/layers/ocean-currents")
-def get_layer_ocean_currents(
-    lat: Optional[float] = Query(None, description="Optional latitude for point inspection"),
-    lon: Optional[float] = Query(None, description="Optional longitude for point inspection"),
-):
-    """
-    Returns HYCOM / GLORYS ocean surface vector field (u, v components).
-    """
-    is_live, source_name, geojson_data = fetch_live_ocean_currents_layer(lat, lon)
-    return {
-        "status": "success",
-        "layer": "ocean_currents",
-        "mode": "ONLINE_LIVE_FEED" if is_live else "OFFLINE_CACHE",
-        "is_live": is_live,
-        "source": source_name,
-        "total_features": len(geojson_data.get("features", [])),
-        "geojson": geojson_data
-    }
-
-
-@app.get("/api/v1/layers/weather-wind")
-def get_layer_weather_wind(
-    lat: Optional[float] = Query(None, description="Optional latitude for point inspection"),
-    lon: Optional[float] = Query(None, description="Optional longitude for point inspection"),
-):
-    """
-    Returns ECMWF ERA5 / IFS 0.25° 10m wind vector field (u, v components).
-    """
-    is_live, source_name, geojson_data = fetch_live_weather_wind_layer(lat, lon)
-    return {
-        "status": "success",
-        "layer": "weather_wind",
-        "mode": "ONLINE_LIVE_FEED" if is_live else "OFFLINE_CACHE",
-        "is_live": is_live,
-        "source": source_name,
-        "total_features": len(geojson_data.get("features", [])),
-        "geojson": geojson_data
-    }
-
-
-@app.get("/api/v1/layers/status")
-def get_layers_status():
-    """
-    Returns operational live/cached sync status for all 7 layers.
-    """
-    layer_keys = ["usnic_icebergs", "byu_icebergs", "sar_candidates", "sea_ice", "ocean_currents", "weather_wind"]
-    status_summary = {}
-    any_live = False
-    all_live = True
-
-    for k in layer_keys:
-        c = get_layer_cache(k)
-        if c:
-            status_summary[k] = {
-                "is_live": c["is_live"],
-                "source": c["source"],
-                "last_updated_utc": c["last_updated_utc"]
-            }
-            if c["is_live"]:
-                any_live = True
-            else:
-                all_live = False
-        else:
-            status_summary[k] = {
-                "is_live": False,
-                "source": "Initial Baseline",
-                "last_updated_utc": datetime.datetime.utcnow().isoformat() + "Z"
-            }
-            all_live = False
-
-    status_summary["bathymetry"] = {
-        "is_live": True,
-        "source": "NOAA NCEI GEBCO 2023 WMS Contours",
-        "tile_url": GEBCO_WMS_TILE_URL,
-        "last_updated_utc": datetime.datetime.utcnow().isoformat() + "Z"
-    }
-
-    overall_label = "LIVE: NOAA/BYU/ECMWF" if any_live else "CACHE: " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M")
-
-    return {
-        "status": "success",
-        "overall_sync_label": overall_label,
-        "all_live": all_live,
-        "any_live": any_live,
-        "layers": status_summary
-    }
-
-
-@app.get("/api/v1/stations")
-def get_stations():
-    """
-    Returns preset polar stations and departure ports.
-    """
-    return {
-        "status": "success",
-        "stations": POLAR_STATIONS
-    }
-
-
-@app.get("/api/v1/icebergs")
-def get_icebergs(
-    forecast_hours: int = Query(72, ge=0, le=168, description="Forecast horizon in hours"),
-    safety_buffer_km: float = Query(25.0, ge=5.0, le=100.0, description="Base safety buffer radius in km")
-):
-    """
-    Returns active iceberg observations and dead-reckoning trajectory forecasts.
-    """
-    icebergs, is_live, source_name, geojson_data = fetch_live_usnic_icebergs()
-    if is_live:
-        save_icebergs_to_db(icebergs)
-
-    forecasts = DriftPhysicsEngine.get_all_forecasts(
-        icebergs=icebergs,
-        forecast_hours=forecast_hours,
-        base_safety_buffer_km=safety_buffer_km
-    )
-
-    icebergs_present = [ib.to_dict() for ib in icebergs]
-    icebergs_predicted_72h = [
-        {
-            "id": fc["iceberg_id"],
-            "name": fc["name"],
-            "lat": fc["predicted_position_72h"]["lat"],
-            "lon": fc["predicted_position_72h"]["lon"],
-            "safety_radius_km": fc["safety_radius_km"],
-            "drift_distance_total_km": fc["drift_distance_total_km"],
-            "hazard_polygon": fc["hazard_polygon_coords"],
-            "snapshots": fc["snapshots"]
-        }
-        for fc in forecasts
-    ]
-
-    return {
-        "status": "success",
-        "mode": "ONLINE_LIVE_SATELLITE" if is_live else "OFFLINE_CACHE",
-        "source": source_name,
-        "forecast_hours": forecast_hours,
-        "total_icebergs": len(icebergs),
-        "icebergs_present": icebergs_present,
-        "icebergs_predicted_72h": icebergs_predicted_72h,
-        "geojson": geojson_data,
-        "detailed_forecasts": forecasts
-    }
-
-
-@app.get("/api/v1/metocean")
-def get_metocean_grid(
-    min_lat: float = Query(-72.0),
-    max_lat: float = Query(-32.0),
-    min_lon: float = Query(10.0),
-    max_lon: float = Query(85.0),
-    lat_step: float = Query(3.0),
-    lon_step: float = Query(4.0)
-):
-    """
-    Returns sampled metocean vector fields (wind, current, sea ice).
-    """
-    grid = MetoceanEngine.sample_grid_field(
-        min_lat=min_lat,
-        max_lat=max_lat,
-        min_lon=min_lon,
-        max_lon=max_lon,
-        lat_step=lat_step,
-        lon_step=lon_step
-    )
-    return {
-        "status": "success",
-        "grid": grid
-    }
-
+app=FastAPI(title='PolarNav observation-backed planning demo',version='2.0.0',lifespan=lifespan)
+app.add_middleware(GZipMiddleware,minimum_size=1000)
+app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:3000','http://127.0.0.1:3000'],allow_methods=['GET','POST'],allow_headers=['*'])
 
 class CalculateRouteRequest(BaseModel):
-    origin_type: Optional[str] = Field("GATEWAY", description="GATEWAY | CURRENT_SHIP_GPS | MID_OCEAN_COORDINATES")
-    origin_coords: Optional[List[float]] = Field(None, description="[lat, lon] starting coordinates")
-    gateway_code: Optional[str] = Field("ZACPT", description="5 Official Polar Gateways: ZACPT, USH, CLPUQ, AUHBT, NZLYT")
-    destination_station_id: Optional[str] = Field("bharati_station", description="Destination Station: bharati_station, maitri_station, mcmurdo_station, rothera_station")
-    vessel_imo: Optional[int] = Field(9577133, description="Vessel IMO identifier (Default: 9577133)")
-    remaining_fuel_mt: Optional[float] = Field(450.0, ge=0.0, le=5000.0, description="Available bunker fuel in Metric Tons")
-    fuel_tank_percentage: Optional[float] = Field(None, ge=0.0, le=100.0, description="Optional fuel tank percentage 0-100%")
-    max_tank_capacity_mt: Optional[float] = Field(500.0, ge=10.0, le=5000.0, description="Total fuel bunker capacity in Metric Tons")
-    # Explicit coordinate overrides (for backwards compatibility & custom routes)
-    start_lat: Optional[float] = Field(None, description="Departure latitude override")
-    start_lon: Optional[float] = Field(None, description="Departure longitude override")
-    end_lat: Optional[float] = Field(None, description="Arrival latitude override")
-    end_lon: Optional[float] = Field(None, description="Arrival longitude override")
-    vessel_ice_class: Optional[str] = Field("Polar Class 5 (PC5)", description="IMO vessel ice class")
-    cruising_speed_knots: Optional[float] = Field(14.5, ge=5.0, le=30.0, description="Cruising speed in knots")
-    grid_resolution_deg: Optional[float] = Field(0.8, ge=0.4, le=2.0, description="Grid resolution in degrees")
+    model_config=ConfigDict(allow_inf_nan=False,extra='forbid')
+    forecast_hours:int=Field(72,ge=0,le=168)
+    safety_buffer_km:float=Field(25,ge=5,le=100)
+    origin_type:Literal['GATEWAY','CURRENT_SHIP_GPS','MID_OCEAN_COORDINATES']='GATEWAY'
+    origin_coords:list[float]|None=Field(None,min_length=2,max_length=2)
+    gateway_code:str='ZACPT'
+    destination_station_id:str='bharati_station'
+    vessel_imo:int=9577133
+    remaining_fuel_mt:float=Field(450,ge=0,le=5000)
+    max_tank_capacity_mt:float=Field(500,ge=10,le=5000)
+    fuel_tank_percentage:float|None=Field(None,ge=0,le=100)
+    start_lat:float|None=Field(None,ge=-85,le=85)
+    start_lon:float|None=Field(None,ge=-180,le=180)
+    end_lat:float|None=Field(None,ge=-85,le=85)
+    end_lon:float|None=Field(None,ge=-180,le=180)
+    vessel_ice_class:str='Polar Class 3 (PC3)'
+    cruising_speed_knots:float=Field(14.5,ge=5,le=30)
+    grid_resolution_deg:float=Field(.8,ge=.4,le=2)
+    reference_burn_mt_day:float=Field(12,gt=0,le=300)
+    reserve_percent:float=Field(15,ge=0,le=50)
+    @model_validator(mode='after')
+    def validate_inputs(self):
+        vessel_class(self.vessel_ice_class)
+        if self.gateway_code not in LOCATIONS['POLAR_GATEWAYS']: raise ValueError('Unknown gateway')
+        if self.destination_station_id not in LOCATIONS['ANTARCTIC_STATIONS']: raise ValueError('Unknown station')
+        if (self.start_lat is None)!=(self.start_lon is None) or (self.end_lat is None)!=(self.end_lon is None): raise ValueError('Coordinates require latitude and longitude')
+        if self.origin_coords and not (-85<=self.origin_coords[0]<=85 and -180<=self.origin_coords[1]<=180): raise ValueError('Coordinates out of range')
+        if self.fuel_tank_percentage is None and self.remaining_fuel_mt>self.max_tank_capacity_mt: raise ValueError('Fuel exceeds tank capacity')
+        return self
 
+@app.get('/api/health')
+def health_check():
+    return dict(status='healthy',mode='OBSERVATIONS_WITH_ESTIMATES',dataset_id=DATASET_ID,is_live_satellite=False,
+                iceberg_count=33,header_status_text='USNIC 24 Sep 2026 + estimates',version='2.0.0')
 
-@app.get("/api/v1/pareto-routes", responses={
-    409: {"description": "No traversable path found even after fallback cascade."}
-})
-def get_pareto_routes(
-    start_lat: float = Query(-33.9249, description="Departure latitude (Default: Cape Town)"),
-    start_lon: float = Query(18.4241, description="Departure longitude"),
-    end_lat: float = Query(-69.4125, description="Arrival latitude (Default: Bharati Station)"),
-    end_lon: float = Query(76.1872, description="Arrival longitude"),
-    vessel_ice_class: str = Query("Polar Class 3 (PC3)", description="IMO vessel ice class"),
-    cruising_speed_knots: float = Query(14.5, ge=5.0, le=30.0, description="Cruising speed in knots"),
-    grid_resolution_deg: float = Query(0.8, ge=0.4, le=2.0, description="Grid resolution in degrees"),
-    remaining_fuel_mt: float = Query(200.0, ge=0.0, le=2000.0, description="Available bunker fuel in Metric Tons"),
-    fuel_tank_percentage: Optional[float] = Query(None, ge=0.0, le=100.0, description="Fuel tank percentage 0-100%"),
-    max_tank_capacity_mt: float = Query(200.0, ge=10.0, le=5000.0, description="Total fuel bunker capacity in MT"),
-):
-    """
-    Computes 3 Pareto-optimal maritime routes (SAFEST, BALANCED, FASTEST) using:
-      - IMO POLARIS Risk Index Outcome single-pass grid
-      - Live USNIC/NOAA Antarctic iceberg coordinates
-      - ECMWF ERA5 wind + HYCOM ocean currents per cell
-      - Guarded A* (25 000 iter cap + 1.2 s timeout per profile)
-      - Dynamic Vessel Bunker Fuel Feasibility Meter (FEASIBLE, RANGE_CRITICAL, UNREACHABLE)
-      - Auto-promotes BALANCED if SAFEST detour exceeds bunker endurance.
+@app.get('/api/v1/icebergs')
+def get_icebergs(forecast_hours:int=Query(72,ge=0,le=168),safety_buffer_km:float=Query(25,ge=5,le=100)):
+    return iceberg_response(forecast_hours,safety_buffer_km)
 
-    Returns a GeoJSON FeatureCollection with 3 LineString features.
-    Fallback cascade guarantees HTTP 200 always returned.
-    """
-    if fuel_tank_percentage is not None:
-        effective_fuel_mt = (fuel_tank_percentage / 100.0) * max_tank_capacity_mt
+@app.get('/api/v1/icebergs/{identifier}/trajectory')
+def trajectory(identifier:str,forecast_hours:int=Query(72,ge=0,le=168),safety_buffer_km:float=Query(25,ge=5,le=100)):
+    result=next((f for f in forecast(forecast_hours,safety_buffer_km) if f['id']==identifier),None)
+    if not result: raise HTTPException(404,'Unknown iceberg')
+    return dict(dataset_id=DATASET_ID,**result,hazard_geometry=mapping(hazard_geometry(result)))
+
+@app.get('/api/v1/layers/status')
+def layer_status():
+    return dict(status='success',overall_sync_label='Observations + estimates',all_live=False,any_live=False,dataset_id=DATASET_ID)
+
+@app.get('/api/v1/layers/{name}')
+def layers(name:str):
+    if name not in ('byu-icebergs','usnic-icebergs','sar-candidates','sea-ice','ocean-currents','weather-wind'): raise HTTPException(404,'Unknown layer')
+    return dict(status='success',dataset_id=DATASET_ID,is_live=False,geojson=layer_data(name))
+
+@app.get('/api/v1/icebergs/live')
+def legacy_icebergs():
+    return dict(mode='DATED_SNAPSHOT',is_live=False,dataset_id=DATASET_ID,geojson=layer_data('usnic-icebergs'))
+
+@app.get('/api/v1/stations')
+def stations():
+    return dict(status='success',stations=LOCATIONS,approaches={k:v[0] for k,v in APPROACH_CHAINS.items()})
+
+@app.get('/api/v1/metocean')
+def metocean(): return dict(status='success',source='Calculated planning estimate',geojson=layer_data('sea-ice'))
+
+@app.get('/api/v1/map-base')
+def map_base():
+    return FileResponse(Path(__file__).parent/'data/map_base.geojson',media_type='application/geo+json')
+
+FIX_PATH=Path(__file__).parent/'data/user_vessel_fixes.json'
+FIX_LOCK=Lock()
+class VesselFix(BaseModel):
+    model_config=ConfigDict(allow_inf_nan=False)
+    vessel_imo:int=9577133
+    lat:float=Field(ge=-85,le=85)
+    lon:float=Field(ge=-180,le=180)
+
+@app.get('/api/v1/vessel/last-fix')
+def vessel_fix(vessel_imo:int=9577133):
+    with FIX_LOCK:
+        fixes=json.loads(FIX_PATH.read_text()) if FIX_PATH.exists() else {}
+    fix=fixes.get(str(vessel_imo))
+    if fix is None: fix=dict(lat=-64.5,lon=72,source='Assumed planning waypoint; no AIS feed',is_observed=False)
+    return dict(status='success',fix=dict(vessel_imo=vessel_imo,**fix))
+
+@app.post('/api/v1/vessel/update-fix')
+def update_fix(fix:VesselFix):
+    with FIX_LOCK:
+        fixes=json.loads(FIX_PATH.read_text()) if FIX_PATH.exists() else {}
+        fixes[str(fix.vessel_imo)]=dict(lat=fix.lat,lon=fix.lon,source='User-entered waypoint',is_observed=False)
+        temp=FIX_PATH.with_suffix('.tmp'); temp.write_text(json.dumps(fixes)); temp.replace(FIX_PATH)
+    return dict(status='success',fix=fixes[str(fix.vessel_imo)])
+
+@app.post('/api/v1/calculate-route')
+def post_calculate_route(request:CalculateRouteRequest):
+    if request.start_lat is not None: start=(request.start_lat,request.start_lon)
+    elif request.origin_type=='GATEWAY': start=tuple(APPROACH_CHAINS[request.gateway_code][0])
+    elif request.origin_coords: start=tuple(request.origin_coords)
     else:
-        effective_fuel_mt = remaining_fuel_mt
-
-    # Fetch live icebergs (with SQLite fallback)
+        fix=vessel_fix(request.vessel_imo)['fix']; start=(fix['lat'],fix['lon'])
+    end=(request.end_lat,request.end_lon) if request.end_lat is not None else tuple(APPROACH_CHAINS[request.destination_station_id][0])
+    fuel=request.remaining_fuel_mt if request.fuel_tank_percentage is None else request.fuel_tank_percentage*request.max_tank_capacity_mt/100
     try:
-        icebergs, is_live, source_name, _ = fetch_live_usnic_icebergs()
-        if is_live:
-            save_icebergs_to_db(icebergs)
-        data_source_label = (
-            "Live ECMWF / NOAA USNIC Satellite Sync" if is_live
-            else "Offline SQLite Cache"
-        )
-    except Exception:
-        icebergs = get_initial_icebergs()
-        is_live = False
-        data_source_label = "Offline SQLite Cache"
-
-    # Filter icebergs to the route corridor for drift simulation
-    min_lat_corr = min(start_lat, end_lat) - 4.0
-    max_lat_corr = max(start_lat, end_lat) + 4.0
-    min_lon_corr = min(start_lon, end_lon) - 6.0
-    max_lon_corr = max(start_lon, end_lon) + 6.0
-
-    corridor_icebergs = [
-        ib for ib in icebergs
-        if min_lat_corr <= ib.lat <= max_lat_corr and min_lon_corr <= ib.lon <= max_lon_corr
-    ]
-    if not corridor_icebergs:
-        corridor_icebergs = icebergs[:40]
-    else:
-        corridor_icebergs = corridor_icebergs[:60]
-
-    # Get 72-hour drift forecasts
-    try:
-        forecasts = DriftPhysicsEngine.get_all_forecasts(
-            icebergs=corridor_icebergs,
-            forecast_hours=72,
-            base_safety_buffer_km=15.0
-        )
-    except Exception:
-        forecasts = []
-
-    engine = ParetoRouteEngine(
-        grid_resolution_deg=grid_resolution_deg,
-        vessel_ice_class=vessel_ice_class,
-        cruising_speed_knots=cruising_speed_knots,
-    )
-
-    try:
-        result = engine.compute_three_routes(
-            start_coord=(start_lat, start_lon),
-            end_coord=(end_lat, end_lon),
-            iceberg_forecasts=forecasts,
-            data_source_label=data_source_label,
-            remaining_fuel_mt=effective_fuel_mt,
-            max_tank_capacity_mt=max_tank_capacity_mt,
-        )
-        return result
+        response=calculate(start,end,request.vessel_ice_class,request.cruising_speed_knots,fuel,request.max_tank_capacity_mt,
+                           request.forecast_hours,request.safety_buffer_km,request.reference_burn_mt_day,request.reserve_percent)
     except NoRouteFoundError as exc:
-        from fastapi import HTTPException
-        raise HTTPException(
-            status_code=409,
-            detail={"error": "NO_ROUTE_FOUND", "message": str(exc)}
-        )
-    except Exception as exc:
-        # Last-resort: return a straight-line degraded response rather than 500
-        from pathfinder import _straight_fallback
-        import datetime as _dt
-        fallback_wpts = _straight_fallback((start_lat, start_lon), (end_lat, end_lon))
-        fallback_coords = [[lon, lat] for lat, lon in fallback_wpts]
-        fallback_wpts_ll = [[float(la), float(lo)] for la, lo in fallback_wpts]
-        degrade_feature = {
-            "type": "Feature",
-            "geometry": {"type": "LineString", "coordinates": fallback_coords},
-            "properties": {
-                "route_type": "BALANCED",
-                "color": "#0ea5e9",
-                "label": "Degraded (Straight-line Emergency)",
-                "distance_nm": 0.0,
-                "eta_hours": 0.0,
-                "min_polaris_rio": 0.0,
-                "max_ice_concentration": 0.0,
-                "total_fuel_burn_mt": 0.0,
-                "mandatory_reserve_mt": 0.0,
-                "total_required_fuel_mt": 0.0,
-                "fuel_surplus_deficit_mt": effective_fuel_mt,
-                "tank_left_percentage": 100.0,
-                "feasibility_status": "FEASIBLE",
-                "data_source": "Emergency Fallback",
-                "flags": ["EMERGENCY_STRAIGHT_LINE", str(exc)],
-                "waypoints_latlon": fallback_wpts_ll,
-            }
-        }
-        return {
-            "type": "FeatureCollection",
-            "features": [degrade_feature, degrade_feature, degrade_feature],
-            "metadata": {
-                "vessel_ice_class": vessel_ice_class,
-                "remaining_fuel_mt": effective_fuel_mt,
-                "max_tank_capacity_mt": max_tank_capacity_mt,
-                "recommended_route_type": "BALANCED",
-                "auto_switched": False,
-                "algorithm": "Emergency Fallback",
-                "data_source": "Emergency",
-                "flags": ["COMPUTE_ERROR", str(exc)],
-                "timestamp_utc": datetime.datetime.utcnow().isoformat() + "Z"
-            }
-        }
+        raise HTTPException(409,detail=dict(code='NO_ROUTE_FOUND',message='No safe route available. '+str(exc))) from exc
+    except (OSError,ValueError) as exc:
+        raise HTTPException(503,detail=dict(code='DATA_UNAVAILABLE',message='Required planning data could not be validated.')) from exc
+    inputs=request.model_dump()
+    identity=dict(inputs=inputs,dataset_id=DATASET_ID,routing_model=ROUTING_MODEL)
+    response['metadata'].update(inputs=inputs,request_id=hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()[:16])
+    return response
 
+@app.get('/api/v1/pareto-routes')
+@app.get('/api/v1/polar-route')
+def legacy_route(start_lat:float=-34,start_lon:float=18,end_lat:float=-69.2,end_lon:float=76.2,
+                 forecast_hours:int=72,safety_buffer_km:float=25,vessel_ice_class:str='PC3',cruising_speed_knots:float=14.5,
+                 remaining_fuel_mt:float=450,max_tank_capacity_mt:float=500,fuel_tank_percentage:float|None=None):
+    try: request=CalculateRouteRequest(start_lat=start_lat,start_lon=start_lon,end_lat=end_lat,end_lon=end_lon,forecast_hours=forecast_hours,safety_buffer_km=safety_buffer_km,vessel_ice_class=vessel_ice_class,cruising_speed_knots=cruising_speed_knots,remaining_fuel_mt=remaining_fuel_mt,max_tank_capacity_mt=max_tank_capacity_mt,fuel_tank_percentage=fuel_tank_percentage)
+    except ValueError as exc: raise HTTPException(422,'Invalid routing inputs') from exc
+    return post_calculate_route(request)
 
-# -----------------------------------------------------------------------------
-# POLAR GATEWAYS & DESTINATION STATIONS METADATA ENDPOINTS
-# -----------------------------------------------------------------------------
-
-@app.get("/api/v1/destinations/gateways")
-def get_destinations_gateways():
-    """
-    Returns the 5 Official Polar Gateway Hubs (Purged of all domestic/commercial Indian ports).
-    """
-    return {
-        "status": "success",
-        "gateways": list(POLAR_GATEWAYS.values())
-    }
-
-
-@app.get("/api/v1/destinations/stations")
-def get_destinations_stations():
-    """
-    Returns the 4 Official Antarctic Destination Research Stations.
-    """
-    return {
-        "status": "success",
-        "stations": list(ANTARCTIC_STATIONS.values())
-    }
-
-
-@app.get("/api/v1/vessel/last-fix")
-def get_vessel_fix_endpoint(vessel_imo: int = Query(9577133, description="Vessel IMO identifier")):
-    """
-    Returns the last recorded AIS GPS fix for the vessel (default: IMO 9577133 at [-64.50, 72.00]).
-    """
-    fix = get_vessel_last_fix(vessel_imo)
-    return {
-        "status": "success",
-        "fix": fix
-    }
-
-
-@app.post("/api/v1/calculate-route")
-def post_calculate_route(request: CalculateRouteRequest):
-    """
-    In-Voyage Maritime Routing Controller:
-    Supports 3-way departure modes:
-      1. GATEWAY: 5 Official Polar Gateways (Cape Town, Ushuaia, Punta Arenas, Hobart, Christchurch)
-      2. CURRENT_SHIP_GPS: Ship's live/last-recorded AIS fix (default IMO 9577133 @ [-64.50, 72.00])
-      3. MID_OCEAN_COORDINATES: Dynamic Southern Ocean map click waypoint
-    Executes split-stage routing (Stage 1 open ocean down to -60°S, Stage 2 Polar A* grid).
-    Returns 3 Pareto-optimal routes (Safest, Balanced, Fastest) with IMO Polar Code bunker feasibility gating.
-    """
-    # 1. Resolve Origin Coordinates
-    if request.start_lat is not None and request.start_lon is not None:
-        start_lat = request.start_lat
-        start_lon = request.start_lon
-    elif request.origin_type in ("CURRENT_SHIP_GPS", "MID_OCEAN_COORDINATES"):
-        if request.origin_coords and len(request.origin_coords) >= 2 and request.origin_coords[0] is not None and request.origin_coords[1] is not None:
-            start_lat = float(request.origin_coords[0])
-            start_lon = float(request.origin_coords[1])
-            update_vessel_fix(request.vessel_imo or 9577133, start_lat, start_lon)
-        else:
-            fix = get_vessel_last_fix(request.vessel_imo or 9577133)
-            start_lat = float(fix["lat"])
-            start_lon = float(fix["lon"])
-    else:  # "GATEWAY"
-        gw_key = (request.gateway_code or "ZACPT").upper()
-        gw = POLAR_GATEWAYS.get(gw_key, POLAR_GATEWAYS["ZACPT"])
-        start_lat = float(gw["lat"])
-        start_lon = float(gw["lon"])
-
-    # 2. Resolve Destination Coordinates
-    if request.end_lat is not None and request.end_lon is not None:
-        end_lat = request.end_lat
-        end_lon = request.end_lon
-    else:
-        stn_key = request.destination_station_id or "bharati_station"
-        stn = ANTARCTIC_STATIONS.get(stn_key, ANTARCTIC_STATIONS["bharati_station"])
-        end_lat = float(stn["lat"])
-        end_lon = float(stn["lon"])
-
-    effective_ice_class = request.vessel_ice_class or "Polar Class 5 (PC5)"
-    effective_speed = request.cruising_speed_knots or 14.5
-    effective_fuel = request.remaining_fuel_mt if request.remaining_fuel_mt is not None else 450.0
-    effective_capacity = request.max_tank_capacity_mt or 500.0
-
-    return get_pareto_routes(
-        start_lat=start_lat,
-        start_lon=start_lon,
-        end_lat=end_lat,
-        end_lon=end_lon,
-        vessel_ice_class=effective_ice_class,
-        cruising_speed_knots=effective_speed,
-        grid_resolution_deg=request.grid_resolution_deg or 0.8,
-        remaining_fuel_mt=effective_fuel,
-        fuel_tank_percentage=request.fuel_tank_percentage,
-        max_tank_capacity_mt=effective_capacity,
-    )
-
-
-@app.get("/api/v1/polar-route", responses={
-    409: {"description": "No route found in the navigation graph (detail.code: NO_ROUTE_FOUND)."}
-})
-def get_polar_route(
-    start_lat: float = Query(-33.9249, description="Departure latitude (Default: Cape Town)"),
-    start_lon: float = Query(18.4241, description="Departure longitude (Default: Cape Town)"),
-    end_lat: float = Query(-69.4125, description="Arrival latitude (Default: Bharati Station)"),
-    end_lon: float = Query(76.1872, description="Arrival longitude (Default: Bharati Station)"),
-    forecast_hours: int = Query(72, ge=0, le=168, description="Forecast horizon in hours"),
-    vessel_ice_class: str = Query("Polar Class 3 (PC3)", description="Vessel Ice Class"),
-    safety_buffer_km: float = Query(25.0, ge=5.0, le=100.0, description="Iceberg safety hazard buffer in km"),
-    cruising_speed_knots: float = Query(14.5, ge=5.0, le=30.0, description="Vessel cruising speed in knots")
-):
-    """
-    Calculates the dynamic A* polar navigation route avoiding 72h predicted icebergs.
-    """
-    # 1. Ingest Live USNIC / Satellite Icebergs
-    icebergs, is_live, source_name, geojson_data = fetch_live_usnic_icebergs()
-    if is_live:
-        save_icebergs_to_db(icebergs)
-
-    # 2. Compute 72h Drift Physics on corridor icebergs
-    min_lat_corr = min(start_lat, end_lat) - 4.0
-    max_lat_corr = max(start_lat, end_lat) + 4.0
-    min_lon_corr = min(start_lon, end_lon) - 6.0
-    max_lon_corr = max(start_lon, end_lon) + 6.0
-
-    corridor_icebergs = [
-        ib for ib in icebergs
-        if min_lat_corr <= ib.lat <= max_lat_corr and min_lon_corr <= ib.lon <= max_lon_corr
-    ]
-    if not corridor_icebergs:
-        corridor_icebergs = icebergs[:40]
-    else:
-        corridor_icebergs = corridor_icebergs[:60]
-
-    forecasts = DriftPhysicsEngine.get_all_forecasts(
-        icebergs=corridor_icebergs,
-        forecast_hours=forecast_hours,
-        base_safety_buffer_km=safety_buffer_km
-    )
-
-    # 3. Compute A* Optimal Route
-    pathfinder = PolarPathfinder(
-        grid_resolution_deg=0.85,
-        vessel_ice_class=vessel_ice_class,
-        cruising_speed_knots=cruising_speed_knots
-    )
-
-    try:
-        route_data = pathfinder.calculate_optimal_route(
-            start_coord=(start_lat, start_lon),
-            end_coord=(end_lat, end_lon),
-            iceberg_forecasts=forecasts,
-            safety_buffer_km=safety_buffer_km
-        )
-    except NoRouteFoundError as exc:
-        raise HTTPException(status_code=409, detail={
-            "code": "NO_ROUTE_FOUND",
-            "message": "No route found for the selected endpoints and planning settings."
-        }) from exc
-
-    # Format response adhering strictly to SIH specification
-    icebergs_present = [ib.to_dict() for ib in icebergs]
-    icebergs_predicted_72h = [
-        {
-            "id": fc["iceberg_id"],
-            "name": fc["name"],
-            "lat": fc["predicted_position_72h"]["lat"],
-            "lon": fc["predicted_position_72h"]["lon"],
-            "initial_lat": fc["initial_position"]["lat"],
-            "initial_lon": fc["initial_position"]["lon"],
-            "safety_radius_km": fc["safety_radius_km"],
-            "safety_radius_nm": round(fc["safety_radius_km"] / 1.852, 1),
-            "drift_distance_total_km": fc["drift_distance_total_km"],
-            "hazard_polygon": fc["hazard_polygon_coords"],
-            "trajectory_points": fc["trajectory_points"],
-            "snapshots": fc["snapshots"]
-        }
-        for fc in forecasts
-    ]
-
-    return {
-        "waypoints": route_data["waypoints"],
-        "direct_baseline_waypoints": route_data["direct_baseline_waypoints"],
-        "icebergs_present": icebergs_present,
-        "icebergs_predicted_72h": icebergs_predicted_72h,
-        "geojson": geojson_data,
-        "mode": "ONLINE_LIVE_SATELLITE" if is_live else "OFFLINE_CACHE",
-        "source": source_name,
-        "route_metrics": route_data["route_metrics"],
-        "origin": route_data["origin"],
-        "destination": route_data["destination"],
-        "vessel_ice_class": vessel_ice_class,
-        "forecast_hours": forecast_hours
-    }
-
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+if __name__=='__main__':
+    import uvicorn
+    uvicorn.run('main:app',host='127.0.0.1',port=8000)
