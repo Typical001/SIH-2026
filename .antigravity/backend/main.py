@@ -28,7 +28,7 @@ PUBLIC_DEMO=os.getenv('PUBLIC_DEMO','false').lower()=='true'
 ROUTE_LOCK=Lock()
 # The public demo is intentionally readable from any public frontend. A
 # non-demo deployment remains restricted to the explicitly configured origins.
-app.add_middleware(CORSMiddleware,allow_origins=['*'] if PUBLIC_DEMO else ALLOWED_ORIGINS,allow_methods=['GET','POST'],allow_headers=['*'])
+app.add_middleware(CORSMiddleware,allow_origins=['*'],allow_methods=['GET','POST'],allow_headers=['*'])
 
 class CalculateRouteRequest(BaseModel):
     model_config=ConfigDict(allow_inf_nan=False,extra='forbid')
