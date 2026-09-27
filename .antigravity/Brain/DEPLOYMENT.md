@@ -12,7 +12,7 @@ Repository: Typical001/SIH-2026, branch main. Runtime Python, root directory `.a
 - Python: `3.13.5`
 - `PUBLIC_DEMO=true`: disables shared waypoint writes and ignores any shared saved fix.
 - `ROUTE_CACHE_SIZE=4`: bounds retained graph variants. Route calculations are serialized to limit transient memory.
-- `ALLOWED_ORIGINS`: exact Netlify HTTPS origin, no trailing slash. Comma-separated additional origins may be configured explicitly.
+- CORS accepts cross-origin bearer requests. All planning endpoints require captain authentication; see [CAPTAIN_ACCESS.md](CAPTAIN_ACCESS.md).
 
 Blueprint configuration: `.antigravity/render.yaml` relative to repository root. Do not select paid compute or disks.
 Bundled inputs: backend/data/{observed_icebergs.json,locations.json,map_base.geojson,ne_10m_land.zip} and research/iceberg-data/{byu_snapshot.geojson,usnic_shelf_2022.zip}.
@@ -42,3 +42,7 @@ Local verification: 18 backend tests and 32 frontend tests passed; Vite producti
 - Source deployment commit: a4bdfe3.
 - Both services follow the existing main branch. Netlify previews remain private.
 - Netlify VITE_API_URL points to the API origin. Render ALLOWED_ORIGINS is set to the exact frontend origin.
+
+## Captain login
+
+Captain sign-in is required before the dashboard or planning APIs are available. No extra paid service or dependency is required. Keep `--workers 1`; backend restarts invalidate sessions. Credentials must not be placed in Netlify VITE variables or frontend source.

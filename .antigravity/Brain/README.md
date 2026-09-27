@@ -1,3 +1,5 @@
+> 27 Sep 2026: Captain sign-in now gates the dashboard and planning APIs. No signup; credentials are not displayed. See [CAPTAIN_ACCESS.md](CAPTAIN_ACCESS.md).
+
 ## Public hosting preparation - 27 September 2026
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for Netlify frontend / Render free backend configuration, browser-local waypoints, CORS and cold-start handling.

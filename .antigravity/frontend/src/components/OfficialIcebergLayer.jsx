@@ -1,3 +1,4 @@
+import {authFetch} from '../auth';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Marker, CircleMarker, Polyline, Popup, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
@@ -27,7 +28,7 @@ function OfficialIcebergLayer({ present, predicted, route, enabled, showBuffers,
     setTrajectoryDetail(null);
     if (!selectedId) return;
     const controller = new AbortController();
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/icebergs/${encodeURIComponent(selectedId)}/trajectory?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {signal:controller.signal})
+    authFetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/icebergs/${encodeURIComponent(selectedId)}/trajectory?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {signal:controller.signal})
       .then(r=>r.ok?r.json():null).then(data=>{if(!controller.signal.aborted)setTrajectoryDetail(data);}).catch(()=>{});
     return ()=>controller.abort();
   }, [selectedId,forecastHours,safetyBufferKm]);

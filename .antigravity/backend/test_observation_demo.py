@@ -1,5 +1,7 @@
 """Current runtime regression suite. Run: python -m unittest test_observation_demo -v."""
 import json
+import time
+import captain_auth
 import tempfile
 import unittest
 import networkx as nx
@@ -34,7 +36,8 @@ class ObservationDemoTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.client=TestClient(main.app)
+        captain_auth.sessions['route-test-session']=time.time()+3600
+        cls.client=TestClient(main.app,headers={'Authorization':'Bearer route-test-session'})
         cls.network=patch('socket.create_connection',side_effect=AssertionError('Runtime attempted outbound network'))
         cls.network.start()
     @classmethod
@@ -156,8 +159,8 @@ class ObservationDemoTests(unittest.TestCase):
             self.assertEqual(self.client.post('/api/v1/vessel/update-fix',json={'lat':-55,'lon':20}).status_code,403)
             self.assertEqual(main.FIX_PATH.read_text(),before)
 
-    def test_cors_accepts_only_configured_origins(self):
-        for origin,code in [('http://localhost:3000',200),('https://unconfigured.example',400)]:
+    def test_cors_allows_bearer_preflight(self):
+        for origin,code in [('http://localhost:3000',200),('https://unconfigured.example',200)]:
             response=self.client.options('/api/v1/calculate-route',headers={'Origin':origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type'})
             self.assertEqual(response.status_code,code)
 

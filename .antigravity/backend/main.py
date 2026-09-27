@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Literal
 from threading import Lock
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
+from captain_auth import router as auth_router, require_captain
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
@@ -21,13 +22,13 @@ async def lifespan(app):
     for profile in PROFILES: profile_graph(72,25,profile,'PC3')
     yield
 
-app=FastAPI(title='PolarNav observation-backed planning demo',version='2.0.0',lifespan=lifespan)
+app=FastAPI(title='PolarNav observation-backed planning demo',version='2.0.0',lifespan=lifespan,dependencies=[Depends(require_captain)],docs_url=None,redoc_url=None,openapi_url=None)
+app.include_router(auth_router)
 app.add_middleware(GZipMiddleware,minimum_size=1000)
 ALLOWED_ORIGINS=[origin.strip().rstrip('/') for origin in os.getenv('ALLOWED_ORIGINS','http://localhost:3000,http://127.0.0.1:3000').split(',') if origin.strip()]
 PUBLIC_DEMO=os.getenv('PUBLIC_DEMO','false').lower()=='true'
 ROUTE_LOCK=Lock()
-# The public demo is intentionally readable from any public frontend. A
-# non-demo deployment remains restricted to the explicitly configured origins.
+# Cross-origin bearer requests are permitted; protected endpoints require a captain session.
 app.add_middleware(CORSMiddleware,allow_origins=['*'],allow_methods=['GET','POST'],allow_headers=['*'])
 
 class CalculateRouteRequest(BaseModel):

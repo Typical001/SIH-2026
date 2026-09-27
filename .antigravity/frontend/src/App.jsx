@@ -1,3 +1,4 @@
+import {authFetch} from './auth';
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import Navbar from './components/Navbar';
 import PolarMap from './components/PolarMap';
@@ -124,7 +125,7 @@ export default function App() {
   const fetchHealth = useCallback(async () => {
     try {
       const apiUrl = getApiUrl();
-      const resp = await fetch(`${apiUrl}/api/health`);
+      const resp = await authFetch(`${apiUrl}/api/health`);
       if (resp.ok) {
         const healthData = await resp.json();
         setSystemHealth(healthData);
@@ -139,7 +140,7 @@ export default function App() {
     if (PUBLIC_DEMO) { setDepartureMode('CURRENT_SHIP_GPS'); return; }
     try {
       const apiUrl = getApiUrl();
-      const resp = await fetch(`${apiUrl}/api/v1/vessel/last-fix?vessel_imo=${vesselImo}`);
+      const resp = await authFetch(`${apiUrl}/api/v1/vessel/last-fix?vessel_imo=${vesselImo}`);
       if (resp.ok) {
         const data = await resp.json();
         if (data?.fix && typeof data.fix.lat === 'number' && typeof data.fix.lon === 'number') {
@@ -162,12 +163,12 @@ export default function App() {
     const apiUrl = getApiUrl();
     try {
       const [byu, sar, seaIce, currents, wind, stat] = await Promise.all([
-        fetch(`${apiUrl}/api/v1/layers/byu-icebergs`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiUrl}/api/v1/layers/sar-candidates`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiUrl}/api/v1/layers/sea-ice`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiUrl}/api/v1/layers/ocean-currents?lat=${originCoords.lat}&lon=${originCoords.lon}`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiUrl}/api/v1/layers/weather-wind?lat=${originCoords.lat}&lon=${originCoords.lon}`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiUrl}/api/v1/layers/status`).then(r => r.ok ? r.json() : null).catch(() => null),
+        authFetch(`${apiUrl}/api/v1/layers/byu-icebergs`).then(r => r.ok ? r.json() : null).catch(() => null),
+        authFetch(`${apiUrl}/api/v1/layers/sar-candidates`).then(r => r.ok ? r.json() : null).catch(() => null),
+        authFetch(`${apiUrl}/api/v1/layers/sea-ice`).then(r => r.ok ? r.json() : null).catch(() => null),
+        authFetch(`${apiUrl}/api/v1/layers/ocean-currents?lat=${originCoords.lat}&lon=${originCoords.lon}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        authFetch(`${apiUrl}/api/v1/layers/weather-wind?lat=${originCoords.lat}&lon=${originCoords.lon}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        authFetch(`${apiUrl}/api/v1/layers/status`).then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
       if (byu?.geojson) setByuIcebergData(byu.geojson);
       if (sar?.geojson) setSarFootprintsData(sar.geojson);
@@ -222,7 +223,7 @@ export default function App() {
       };
 
       // Overlay data must not hold the route spinner open.
-      fetch(`${apiUrl}/api/v1/icebergs?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {
+      authFetch(`${apiUrl}/api/v1/icebergs?forecast_hours=${forecastHours}&safety_buffer_km=${safetyBufferKm}`, {
         signal: controller.signal
       }).then(r => r.ok ? r.json() : null).then(ibData => {
         if (!ibData || controller.signal.aborted || activeRequest.current !== controller) return;
@@ -232,7 +233,7 @@ export default function App() {
           ...ib, trajectory_points: details.get(String(ib.id))?.trajectory_points || ib.trajectory_points,
         })));
       }).catch(() => {});
-      const calcRes = await fetch(`${apiUrl}/api/v1/calculate-route`, {
+      const calcRes = await authFetch(`${apiUrl}/api/v1/calculate-route`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(calcPayload), signal: controller.signal
       });
@@ -463,7 +464,7 @@ export default function App() {
         onChangeStation={setSelectedStation}
         shipCoords={shipCoords}
         onAcquireShipGps={handleAcquireShipGps}
-        onManualCoordsChange={coords => {setShipCoords(coords); if (!PUBLIC_DEMO) fetch(getApiUrl()+'/api/v1/vessel/update-fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vessel_imo:vesselImo,lat:coords[0],lon:coords[1]})}).then(response=>{if(!response.ok)throw new Error('Save failed');}).catch(()=>setErrorMsg('Could not save the waypoint to the backend; coordinates remain in this browser.'));}}
+        onManualCoordsChange={coords => {setShipCoords(coords); if (!PUBLIC_DEMO) authFetch(getApiUrl()+'/api/v1/vessel/update-fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vessel_imo:vesselImo,lat:coords[0],lon:coords[1]})}).then(response=>{if(!response.ok)throw new Error('Save failed');}).catch(()=>setErrorMsg('Could not save the waypoint to the backend; coordinates remain in this browser.'));}}
         forecastHours={forecastHours}
         onChangeForecastHours={setForecastHours}
         vesselIceClass={vesselIceClass}

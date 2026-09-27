@@ -22,7 +22,7 @@ it('reports dated sources without live claims and connects actions',async()=>{
  await render(<Navbar onOpenReport={report} onRefresh={refresh} forecastHours={72} systemHealth={{header_status_text:'USNIC 24 Sep 2026 + estimates',iceberg_count:33}}/>);
  expect(content(tree.root)).toContain('33 icebergs');
  expect(content(tree.root)).not.toMatch(/LIVE|100%|verified/i);
- for(const button of tree.root.findAllByType('button'))act(()=>button.props.onClick());
+ for(const button of tree.root.findAllByType('button').filter(b=>content(b)!=='Sign out'))act(()=>button.props.onClick());
  expect(content(tree.root)).not.toContain('Export PDF');
  expect(report).toHaveBeenCalledOnce();expect(refresh).toHaveBeenCalledOnce();
 });
@@ -80,6 +80,7 @@ it('recovers the coastline after a failed request through Retry map',async()=>{
  expect(content(tree.root)).toContain('Local fallback unavailable');
  const retry=tree.root.findAllByType('button').find(button=>content(button)==='Retry map');
  await act(async()=>retry.props.onClick());
+ await act(async()=>{await new Promise(resolve=>setTimeout(resolve,0));});
  expect(request).toHaveBeenCalledTimes(2);
  expect(content(tree.root)).not.toContain('Local fallback unavailable');
  expect(tree.root.findAllByType('map-geojson')).toHaveLength(1);
