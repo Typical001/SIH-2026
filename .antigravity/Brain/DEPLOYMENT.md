@@ -1,48 +1,44 @@
-# Public deployment: Netlify + Render
+# Public deployment — Netlify and Render Free
 
-Prepared 27 September 2026. Free plans only. Deployment URLs and cloud verification are recorded after publishing.
+Application deployment 5898e40 verified 27 September 2026. Both services follow Typical001/SIH-2026 on main. This documentation reconciliation is a working-tree change, not a new deployment.
 
-## Render backend
+- Frontend: https://polarnav-sih2026.netlify.app/
+- Backend: https://polarnav-backend.onrender.com/
+- Render service: srv-das14igjo6nc739q2bj0, Free, Singapore.
 
-Repository: Typical001/SIH-2026, branch main. Runtime Python, root directory `.antigravity` (not `backend`, because research files are siblings).
+## Render configuration
 
-- Build: `pip install -r backend/requirements-deploy.txt`
-- Start: `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 32`
-- Health check: `/api/health`
-- Python: `3.13.5`
-- `PUBLIC_DEMO=true`: disables shared waypoint writes and ignores any shared saved fix.
-- `ROUTE_CACHE_SIZE=4`: bounds retained graph variants. Route calculations are serialized to limit transient memory.
-- CORS accepts cross-origin bearer requests. All planning endpoints require captain authentication; see [CAPTAIN_ACCESS.md](CAPTAIN_ACCESS.md).
+Root .antigravity (backend and research siblings are both required). Source configuration: render.yaml.
 
-Blueprint configuration: `.antigravity/render.yaml` relative to repository root. Do not select paid compute or disks.
-Bundled inputs: backend/data/{observed_icebergs.json,locations.json,map_base.geojson,ne_10m_land.zip} and research/iceberg-data/{byu_snapshot.geojson,usnic_shelf_2022.zip}.
-The active API does not require the historical CSV archive, SciPy legacy code, AIS database or Google key. Shapely installs NumPy as a dependency.
+- Build: `pip install -r backend/requirements-deploy.txt`.
+- Start: `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 32`.
+- Python 3.13.5; public health endpoint /api/health.
+- PUBLIC_DEMO=true rejects shared waypoint writes and ignores server saves.
+- ROUTE_CACHE_SIZE=4 bounds retained route graphs; calculations serialize.
+- ALLOWED_ORIGINS remains configured/parsed but middleware actually uses wildcard origins. Changing that variable currently does not restrict origins.
 
-## Netlify frontend
+CORS permits GET/POST bearer requests. All application APIs except health/login require captain sessions. Sessions are in memory; keep one worker. Restarts/spin-down discard sessions/caches. No paid compute or persistent disk is configured.
 
-Repository-root `netlify.toml` configures base `.antigravity/frontend`, publish `dist`, Node 22, SPA fallback and `VITE_PUBLIC_DEMO=true`.
-Set `VITE_API_URL=https://ACTUAL-BACKEND.onrender.com` before building. No `/api` suffix or trailing slash. This value is public, not a secret.
-Build validates that this value is supplied, then runs `npm run build`. Rebuild after changing Vite environment variables.
-Public demo waypoints remain in the browser's existing local storage. The saved-waypoint action selects those coordinates rather than fetching another visitor's fix.
+Required files: backend/data/{observed_icebergs.json,locations.json,map_base.geojson,ne_10m_land.zip}, research/iceberg-data/{byu_snapshot.geojson,usnic_shelf_2022.zip}, and the captain verifier. Historical CSV tracks, legacy SQLite, live providers and Google key are not required.
 
-## Limits and verification
+## Netlify configuration
 
-Free Render sleeps after inactivity; initial route and coastline requests allow up to 180 seconds. There is no guarantee of availability or fast concurrent requests. Free instance hours are shared with other services in the workspace.
-Windows single-route measurement: ~125 MiB peak working set; this is not a Linux or load-test guarantee. Check cloud memory/logs after publishing.
-Check health, all 33 iceberg records, CORS preflight, default three routes, PC5 McMurdo rejection, fuel feasibility, report export and browser console after deployment.
-Keep local `.env.local` files out of Git. A previously tracked key remains in Git history; removing it from the current tree does not revoke it. Restrict or rotate it at its provider if exposed.
+Repository-root netlify.toml sets base .antigravity/frontend, publish dist, Node 22, SPA fallback, security headers and VITE_PUBLIC_DEMO=true. Build: `node scripts/check-deployment.mjs && npm run build`.
 
-Local verification: 18 backend tests and 32 frontend tests passed; Vite production build passed. Cloud checks pending.
+VITE_API_URL=https://polarnav-backend.onrender.com (no trailing slash or /api). This is public config; rebuild after changing it. Static production does not include Vite's local API proxy. Credentials must never be VITE variables.
 
-## Created services
+The site is publicly reachable, but dashboard access requires captain login. Waypoints remain browser-local. OSM supplies external raster tiles.
 
-- Frontend: https://polarnav-sih2026.netlify.app (public; Netlify GitHub deployment).
-- API: https://polarnav-backend.onrender.com (Render Free, Singapore).
-- Render service: srv-das14igjo6nc739q2bj0.
-- Source deployment commit: a4bdfe3.
-- Both services follow the existing main branch. Netlify previews remain private.
-- Netlify VITE_API_URL points to the API origin. Render ALLOWED_ORIGINS is set to the exact frontend origin.
+## Evidence and limits
 
-## Captain login
+Live login, three default profiles, 33 observations, logout and anonymous 401 responses were verified after the captain deployment. Earlier deployment checks covered PC5/McMurdo rejection and public waypoint-write rejection. See [TESTING.md](TESTING.md).
 
-Captain sign-in is required before the dashboard or planning APIs are available. No extra paid service or dependency is required. Keep `--workers 1`; backend restarts invalidate sessions. Credentials must not be placed in Netlify VITE variables or frontend source.
+Free Render may take minutes to start. Login and deployed route/coastline requests allow up to 180 seconds. Startup warms graphs before health becomes ready. Availability/concurrency remain limited; free instance hours are shared in the workspace. Earlier Windows ~125 MiB peak working-set measurement is not a Linux/load guarantee.
+
+The old Dockerfile is unsupported for this deployment: Python 3.10 base and backend-only copy omit required sibling research. Vercel is not the active host.
+
+## Git and private files
+
+The captain verifier is committed; plaintext credentials are not. .env.captain, .env.local, .run, node_modules and dist are ignored. Keep these private/generated files out of commits. See [CAPTAIN_ACCESS.md](CAPTAIN_ACCESS.md).
+
+A Google key was previously tracked, then removed from the current tree. Historical exposure is not revoked by deleting the file. Provider restriction/rotation has not been verified.

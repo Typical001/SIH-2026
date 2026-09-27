@@ -1,65 +1,55 @@
-# Run and stop PolarNav
+# Run, stop and reset
 
-Open PowerShell in:
+Current as of 27 September 2026. Captain login is required locally and publicly.
+
+## Public site
+
+Open https://polarnav-sih2026.netlify.app/ using credentials supplied privately by the owner. There is no signup. Render can take a few minutes to wake; restarting its backend invalidates sessions. Signing out does not stop the hosted service.
+
+## Local setup and scripts
 
 ```powershell
 cd 'C:\Users\prath\Downloads\SIH 2026\Project 2026\polar-navigation-dashboard\.antigravity'
-```
-
-First-time setup requires Python 3.11+ and Node.js 20.19+ (Node 22 preferred). A bundled nodejs folder is used when available. Installation requires internet; normal execution uses local data.
-
-```powershell
 .\Setup-Project.ps1
-```
-
-Start:
-
-```powershell
 .\Start-Project.ps1
 ```
 
-Open http://127.0.0.1:3000/. Backend API documentation: http://127.0.0.1:8000/docs. Initial graph warm-up takes several seconds before the start script reports ready. Startup checks both services and refuses occupied ports instead of silently using another port. Logs are under .run/.
+Setup installs backend/requirements-dev.txt into backend/venv and runs npm ci. Use a compatible Python environment (Render: 3.13.5; local verification: 3.14.4) and Node 22. Bundled nodejs is used when available. Installation and detailed map tiles need internet; backend datasets are bundled.
 
-Stop:
+Open http://127.0.0.1:3000/ after readiness. Public health is http://127.0.0.1:8000/api/health . /docs, /redoc and /openapi.json are disabled; use [API_REFERENCE.md](API_REFERENCE.md).
+
+Start checks ports 3000/8000, launches hidden processes, records process IDs/start times in .run, waits about 45 seconds for listening ports and then checks both services. Default graphs warm before the backend becomes ready. On slow machines the script may time out; inspect .run/backend-error.log and .run/frontend-error.log. Failure attempts to stop recorded processes.
 
 ```powershell
 .\Stop-Project.ps1
 ```
 
-This stops only recorded process IDs whose creation times still match, including the backend interpreter child. It leaves datasets and saved settings intact. Scripts do not require visible terminal windows for the running services.
+Stop acts only on recorded IDs whose creation times match. It removes the process record, not datasets or planning settings.
 
 ## Manual terminals
 
-Backend terminal, from .antigravity:
+Backend, from .antigravity:
 
 ```powershell
 cd backend
-.\venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
+.\venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1
 ```
 
-Frontend terminal, separately from .antigravity:
+Frontend in a separate terminal, from .antigravity:
 
 ```powershell
 cd frontend
-npm run dev -- --host 127.0.0.1 --strictPort
+npm.cmd run dev -- --host 127.0.0.1 --strictPort
 ```
 
-Press Ctrl+C in both terminals to stop manually started servers. Stop-Project.ps1 only controls processes started/recorded by Start-Project.ps1.
+If Node is not on PATH, use `..\nodejs\node.exe node_modules/vite/bin/vite.js --host 127.0.0.1 --port 3000 --strictPort` from frontend. Ctrl+C stops each manually started server. Stop-Project controls only recorded script startup.
 
-Use the dashboard's Reset demo button to restore planning defaults. Browser inputs and explicitly saved vessel waypoints otherwise persist. There is no automatic fixture reseeding or live AIS connection.
+## Settings and troubleshooting
 
-## Recent map behavior — 26 September 2026
+Reset demo restores planning defaults and recalculates; Sign out ends authentication. Planning values/waypoints persist separately in localStorage. Tokens use sessionStorage and expire or become invalid on backend restart. There is no live AIS or fixture reseeding.
 
-Refresh the browser after frontend updates and use Fit route to restore the selected passage. Horizontal wrapping is restored after the single-world restriction was reverted; repeated continents can appear at low zoom. The report stacking and SVG route fixes remain active. Backend observations/routing are local; detailed OpenStreetMap tiles need internet. Wait for the start script to report readiness before reloading: the frontend can load before backend graph warm-up finishes and temporarily show a request error.
+Normally leave VITE_API_URL unset locally so Vite proxies /api. A hosted origin override instead contacts Render. VITE_PUBLIC_DEMO changes frontend waypoint behavior and deadlines. Do not put credentials in Vite variables.
 
-## Checks
+Use Fit route after map exploration. Panning does not change the selected route; Map Click departure mode intentionally selects a new origin. Current minimum zoom depends on viewport size; iceberg/drift positions may overlap at overview scale.
 
-```powershell
-.\backend\venv\Scripts\python.exe -m unittest discover -s backend -p test_observation_demo.py -v
-.\backend\venv\Scripts\python.exe -m unittest discover -s backend -p test_route_objectives.py -v
-cd frontend
-npm test
-npm run build
-```
-
-The current backend suites are test_observation_demo.py and test_route_objectives.py. Older backend test files target the retired live/fixture engines and are historical diagnostic code, not the current runtime acceptance suite. The deployed frontend/API and export are covered by the current tests.
+See [TESTING.md](TESTING.md) for commands and [DEPLOYMENT.md](DEPLOYMENT.md) for hosting.

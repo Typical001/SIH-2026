@@ -1,3 +1,5 @@
+> ARCHIVED SNAPSHOT: preserved before the 27 September 2026 reconciliation. Statements below may be superseded. Use [current Brain](../../README.md).
+
 # Captain access — 27 September 2026
 
 The application now opens on a captain-only sign-in page, with no signup or displayed credentials. The dashboard mounts only after successful authentication. Every application API except health and login requires an opaque bearer session. Sign out revokes that session; sessions expire after eight hours and also end when the single-worker backend restarts or sleeps. Browser session storage retains the token across refreshes, not the password.
@@ -7,13 +9,3 @@ The provisioned demonstration captain account is verified on the backend using a
 Continue using one backend worker: sessions and login throttling are in memory. A multi-worker deployment would need shared session/rate-limit storage. Browser API requests include Authorization; CORS permits cross-origin bearer requests, but does not grant access without a valid session. Health remains public for Render. API documentation endpoints are disabled.
 
 Validation: frontend login gate/rejection/expiry tests and backend anonymous-access, invalid-login, rate-limit, expiration and logout tests. Existing planning tests now use an authenticated test session.
-
-## Provisioning and limitations
-
-Current source: 5898e40. The account verifier is loaded from backend/captain_account.json; there is no credential environment-variable override. The ignored .antigravity/.env.captain file is a local recovery copy, not runtime configuration. Never put its contents in Brain, frontend source, VITE variables or committed screenshots.
-
-PBKDF2 uses a random 16-byte salt and 600,000 iterations. Tokens use 32 random bytes. Up to 100 sessions are retained, evicting the oldest insertion on overflow. Failed attempts are tracked by request client address, expiring after five minutes or resetting on success. This is process-local, not distributed abuse prevention.
-
-Logout revokes the presented token, not every other session. Planning inputs and waypoints remain in localStorage after logout. There is no individual captain registry, role hierarchy, MFA, recovery endpoint, audit log or government identity integration. A managed operational service would need additional identity/provisioning controls.
-
-Verified publicly on 27 September: login showed 33 observations and three default profiles, logout restored login, anonymous session/iceberg requests returned 401. Automated rejected-login, expiry, revocation and throttle tests passed. See [testing](TESTING.md).

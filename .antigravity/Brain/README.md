@@ -1,33 +1,30 @@
-> 27 Sep 2026: Captain sign-in now gates the dashboard and planning APIs. No signup; credentials are not displayed. See [CAPTAIN_ACCESS.md](CAPTAIN_ACCESS.md).
-
-## Public hosting preparation - 27 September 2026
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for Netlify frontend / Render free backend configuration, browser-local waypoints, CORS and cold-start handling.
-
 # PolarNav project Brain
 
-## Centered map follow-up — 26 September 2026
+Reconciled 27 September 2026 against source `5898e40` (captain login and public deployment). Brain is a manually reviewed snapshot, not an automatic synchronizer. Current documents replace contradictory intermediate descriptions; prior text is preserved in the [archive](archive/before-2026-09-27-reconciliation/README.md).
 
-This checkpoint supersedes the earlier full-window default and low-zoom repetition notes. The app now opens with planning panels and a bordered rectangular map. Horizontal wrapping/worldCopyJump remain enabled, with no fixed longitude bounds. ResizeObserver sets minimum zoom to ceil(10 × log2(max(viewport width, height) / 256)) / 10, so the viewport never spans multiple complete worlds. World view respects this limit; on wide screens it is an overview, not a guarantee that both poles fit vertically. Fit route restores the selected passage.
+PolarNav is an observation-backed Antarctic passage-planning demo using 33 dated USNIC observations, earlier BYU reference positions, land/shelf geometry and explicitly calculated environmental, drift and vessel estimates. It runs locally and on Netlify/Render Free. Captain sign-in is required; there is no signup.
 
-SVG route and endpoint copies at longitude offsets -360/0/+360 stay aligned across the date line. Reference/estimated polygon layers and iceberg positions also account for display wrapping; route-corridor filtering normalizes continuous backend longitudes. Renderer teardown belongs to Leaflet, preventing React effect refresh from detaching live SVG paths. The report stacking fix remains active.
+| Document | Purpose |
+|---|---|
+| [Overview](PROJECT_OVERVIEW.md) | Product, UI and scope |
+| [Implementation](CURRENT_IMPLEMENTATION.md) | Data, algorithms, formulas and controls |
+| [Architecture](ARCHITECTURE.md) | Connected components and request flow |
+| [API](API_REFERENCE.md) | All active endpoints, access and errors |
+| [Captain access](CAPTAIN_ACCESS.md) | Account/session behavior; no plaintext credentials |
+| [Running](RUNNING.md) | Local setup, start, stop and reset |
+| [Deployment](DEPLOYMENT.md) | Netlify/Render configuration and verified rollout |
+| [Testing](TESTING.md) | Commands, dated results and limits |
+| [Known issues](KNOWN_ISSUES.md) | Remaining work and resolved concerns |
+| [Development](DEVELOPMENT.md) | Configuration and maintenance entry points |
+| [Contributing](CONTRIBUTING.md) | Change-review/documentation workflow |
+| [Inventory](FILE_INVENTORY.md) | Active, inactive and generated files |
+| [Presets](DEMO_PRESETS.md) | Five gateways/four stations and offshore approaches |
+| [Geometry fix](DEMO_FIX_01.md) | Current route validation and historical reasoning |
+| [Changelog](CHANGELOG.md) | Verified changes |
+| [Git history](GIT_CHANGE_HISTORY.md) | Actual commit metadata |
+| [September 24 audit](AUDIT_2026-09-24.md) | Historical audit, superseded |
+| [Google research](GOOGLE_3D_RESEARCH.md) | Inactive prototype and dated research |
 
-Validation: 31 frontend tests across 6 files; desktop default and Hobart–McMurdo route fitting, world-seam pan, all optional layers enabled with visible routes, report open/close, and no alert observed. Backend routing was unchanged. See TESTING.md for the current verification scope.
+Latest evidence: 35 frontend tests and production build passed; 14 observation/API and 3 authentication tests passed during the captain implementation. Four objective tests passed again during this reconciliation. These are separate runs totaling 21 backend tests. Live captain login, three default routes, 33 observations, sign-out and anonymous API rejection were verified on 27 September. See TESTING for scope.
 
-
-Updated 26 September 2026. PolarNav is a local observation-backed Antarctic passage-planning demo.
-
-The active runtime uses 33 reported USNIC icebergs from the supplied PDF, checked against the official CSV; earlier BYU positions support drift estimation. Natural Earth land and USNIC ice shelves support geometry checks. Missing forecast, environmental and vessel data are calculated assumptions, explicitly labelled, as authorized by the user.
-
-- [Current implementation and formulas](CURRENT_IMPLEMENTATION.md)
-- [Run, stop and reset](RUNNING.md)
-- [Test evidence](TESTING.md)
-- [Issue status and remaining limitations](KNOWN_ISSUES.md)
-- [API reference](API_REFERENCE.md)
-- [Research data and provenance](../research/iceberg-data/README.md)
-
-Recorded checks: 16 backend tests at the routing checkpoint and 27 frontend tests after the map-boundary revert. Production build passed before that final revert; it was not rerun afterward. The backend suite checks all 20 gateway/station pairs and every returned segment. This documentation update did not rerun tests.
-
-Recent changes: independent SVG routes, isolated map/report stacking and non-bubbling route clicks. The single-world boundary experiment was reverted after a route-display regression; horizontal wrapping is restored and low-zoom repetition remains possible. The active map uses OpenStreetMap; the saved Google key is not used. See [Changelog](CHANGELOG.md), [Architecture](ARCHITECTURE.md) and [File inventory](FILE_INVENTORY.md).
-
-Historical audit and fixture-era documents remain available, clearly labelled as superseded. They must not be used to describe the current runtime. No operational navigation certification is claimed.
+Public site: https://polarnav-sih2026.netlify.app/ . API: https://polarnav-backend.onrender.com/ . No operational navigation certification or live AIS/satellite feed is claimed.

@@ -1,58 +1,25 @@
-> **Current-runtime update (26 September 2026):** See [CURRENT_IMPLEMENTATION.md](CURRENT_IMPLEMENTATION.md) for the observation-backed engine and estimation formulas, [RUNNING.md](RUNNING.md) for setup/start/stop, and [TESTING.md](TESTING.md) for current passing checks. Earlier runtime descriptions and test counts below are historical and superseded. No new Git commit is implied.
+# Contribution and documentation workflow
 
-# Contribution and change tracking
+Current as of 27 September 2026.
 
-## Current map maintenance rules — 26 September 2026
-
-Keep route geometry sourced from backend waypoints and observation markers sourced from the shared dataset. Preserve the separate SVG route renderer and bounded canvas iceberg rendering, non-bubbling route clicks, isolated map stacking, and the report overlay above both map modes. Do not report visual verification solely from mocked component tests.
-
-When changing world wrapping, test dateline-crossing routes, pan/zoom, World view, Fit route, resize and report open/close. The fixed single-world boundary experiment was reverted at the user's request because routes appeared outside the map; horizontal repetition is a known remaining limitation. Record experimental and reverted behavior separately from current behavior. Use [TESTING.md](TESTING.md) for the latest evidence; this documentation pass does not imply new test runs or commits.
-
-
-Reviewed **2026-09-24**, code baseline **8bb44ea**. The existing team workflow uses main; this document does not require new branches.
-
-## Workflow
-
-1. Inspect git status and preserve unrelated work.
-2. Read active callers as well as the edited file. Retained panels/auth/geometry/database modules may not be connected to production.
-3. Maintain coordinate order, units, complete route checks, bounded workloads and observed/cached/modeled provenance.
-4. Run appropriate checks from [TESTING.md](TESTING.md). Record exact pass/fail counts, dependency workarounds, mocks and checks not run. Never copy old green counts.
-5. Update affected Brain sections in place, KNOWN_ISSUES status with evidence, and CHANGELOG with exact changed paths and behavior.
-6. Refresh FILE_INVENTORY when files change and GIT_CHANGE_HISTORY from real commit records.
-7. Review the complete diff and stage only intended paths. Commit/push only when authorized by the task.
+1. Inspect Git status and preserve unrelated work. Check active imports/callers; retained legacy files do not imply working features.
+2. Separate observations from estimates; preserve units, coordinates, complete geometry checks and bounded work.
+3. Protect new application endpoints and use authenticated requests. Never commit plaintext credentials, tokens or local env files.
+4. Run appropriate checks from [TESTING.md](TESTING.md). Distinguish mocks, source review and browser evidence; record failures and unrun checks.
+5. Update current Brain sections in place instead of appending conflicting checkpoints. Preserve old audit/status records explicitly as historical.
+6. Update [issues](KNOWN_ISSUES.md), [changelog](CHANGELOG.md), [inventory](FILE_INVENTORY.md) and [Git history](GIT_CHANGE_HISTORY.md) as relevant. Derive commit claims from Git.
+7. Review/stage intended paths only. Commit/push when authorized; main auto-deploys both services. Do not force-push/reset unrelated work.
 
 ```powershell
 git status --short
-git diff --name-status
 git diff --stat
 git diff --check
 git diff --cached
 git ls-files --others --exclude-standard
 ```
 
-No first-party CI workflow, automatic Brain synchronization hook or recurring monitor is installed. Brain is a reviewed snapshot, not a filesystem watcher.
+Map changes need route fit, pan/zoom, resize, World view, date-line and report-stacking checks. Default is a centered dark map, 33 icons, horizontal wrapping and viewport-dependent minimum zoom. Do not add fixed world bounds without route validation.
 
-## Integration and evidence
+Auth/data changes require access-boundary and failure tests. A passing build is not evidence of live API, all-browser or downloaded PDF correctness. Do not remove safety assertions to obtain green tests.
 
-When integrating teammates' work on main, use normal fast-forward/rebase workflows after preserving local changes. Do not force-push shared main or reset unrelated changes. Review deletions explicitly; UI replacement does not justify dropping safety tests or documentation.
-
-Do not make tests green by removing failed safety assertions. Separate stale UI mocks/contracts from runtime regressions and add coverage to the active three-profile path. A successful fallback must satisfy the same geometric and provenance checks as a normal route.
-
-Provider changes require representative schemas, finite geographic values, units, observation/forecast times, spatial/time cache validity, bounded request work and explicit unavailable states. Test with a disposable DB configured before module imports. PDF statements must derive from verified data; branding is not certification.
-
-Keep historical records under dated headings. If an earlier “fixed” claim no longer holds, mark the issue regressed and describe current evidence. Do not reuse NAV IDs for unrelated features.
-
-## Change record
-
-```markdown
-## YYYY-MM-DD — Concrete change
-
-- Reference: commit or uncommitted baseline.
-- Problem and resulting behavior.
-- Exact files added/modified/removed/renamed.
-- Validation: commands, results, fixtures, failures, limitations.
-- API/data/config migration and scoped rollback.
-- Brain references and issue IDs updated.
-```
-
-Current verification is intentionally not duplicated here; [TESTING.md](TESTING.md) is the authoritative snapshot.
+Brain is maintained manually; no automatic synchronization hook, recurring monitor or exhaustive CI is implied. Historical NAV IDs remain in the archive; do not reuse them for unrelated issues.

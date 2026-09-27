@@ -1,20 +1,8 @@
-# Active API — 27 September 2026
+> ARCHIVED SNAPSHOT: preserved before the 27 September 2026 reconciliation. Statements below may be superseded. Use [current Brain](../../README.md).
 
-Local base: http://127.0.0.1:8000 . Deployed base: https://polarnav-backend.onrender.com . `/docs`, `/redoc` and `/openapi.json` are disabled.
+# Active API — 26 September 2026
 
-## Authentication
-
-Only health and login are public. All other application endpoints require `Authorization: Bearer <token>`. CORS handles preflight. Never put passwords/tokens in URLs or committed examples.
-
-| Endpoint | Contract |
-|---|---|
-| POST /api/auth/login | JSON username (max 100 chars), password (max 256); returns opaque token and Unix-seconds expires_at |
-| GET /api/auth/session | Requires bearer; returns role: captain |
-| POST /api/auth/logout | Requires bearer; revokes it and returns signed_out: true |
-
-Wrong credentials or absent/invalid/revoked/expired bearer return 401. Ten attempts per client within five minutes cause 429. Sessions last eight hours and are lost on backend restart. No signup/reset/government identity endpoint exists. See [captain access](CAPTAIN_ACCESS.md).
-
-## Planning/data endpoints
+Base: http://127.0.0.1:8000 . Interactive schema: /docs .
 
 | Endpoint | Purpose |
 |---|---|
@@ -30,8 +18,8 @@ Wrong credentials or absent/invalid/revoked/expired bearer return 401. Ten attem
 | GET /api/v1/layers/{name} | usnic-icebergs, byu-icebergs, sea-ice, ocean-currents, weather-wind, sar-candidates |
 | GET /api/v1/metocean | Calculated environmental layer |
 | GET /api/v1/map-base | Local land and shelf display GeoJSON |
-| GET /api/v1/vessel/last-fix | Local saved or assumed waypoint; PUBLIC_DEMO ignores server saves |
-| POST /api/v1/vessel/update-fix | Local waypoint save; lat/lon and optional vessel_imo. PUBLIC_DEMO returns 403 |
+| GET /api/v1/vessel/last-fix | Saved user waypoint or labelled assumed waypoint |
+| POST /api/v1/vessel/update-fix | Explicit waypoint save; lat/lon and optional vessel_imo |
 
 Main route request defaults: forecast_hours 72, safety_buffer_km 25, origin_type GATEWAY, gateway_code ZACPT, destination_station_id bharati_station, vessel_ice_class PC3, cruising_speed_knots 14.5, remaining_fuel_mt 450, max_tank_capacity_mt 500, reference_burn_mt_day 12, reserve_percent 15.
 
@@ -44,20 +32,3 @@ Routing model: `shared-constraints-objectives-v2`. All profiles share speed and 
 HTTP 200 contains only geometry-validated profiles. Fuel-infeasible profiles are labelled UNREACHABLE and never recommended. Unavailable geometry profiles are omitted and listed in metadata. HTTP 409 means no route in the current network/model, 422 invalid input, 503 required data unavailable. Errors never carry successful route geometry.
 
 All backend observation/routing data comes from local source files. The frontend separately downloads OpenStreetMap tiles. Recent SVG rendering, report stacking and reverted bounds do not change API contracts, coordinate order or returned route geometry. Panning is a display action; Map Click mode explicitly selects a new origin. See CURRENT_IMPLEMENTATION.md for units, provenance and estimation formulas.
-
-Coordinates: request pairs and waypoints_latlon are latitude, longitude; GeoJSON is longitude, latitude. Returned longitudes may be unwrapped beyond ±180 for continuous paths. The legacy key icebergs_predicted_72h contains the requested horizon, not always 72 h. Summary detailed_forecasts is empty; request a selected trajectory for detail.
-
-## Additional validation limits
-
-| Field | Backend limit |
-|---|---|
-| cruising_speed_knots | 5–30 |
-| max_tank_capacity_mt | 10–5000 |
-| reference_burn_mt_day | Greater than 0, at most 300 |
-| reserve_percent | 0–50 |
-| fuel_tank_percentage | Optional 0–100; overrides remaining_fuel_mt when supplied |
-| start/end latitude | -85 to +85; paired longitude required |
-| start/end longitude | -180 to +180; paired latitude required |
-| grid_resolution_deg | 0.4–2 accepted for compatibility; does not rebuild a variable-resolution grid |
-
-Extra route-request fields and non-finite values are rejected. Valid origin_type values: GATEWAY, CURRENT_SHIP_GPS, MID_OCEAN_COORDINATES. Preset resolution and supplied coordinate precedence are implemented in main.py. Limits do not imply every valid input has a route.
